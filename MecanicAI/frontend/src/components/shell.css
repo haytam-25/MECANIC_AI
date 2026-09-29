@@ -1,0 +1,281 @@
+/* ---------- Barra superior ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding-top: var(--safe-top);
+  background: linear-gradient(180deg, rgba(38, 43, 48, 0.97), rgba(24, 27, 31, 0.97));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+}
+
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 960px;
+  height: var(--topbar-h);
+  margin: 0 auto;
+  padding: 0 0.4rem;
+}
+
+.topbar__brand {
+  margin-right: auto;
+  padding: 0.25rem;
+  border-radius: var(--radius-s);
+  text-decoration: none;
+}
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  padding-right: 0.35rem;
+}
+
+/* Franja con dibujo de neumático bajo la barra */
+.tread {
+  --rubber: #2f353b;
+  height: var(--tread-h);
+  background-color: #111316;
+  background-image:
+    linear-gradient(135deg, var(--rubber) 25%, transparent 25%),
+    linear-gradient(225deg, var(--rubber) 25%, transparent 25%),
+    linear-gradient(315deg, var(--rubber) 25%, transparent 25%),
+    linear-gradient(45deg, var(--rubber) 25%, transparent 25%);
+  background-position:
+    -8px 0,
+    -8px 0,
+    0 0,
+    0 0;
+  background-size: 16px 16px;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo__text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  background: var(--metal-chrome);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.logo__ai {
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+}
+
+/* ---------- Menú lateral ---------- */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.drawer-backdrop--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 340px);
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  background: var(--brushed), linear-gradient(180deg, #23272c, #15181b);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: var(--shadow-2);
+  transform: translateX(-102%);
+  transition: transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.drawer--open {
+  transform: none;
+}
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.5rem 0.55rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.drawer__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.drawer__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.drawer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drawer__item {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  border-radius: var(--radius-s);
+}
+
+.drawer__item--active {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.drawer__link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+}
+
+/* Solo con ratón: en móvil el :hover se queda "pegado" tras tocar */
+@media (hover: hover) {
+  .drawer__link:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.drawer__link--car {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.drawer__link--car > span:last-child {
+  min-width: 0;
+}
+
+.drawer__title {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.drawer__meta {
+  display: block;
+  overflow: hidden;
+  font-size: 0.8rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.drawer__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.account__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account__name {
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.guest-card {
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-m);
+  background: var(--metal-plate);
+}
+
+.guest-card__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.install-card {
+  flex-direction: row;
+  align-items: center;
+  color: var(--text-2);
+}
+
+.confirm-row {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem;
+}
+
+.confirm-row .small {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.danger-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  border-radius: var(--radius-s);
+  background: var(--danger-soft);
+}

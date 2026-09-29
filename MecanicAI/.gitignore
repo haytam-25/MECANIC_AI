@@ -1,0 +1,8 @@
+# Secretos (claves de API, contraseñas)
+.env
+
+# Editores
+.idea/
+.vscode/
+*.iml
+.DS_Store

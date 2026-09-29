@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#f6f8fa"/>
+      <stop offset="0.42" stop-color="#b4bcc4"/>
+      <stop offset="0.52" stop-color="#6a737c"/>
+      <stop offset="0.72" stop-color="#a1aab3"/>
+      <stop offset="1" stop-color="#e4e8ec"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="#121417"/>
+  <circle cx="32" cy="32" r="28.2" fill="none" stroke="#2c3238" stroke-width="4.6" stroke-dasharray="5.2 3.66"/>
+  <circle cx="32" cy="32" r="24.6" fill="#0b0d0f"/>
+  <circle cx="32" cy="32" r="22.4" fill="url(#chrome)"/>
+  <circle cx="32" cy="32" r="19.2" fill="#1b1f24"/>
+  <g fill="url(#chrome)">
+    <path d="M28 13.6h8l-2 13h-4z"/>
+    <path d="M28 13.6h8l-2 13h-4z" transform="rotate(72 32 32)"/>
+    <path d="M28 13.6h8l-2 13h-4z" transform="rotate(144 32 32)"/>
+    <path d="M28 13.6h8l-2 13h-4z" transform="rotate(216 32 32)"/>
+    <path d="M28 13.6h8l-2 13h-4z" transform="rotate(288 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="7.4" fill="url(#chrome)"/>
+  <g fill="#15181c">
+    <circle cx="32" cy="27.2" r="1.05" transform="rotate(36 32 32)"/>
+    <circle cx="32" cy="27.2" r="1.05" transform="rotate(108 32 32)"/>
+    <circle cx="32" cy="27.2" r="1.05" transform="rotate(180 32 32)"/>
+    <circle cx="32" cy="27.2" r="1.05" transform="rotate(252 32 32)"/>
+    <circle cx="32" cy="27.2" r="1.05" transform="rotate(324 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="3.2" fill="#ff7a1a"/>
+</svg>

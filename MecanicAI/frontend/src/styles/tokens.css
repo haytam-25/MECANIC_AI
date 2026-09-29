@@ -1,0 +1,60 @@
+/* Sistema de diseño de MecanicAI: grafito, acero cepillado y naranja de herramienta de taller */
+:root {
+  color-scheme: dark;
+
+  /* Fondo grafito */
+  --bg-0: #0c0e10;
+  --bg-1: #121518;
+  --bg-2: #181b1f;
+
+  /* Acero */
+  --steel-900: #1d2126;
+  --steel-800: #252a30;
+  --steel-700: #30363d;
+  --steel-600: #3e454d;
+  --steel-500: #58616b;
+  --steel-400: #7b858f;
+  --steel-300: #a2abb4;
+  --steel-200: #c7ced5;
+  --steel-100: #e6eaed;
+
+  --text: #eaeef1;
+  --text-2: #b0b9c1;
+  --text-3: #8c959e;
+
+  /* Naranja de seguridad */
+  --accent: #ff7a1a;
+  --accent-hi: #ff9544;
+  --accent-lo: #e0600a;
+  --accent-ink: #1b0e03;
+  --accent-soft: rgba(255, 122, 26, 0.14);
+
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 100, 100, 0.12);
+  --ok: #45d18f;
+
+  --radius-xs: 6px;
+  --radius-s: 10px;
+  --radius-m: 14px;
+  --radius-l: 20px;
+  --radius-full: 999px;
+
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+
+  /* Metal */
+  --metal-plate: linear-gradient(180deg, #2b3036 0%, #1f2328 100%);
+  --metal-raised: linear-gradient(180deg, #353c43 0%, #272c32 100%);
+  --metal-chrome: linear-gradient(180deg, #f7f9fa 0%, #c3cad1 38%, #7a848e 50%, #a9b1b9 72%, #eef1f3 100%);
+  --brushed: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 3px);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 10px 28px rgba(0, 0, 0, 0.45);
+
+  --topbar-h: 58px;
+  --tread-h: 8px;
+  --content-w: 720px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --header-total: calc(var(--topbar-h) + var(--tread-h) + var(--safe-top));
+}

@@ -1,0 +1,5 @@
+# Caddy consigue y renueva automáticamente el certificado HTTPS (Let's Encrypt) para el dominio de .env
+# y reenvía todo al contenedor web (nginx), que sirve la app y la API.
+{$DOMAIN} {
+	reverse_proxy frontend:80
+}

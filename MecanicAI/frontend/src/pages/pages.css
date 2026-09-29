@@ -1,0 +1,175 @@
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.25rem 0.15rem 0;
+}
+
+.hero__wheel {
+  flex: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+  animation: roll-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  background: var(--metal-chrome);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__title .accent {
+  -webkit-text-fill-color: var(--accent);
+}
+
+.hero__text {
+  margin-top: 0.35rem;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+/* ---------- Garaje ---------- */
+
+.garage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.car-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+/* Solo con ratón: en móvil el :hover se queda "pegado" tras tocar */
+@media (hover: hover) {
+  .car-card:hover {
+    border-color: rgba(255, 122, 26, 0.45);
+  }
+}
+
+.car-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.car-card__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.car-card__meta {
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+
+.car-card__quote {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 0.2rem;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-3);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.car-card__cta {
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--accent-hi);
+}
+
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.recent__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent__item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-s);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .recent__item:hover {
+    border-color: rgba(255, 122, 26, 0.4);
+  }
+}
+
+.recent__item > svg {
+  flex: none;
+  color: var(--text-3);
+}
+
+.recent__item > span {
+  min-width: 0;
+}
+
+.recent__title {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recent__meta {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+.save-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+@keyframes roll-in {
+  from {
+    opacity: 0;
+    transform: translateX(-70px) rotate(-280deg);
+  }
+}

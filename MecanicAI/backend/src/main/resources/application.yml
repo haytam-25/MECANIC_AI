@@ -1,0 +1,84 @@
+# Configuración base (segura para producción).
+# En local arranca con el perfil "dev" (ver application-dev.yml y README).
+spring:
+  application:
+    name: mecanicai
+  config:
+    # Permite poner las variables (GEMINI_API_KEY, GOOGLE_CLIENT_ID...) en backend/.env
+    import: optional:file:.env[.properties]
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mecanicai}
+    username: ${DB_USER:mecanicai}
+    password: ${DB_PASSWORD:mecanicai}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  mvc:
+    async:
+      request-timeout: 5m
+
+server:
+  port: ${PORT:8080}
+  # Detrás de nginx / proxy: respeta X-Forwarded-* (https, host e IP real del cliente)
+  forward-headers-strategy: native
+  servlet:
+    session:
+      # La sesión HTTP solo se usa durante el baile OAuth con Google
+      timeout: 10m
+      cookie:
+        http-only: true
+        same-site: lax
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+app:
+  timezone: Europe/Madrid
+  # A dónde volver tras el login con Google ("/" = mismo dominio que el frontend)
+  frontend-url: ${FRONTEND_URL:/}
+  auth:
+    # Genera uno con: openssl rand -base64 48
+    jwt-secret: ${JWT_SECRET:}
+    session-days: 30
+    cookie-secure: ${COOKIE_SECURE:true}
+    dev-login-enabled: false
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+  ai:
+    # gemini | mock | auto (auto = gemini si hay API key, si no mock)
+    provider: ${AI_PROVIDER:gemini}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      timeout: 90s
+    chat:
+      temperature: 0.4
+      max-output-tokens: 4096
+      history-messages: 20
+    engines:
+      models: ${GEMINI_ENGINES_MODELS:gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash,gemini-3.1-flash-lite}
+      thinking-level: low
+      # Si la IA tarda más, se ofrece escribir el motor a mano en vez de hacer esperar al usuario
+      timeout: 30s
+      daily-lookups-per-client: 40
+  # Cada plan usa su lista de modelos: si el primero está saturado (habitual en la capa gratuita) se prueba el
+  # siguiente. El plan PRO queda preparado para el futuro.
+  plans:
+    free:
+      models: ${GEMINI_CHAT_MODELS:gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash,gemini-3.1-flash-lite}
+      thinking-level: low
+      daily-messages: ${FREE_DAILY_MESSAGES:30}
+    pro:
+      models: ${GEMINI_PRO_MODELS:gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
+      thinking-level: medium
+      daily-messages: 300
+  guest:
+    daily-messages: ${GUEST_DAILY_MESSAGES:5}
+    daily-messages-per-ip: 20
