@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // En desarrollo, Vite reenvía la API y el login de Google al backend de Spring Boot,
 // así el navegador ve un único dominio (necesario para las cookies de sesión).
 const backend = process.env.BACKEND_URL ?? 'http://localhost:8080'
+// changeOrigin: false conserva la cabecera Host del navegador (como nginx en producción). Spring la usa para construir
+// la URL a la que vuelve Google tras el login: http://localhost:5173/login/oauth2/code/google (y no la del puerto 8080).
+const toBackend = { target: backend, changeOrigin: false }
 
 export default defineConfig({
   plugins: [
@@ -42,9 +45,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': backend,
-      '/oauth2': backend,
-      '/login/oauth2': backend,
+      '/api': toBackend,
+      '/oauth2': toBackend,
+      '/login/oauth2': toBackend,
     },
   },
 })

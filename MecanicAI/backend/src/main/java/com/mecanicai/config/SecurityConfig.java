@@ -5,6 +5,8 @@ import java.io.IOException;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -31,6 +33,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class SecurityConfig {
+
+	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, AppProperties props, JwtService jwtService,
@@ -74,8 +78,11 @@ public class SecurityConfig {
 				.authorizedClientRepository(new HttpSessionOAuth2AuthorizedClientRepository())
 				.authorizationEndpoint(endpoint -> endpoint.authorizationRequestResolver(resolver))
 				.successHandler(loginSuccessHandler)
-				.failureHandler((request, response, ex) -> response
-					.sendRedirect(OAuth2LoginSuccessHandler.withQuery(props.frontendUrl(), "login=error"))));
+				.failureHandler((request, response, ex) -> {
+					// La web solo muestra un aviso: el motivo queda en el log (p. ej. "invalid_client" = secreto incorrecto)
+					log.warn("Login con Google fallido: {}", ex.getMessage());
+					response.sendRedirect(OAuth2LoginSuccessHandler.withQuery(props.frontendUrl(), "login=error"));
+				}));
 		}
 		return http.build();
 	}
