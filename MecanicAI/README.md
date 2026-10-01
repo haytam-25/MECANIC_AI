@@ -16,10 +16,10 @@ concreto.
 - **Chat con IA en tiempo real** (streaming, como ChatGPT/Gemini): respuestas en Markdown, botón de detener, reintentar
   si falla, copiar la respuesta y sugerencias rápidas. El "mecánico" conoce el coche, avisa de los riesgos de seguridad y
   dice cuándo ir al taller.
-- **Login con Google** (opcional). Sin cuenta se puede usar como **invitado** con pocos mensajes al día; al iniciar
-  sesión, la consulta del invitado se guarda automáticamente en la cuenta.
+- **Portada** con dos opciones: **Iniciar con Google** o **Modo Invitado** (pocos mensajes al día y nada guardado en
+  el servidor). Al iniciar sesión, la consulta del invitado y su coche se guardan automáticamente en la cuenta.
 - **Historial de consultas y garaje** (varios coches por usuario), borrar consultas/coches y **eliminar la cuenta** (RGPD).
-- **Límites diarios**: invitado 5 mensajes/día, cuenta gratuita 30/día (configurable). Plan **PRO** preparado para
+- **Límites diarios**: invitado 5 mensajes/día, cuenta gratuita 20/día (configurable). Plan **PRO** preparado para
   el futuro (más mensajes y otro modelo de IA).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).
 - **Instalable como app** (PWA): pantalla completa y vertical, icono propio.
@@ -79,7 +79,7 @@ cp .env.example .env        # y pon tu GEMINI_API_KEY (ver más abajo)
 ```
 
 Sin `GEMINI_API_KEY`, el perfil `dev` arranca la IA en **modo demo** (respuestas de ejemplo) para poder trabajar en la
-interfaz sin clave. Sin credenciales de Google aparece el botón **"Entrar con cuenta demo"** (solo en `dev`).
+interfaz sin clave. Sin credenciales de Google, la portada solo ofrece el **Modo Invitado**.
 
 ### 4. Frontend (tercero)
 
@@ -151,8 +151,9 @@ flowchart LR
 - **Sesión**: tras el login de Google, el backend crea una cookie `HttpOnly` con un JWT propio (30 días, se renueva
   sola). Protección CSRF: cookie `SameSite=Lax` + cabecera obligatoria `X-MecanicAI` en las peticiones que modifican
   datos.
-- **Invitados**: la consulta se guarda solo en el navegador (localStorage); el límite se controla por cookie anónima y
-  por IP.
+- **Invitados**: la consulta se guarda solo en el navegador (localStorage). El límite va por cookie anónima (5 al día)
+  y por IP (20 al día entre todos los invitados de una misma conexión): otro navegador o una ventana de incógnito es
+  un invitado nuevo, pero desde la misma conexión no pasa de 20.
 - **Límites**: contador diario atómico en PostgreSQL (`usage_counter`). Si la IA falla, el mensaje no se descuenta.
 - **Prompt del mecánico**: `backend/src/main/java/com/mecanicai/chat/PromptBuilder.java`.
 - **Catálogo**: `backend/src/main/resources/catalog/vehicles.json` (formato `"Modelo": "1991-2004,2024-"`); se puede

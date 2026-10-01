@@ -26,7 +26,6 @@ public record AppProperties(
 			String jwtSecret,
 			@DefaultValue("30") int sessionDays,
 			@DefaultValue("true") boolean cookieSecure,
-			boolean devLoginEnabled,
 			@DefaultValue Google google) {
 	}
 
@@ -74,7 +73,7 @@ public record AppProperties(
 	public record PlanSettings(
 			@DefaultValue("gemini-3.6-flash") List<String> models,
 			String thinkingLevel,
-			@DefaultValue("30") int dailyMessages) {
+			@DefaultValue("20") int dailyMessages) {
 	}
 
 	public record Guest(

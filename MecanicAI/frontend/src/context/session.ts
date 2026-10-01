@@ -12,8 +12,10 @@ export interface SessionValue {
   refreshMe(): Promise<Me | null>
   refreshLists(): Promise<void>
   setUsage(usage: Usage): void
+  /** Eligió "Modo Invitado" en la portada (se recuerda en este navegador hasta que cierra sesión). */
+  guestMode: boolean
+  enterGuestMode(): void
   loginWithGoogle(): void
-  loginAsDemo(): Promise<void>
   /** Tras iniciar sesión: guarda en la cuenta la consulta de invitado y devuelve a dónde ir. */
   completeLogin(): Promise<string | null>
   logout(): Promise<void>

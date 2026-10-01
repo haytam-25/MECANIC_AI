@@ -189,7 +189,14 @@ export function Drawer({ open, onClose }: DrawerProps) {
               <div className="danger-box">
                 <p className="small">Se borrarán tu cuenta, tus coches y todas tus consultas. No se puede deshacer.</p>
                 <div className="row">
-                  <button type="button" className="btn btn--danger btn--sm" onClick={() => void run(removeAccount, 'Cuenta eliminada')}>
+                  <button
+                    type="button"
+                    className="btn btn--danger btn--sm"
+                    onClick={() => {
+                      onClose()
+                      void run(removeAccount, 'Cuenta eliminada')
+                    }}
+                  >
                     Eliminar definitivamente
                   </button>
                   <button type="button" className="btn btn--ghost btn--sm" onClick={() => setConfirm(null)}>
@@ -209,7 +216,14 @@ export function Drawer({ open, onClose }: DrawerProps) {
                   </div>
                 </div>
                 <div className="row">
-                  <button type="button" className="btn btn--ghost btn--sm" onClick={() => void run(logout)}>
+                  <button
+                    type="button"
+                    className="btn btn--ghost btn--sm"
+                    onClick={() => {
+                      onClose()
+                      void run(logout)
+                    }}
+                  >
                     <Icon name="logout" size={18} /> Cerrar sesión
                   </button>
                   <button type="button" className="link-btn link-btn--danger small" onClick={() => setConfirm({ kind: 'account' })}>

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import {
   createVehicle,
   deleteAccount,
-  devLogin,
   fetchConversations,
   fetchMe,
   fetchVehicles,
@@ -12,6 +11,7 @@ import {
 } from '../api/endpoints.ts'
 import type { ConversationSummary, Me, Usage, Vehicle } from '../api/types.ts'
 import { loadGuestChat, saveGuestChat } from '../lib/guestChat.ts'
+import { loadGuestMode, saveGuestMode } from '../lib/guestMode.ts'
 import { SessionContext, type SessionValue } from './session.ts'
 
 interface SessionData {
@@ -33,6 +33,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [offline, setOffline] = useState(false)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [guestMode, setGuestMode] = useState(loadGuestMode)
 
   // Se actualizan juntos: cuando la app ve al usuario, su garaje ya está cargado
   const apply = useCallback((data: SessionData) => {
@@ -73,14 +74,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setMe((current) => (current ? { ...current, usage } : current))
   }, [])
 
+  const enterGuestMode = useCallback(() => {
+    saveGuestMode(true)
+    setGuestMode(true)
+  }, [])
+
+  // Al salir de la cuenta se vuelve a la portada
+  const leaveGuestMode = useCallback(() => {
+    saveGuestMode(false)
+    setGuestMode(false)
+  }, [])
+
   const loginWithGoogle = useCallback(() => {
     window.location.assign('/oauth2/authorization/google')
   }, [])
-
-  const loginAsDemo = useCallback(async () => {
-    await devLogin()
-    await refreshMe()
-  }, [refreshMe])
 
   const completeLogin = useCallback(async () => {
     const guest = loadGuestChat()
@@ -101,13 +108,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await apiLogout()
+    leaveGuestMode()
     await refreshMe()
-  }, [refreshMe])
+  }, [refreshMe, leaveGuestMode])
 
   const removeAccount = useCallback(async () => {
     await deleteAccount()
+    leaveGuestMode()
     await refreshMe()
-  }, [refreshMe])
+  }, [refreshMe, leaveGuestMode])
 
   const value = useMemo<SessionValue>(
     () => ({
@@ -118,13 +127,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       refreshMe,
       refreshLists,
       setUsage,
+      guestMode,
+      enterGuestMode,
       loginWithGoogle,
-      loginAsDemo,
       completeLogin,
       logout,
       removeAccount,
     }),
-    [me, offline, conversations, vehicles, refreshMe, refreshLists, setUsage, loginWithGoogle, loginAsDemo, completeLogin, logout, removeAccount],
+    [
+      me,
+      offline,
+      conversations,
+      vehicles,
+      refreshMe,
+      refreshLists,
+      setUsage,
+      guestMode,
+      enterGuestMode,
+      loginWithGoogle,
+      completeLogin,
+      logout,
+      removeAccount,
+    ],
   )
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>

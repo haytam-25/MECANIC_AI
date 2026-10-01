@@ -5,6 +5,7 @@ import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
 import { useLogin } from '../context/useLogin.ts'
 import { firstName } from '../lib/format.ts'
+import { WelcomePage } from '../pages/WelcomePage.tsx'
 import { Avatar } from './Avatar.tsx'
 import { Drawer } from './Drawer.tsx'
 import { Icon } from './Icon.tsx'
@@ -12,7 +13,7 @@ import { Logo, Wheel } from './Wheel.tsx'
 import './shell.css'
 
 export function AppShell() {
-  const { me, offline, refreshMe, completeLogin } = useSession()
+  const { me, offline, refreshMe, completeLogin, guestMode } = useSession()
   const location = useLocation()
   const [drawerPath, setDrawerPath] = useState<string | null>(null)
   const drawerOpen = drawerPath === location.pathname
@@ -38,6 +39,9 @@ export function AppShell() {
       })
       .catch(() => toast('No se pudo guardar tu consulta de invitado en la cuenta.', 'error'))
   }, [searchParams, setSearchParams, me, completeLogin, navigate, toast])
+
+  // Portada: sin sesión y sin haber elegido el modo invitado
+  if (me && !me.authenticated && !guestMode) return <WelcomePage />
 
   return (
     <div className="shell">
@@ -67,7 +71,7 @@ export function AppShell() {
 
 function TopBar({ onMenu }: { onMenu(): void }) {
   const { me } = useSession()
-  const { google, demo, loginWithGoogle, loginDemo } = useLogin()
+  const { google, loginWithGoogle } = useLogin()
   const user = me?.authenticated ? me.user : null
 
   return (
@@ -84,12 +88,8 @@ function TopBar({ onMenu }: { onMenu(): void }) {
             <button type="button" className="avatar-btn" onClick={onMenu} aria-label="Tu cuenta">
               <Avatar user={user} />
             </button>
-          ) : me && (google || demo) ? (
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              onClick={() => (google ? loginWithGoogle() : void loginDemo())}
-            >
+          ) : me && google ? (
+            <button type="button" className="btn btn--ghost btn--sm" onClick={loginWithGoogle}>
               Entrar
             </button>
           ) : null}

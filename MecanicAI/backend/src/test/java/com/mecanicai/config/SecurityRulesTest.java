@@ -35,8 +35,10 @@ import com.mecanicai.vehicle.VehicleService;
 /**
  * Reglas de seguridad de la API: qué es público, qué exige sesión y la protección CSRF.
  */
+// Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
 @WebMvcTest(controllers = { AuthController.class, VehicleController.class },
-		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false" })
+		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
+				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
 @Import({ SecurityConfig.class, JwtService.class, SessionCookies.class, OAuth2LoginSuccessHandler.class })
 class SecurityRulesTest {
@@ -65,6 +67,9 @@ class SecurityRulesTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.authenticated").value(false))
 			.andExpect(jsonPath("$.features.googleLogin").value(false))
+			.andExpect(jsonPath("$.features.guestDailyMessages").value(5))
+			.andExpect(jsonPath("$.features.freeDailyMessages").value(20))
+			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
 			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_guest=")));
 	}
 
@@ -97,13 +102,6 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.code").value("CSRF"));
 		mvc.perform(post("/api/auth/logout").cookie(session).header(CsrfHeaderFilter.HEADER, "1"))
 			.andExpect(status().isNoContent());
-	}
-
-	@Test
-	void devLoginIsDisabledByDefault() throws Exception {
-		mvc.perform(post("/api/auth/dev-login").header(CsrfHeaderFilter.HEADER, "1")
-			.contentType("application/json")
-			.content("{\"name\":\"Ana\",\"email\":\"ana@example.com\"}")).andExpect(status().isNotFound());
 	}
 
 	private Cookie session(UUID userId) {

@@ -34,6 +34,99 @@
   color: var(--text-2);
 }
 
+/* ---------- Portada ---------- */
+
+.welcome {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+}
+
+.welcome__main {
+  flex: 1;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1rem calc(2rem + var(--safe-bottom));
+  text-align: center;
+  /* Luz de taller sobre la rueda */
+  background: radial-gradient(55% 32% at 50% 34%, rgba(255, 122, 26, 0.09), transparent 72%);
+}
+
+.welcome__wheel {
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65));
+  animation: roll-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.welcome__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 15vw, 4.25rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  background: var(--metal-chrome);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.welcome__ai {
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+}
+
+.welcome__tagline {
+  max-width: 21rem;
+  font-size: 1.1rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.welcome__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  padding: 1.25rem 1.1rem 1.1rem;
+}
+
+/* Remaches en las esquinas, como la placa del asistente */
+.welcome__actions::before {
+  --rivet: radial-gradient(circle at 50% 40%, #d3d9de 0 1px, #6d7680 2px, #2a2f35 3px, transparent 3.6px);
+  content: '';
+  position: absolute;
+  inset: 8px;
+  background:
+    var(--rivet) left top / 8px 8px no-repeat,
+    var(--rivet) right top / 8px 8px no-repeat,
+    var(--rivet) left bottom / 8px 8px no-repeat,
+    var(--rivet) right bottom / 8px 8px no-repeat;
+  pointer-events: none;
+}
+
+.welcome__plans {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.86rem;
+  color: var(--text-3);
+}
+
+.welcome__plans strong {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
 /* ---------- Garaje ---------- */
 
 .garage {

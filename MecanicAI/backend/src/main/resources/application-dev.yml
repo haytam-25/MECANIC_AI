@@ -3,8 +3,6 @@ app:
   auth:
     jwt-secret: ${JWT_SECRET:solo-para-desarrollo-no-usar-en-produccion-0123456789}
     cookie-secure: false
-    # Botón "Entrar como demo" para probar sin configurar Google. NUNCA en producción.
-    dev-login-enabled: true
   ai:
     provider: ${AI_PROVIDER:auto}
 

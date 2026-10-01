@@ -20,6 +20,7 @@ const PATHS = {
   chat: 'M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 4v-4H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
   car: 'M5 16l1.6-5.3A2 2 0 0 1 8.5 9.3h7a2 2 0 0 1 1.9 1.4L19 16M4 16h16v3H4zM7.5 13h.01M16.5 13h.01',
   edit: 'M4 20h4L19 9l-4-4L4 16v4zM13 7l4 4',
+  user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0',
 } as const
 
 export type IconName = keyof typeof PATHS

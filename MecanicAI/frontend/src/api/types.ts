@@ -19,7 +19,6 @@ export interface User {
 
 export interface Features {
   googleLogin: boolean
-  devLogin: boolean
   aiDemo: boolean
   guestDailyMessages: number
   freeDailyMessages: number

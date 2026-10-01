@@ -32,11 +32,6 @@ const toTurns = (messages: ChatMessage[]) => messages.map(({ role, content }) =>
 export const fetchMe = () => api<Me>('/api/auth/me')
 export const logout = () => api<void>('/api/auth/logout', { method: 'POST' })
 export const deleteAccount = () => api<void>('/api/auth/account', { method: 'DELETE' })
-export const devLogin = () =>
-  api<void>('/api/auth/dev-login', {
-    method: 'POST',
-    body: { name: 'Usuario demo', email: 'demo@mecanicai.local' },
-  })
 
 // Catálogo
 export const fetchBrands = () => cached('brands', () => api<Brand[]>('/api/catalog/brands'))
