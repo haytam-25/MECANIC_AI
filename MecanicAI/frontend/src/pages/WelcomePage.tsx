@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router'
 
 import { GoogleButton } from '../components/GoogleButton.tsx'
 import { Icon } from '../components/Icon.tsx'
-import { Wheel } from '../components/Wheel.tsx'
+import { LegalLinks } from '../components/LegalLinks.tsx'
+import { BrandMark } from '../components/Wheel.tsx'
 import { useSession } from '../context/session.ts'
 import './pages.css'
 
@@ -24,7 +25,7 @@ export function WelcomePage() {
     <div className="welcome">
       <div className="tread" aria-hidden="true" />
       <main className="welcome__main">
-        <Wheel size={112} className="welcome__wheel" />
+        <BrandMark size={112} className="welcome__logo" />
         <h1 className="welcome__title">
           Mecanic<span className="welcome__ai">AI</span>
         </h1>
@@ -46,7 +47,22 @@ export function WelcomePage() {
             )}
           </ul>
         </div>
+
+        <ul className="welcome__features">
+          <li>
+            <Icon name="car" size={20} /> Elige tu coche: marca, modelo, año y motor
+          </li>
+          <li>
+            <Icon name="chat" size={20} /> Pregunta por averías, ruidos, testigos o mantenimiento
+          </li>
+          <li>
+            <Icon name="wrench" size={20} /> Te responde un mecánico con IA pensando en tu coche
+          </li>
+        </ul>
       </main>
+      <footer className="welcome__footer">
+        <LegalLinks />
+      </footer>
     </div>
   )
 }

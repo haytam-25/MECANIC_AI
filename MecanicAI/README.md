@@ -23,8 +23,11 @@ concreto.
   el futuro (más mensajes y otro modelo de IA).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).
 - **Instalable como app** (PWA): pantalla completa y vertical, icono propio.
-- Diseño mecánico: grafito y acero cepillado, llanta como logotipo e indicador de carga, tapacubos por marca, pasos
-  en forma de tuerca y franja de dibujo de neumático.
+- Diseño mecánico: grafito y acero cepillado, logotipo circular con la M, llanta como indicador de carga, tapacubos
+  por marca, pasos en forma de tuerca y franja de dibujo de neumático.
+- **Páginas legales**: política de privacidad (`/privacidad`), términos y aviso legal (`/terminos`) y política de
+  cookies (`/cookies`), enlazadas desde la portada y el menú. Son HTML estático en `frontend/public/*.html`:
+  actualízalas si cambia qué datos se guardan o con quién se comparten.
 
 ## Tecnologías
 
@@ -44,8 +47,13 @@ MecanicAI/
 ├── frontend/           Web (React + Vite)
 │   └── src/            api, components, context, features (wizard, chat), pages, styles
 ├── compose.yaml        Despliegue con contenedores (PostgreSQL + backend + nginx)
-└── docs/capturas/
+└── docs/
+    ├── capturas/
+    └── marca/          Logotipo en PNG (120 px para la consola de Google y 512 px)
 ```
+
+**Logotipo**: el original es `frontend/public/logo.svg`. Si lo cambias, regenera el favicon y los iconos de la app con
+`cd frontend && npm run generate-pwa-assets`.
 
 ## Puesta en marcha en local
 
@@ -122,22 +130,43 @@ prueba automáticamente el siguiente. Se cambian con variables de entorno (ver `
   esperar al usuario. Medido el 1 de octubre de 2026 con la misma pregunta: con el orden anterior (`gemini-3.6-flash`
   primero, sin cuota, y `3.7`/`3.8` saturados) la respuesta empezaba a los 16 s; con `gemini-3.5-flash-lite` primero y
   razonamiento mínimo, en 1 s (4 s en total).
-- En la capa gratuita **Google puede usar el contenido de las consultas para mejorar sus productos** (en la de pago no).
-  Indícalo en tu política de privacidad antes de abrir la app al público.
+- Uso de los datos: fuera de Europa, en la capa gratuita Google puede usar las consultas para mejorar sus productos.
+  Pero **si estás en el Espacio Económico Europeo, Suiza o Reino Unido, se aplican las condiciones de la capa de pago
+  también a la gratuita** (Google no las usa para eso). Aun así, la política de privacidad debe decir que las preguntas
+  se envían a Google Gemini para generar la respuesta.
+- Las condiciones de la API de Gemini exigen tener **18 años** y que la app no esté dirigida a menores de 18.
+  Fuente: <https://ai.google.dev/gemini-api/terms>.
 
 ## Configurar el login con Google
 
-1. En <https://console.cloud.google.com> crea un proyecto (o usa el de Gemini).
-2. **APIs y servicios → Pantalla de consentimiento de OAuth**: tipo *Externo*, nombre "MecanicAI", tu correo de
-   soporte y los ámbitos `email`, `profile` y `openid`.
-3. **Credenciales → Crear credenciales → ID de cliente de OAuth → Aplicación web**:
-   - Orígenes de JavaScript autorizados: `http://localhost:5173` (y en producción `https://tu-dominio.com`).
-   - URI de redirección autorizados: `http://localhost:5173/login/oauth2/code/google`
-     (y en producción `https://tu-dominio.com/login/oauth2/code/google`).
-4. Copia el ID y el secreto en `backend/.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) y reinicia el backend: el
-   botón "Continuar con Google" aparece solo.
-5. Antes de abrirla al público, en la pantalla de consentimiento pulsa **Publicar aplicación**: mientras esté en modo
-   "Prueba", solo pueden entrar las cuentas que añadas como usuarios de prueba.
+Todo está en <https://console.cloud.google.com/auth> (**Google Auth Platform**; antes se llamaba "Pantalla de
+consentimiento de OAuth"). Elige arriba el proyecto donde creaste el cliente.
+
+1. **Marca (Branding)**:
+   - Nombre "MecanicAI", correo de asistencia y correo de contacto del desarrollador.
+   - Logotipo: `docs/marca/logo-120.png`.
+   - Dominio de la aplicación: página principal `https://mecanicai.org`, política de privacidad
+     `https://mecanicai.org/privacidad` y condiciones del servicio `https://mecanicai.org/terminos`.
+   - Dominios autorizados: `mecanicai.org`.
+2. **Público (Audience)**: tipo *Externo*. Mientras esté en **Prueba**, solo entran las cuentas añadidas como usuarios
+   de prueba; pulsa **Publicar aplicación** para que pueda entrar **cualquier cuenta de Google**. Como la app solo pide
+   `openid`, `email` y `profile` (ámbitos no sensibles), no hace falta la verificación de Google ni aparece el aviso de
+   "app no verificada".
+3. **Acceso a datos (Data access)**: solo `openid`, `.../auth/userinfo.email` y `.../auth/userinfo.profile`.
+4. **Clientes → tu cliente web**:
+   - Orígenes de JavaScript autorizados: `http://localhost:5173` y `https://mecanicai.org`.
+   - URI de redirección autorizados (exactos, sin barra final): `http://localhost:5173/login/oauth2/code/google` y
+     `https://mecanicai.org/login/oauth2/code/google`.
+5. Copia el ID y el secreto en `backend/.env` (local) o en el `.env` del servidor (`GOOGLE_CLIENT_ID`,
+   `GOOGLE_CLIENT_SECRET`) y reinicia el backend: el botón "Iniciar con Google" aparece solo.
+
+Los cambios en la consola pueden tardar unos minutos en aplicarse. Si al volver de Google aparece
+`redirect_uri_mismatch`, la URI del paso 4 no coincide exactamente con la del navegador.
+
+**Verificación de la marca**: al subir un logotipo, Google revisa la marca antes de mostrarlo (gratis, unos días).
+Para pedirla, la web ya debe estar publicada en `https://mecanicai.org` (la portada enlaza a la política de privacidad)
+y el dominio verificado en [Search Console](https://search.google.com/search-console) (registro TXT en el DNS). Mientras
+tanto, cualquier cuenta de Google puede iniciar sesión igualmente si la app está publicada.
 
 ## Cómo funciona
 
@@ -196,14 +225,23 @@ Todo va en contenedores definidos en `compose.yaml`, y compose se encarga del or
 ### Qué necesitas
 
 - **Un servidor Linux** con IP pública y al menos 2 GB de RAM (mejor 4 GB: Java, PostgreSQL y la compilación de las
-  imágenes). Por ejemplo, un VPS de Hetzner, OVH, DigitalOcean o Contabo (unos 4-6 €/mes) o, gratis, una máquina de la
-  capa *Always Free* de Oracle Cloud.
+  imágenes), en una región de la Unión Europea (así lo dice la política de privacidad). Opciones en octubre de 2026:
+  gratis, una máquina Ampere A1 de la capa *Always Free* de Oracle Cloud; de pago, un VPS de OVHcloud, Contabo o
+  Hetzner (unos 5-7 €/mes más IVA; los precios han subido varias veces en 2026, compruébalos al contratar).
 - **Un dominio** (unos 10 €/año). Google solo permite el login en producción con un dominio real y HTTPS.
 - Tu **API key de Gemini** y, para el login, las credenciales OAuth de Google.
 
 ### Paso 1 · Preparar el servidor
 
-Crea el servidor con Ubuntu 24.04 y abre los puertos 22, 80 y 443 en el firewall del proveedor. Después:
+Crea el servidor con Ubuntu 24.04 y abre los puertos 22, 80 y 443 en el firewall del proveedor.
+
+En **Oracle Cloud**: crea la instancia en tu región de origen con la forma `VM.Standard.A1.Flex` (Arm), imagen
+*Canonical Ubuntu 24.04* y 2 OCPU / 8 GB. Oracle puede recuperar las máquinas gratuitas que pasan 7 días casi sin uso
+(menos del 20 % de CPU, red y memoria): con 8 GB la app supera ese 20 % de memoria; pasar la cuenta a *Pay As You Go*
+(sigue siendo gratis dentro de los límites; pon una alerta de presupuesto de 1 €) también ayuda. Los puertos 80 y 443
+se abren en *Networking → Virtual Cloud Networks → tu VCN → Security Lists → Add Ingress Rules* (origen `0.0.0.0/0`).
+
+Después:
 
 ```bash
 ssh root@IP-DEL-SERVIDOR
@@ -212,9 +250,15 @@ curl -fsSL https://get.docker.com | sh      # instala Docker y Docker Compose
 
 ### Paso 2 · Apuntar el dominio al servidor
 
-En el panel de tu dominio crea un registro DNS **tipo A**: `mecanicai.tudominio.com` → IP del servidor. Comprueba con
-`ping mecanicai.tudominio.com` que ya apunta ahí **antes del paso 5**: Caddy lo necesita para conseguir el
-certificado HTTPS.
+En el panel de tu dominio crea dos registros DNS **tipo A** con la IP del servidor: `@` (es decir, `mecanicai.org`) y
+`www` (Caddy redirige `www.mecanicai.org` → `mecanicai.org`). **En Cloudflare**, pon el estado del proxy en
+**Solo DNS** (nube gris): con la nube naranja, Caddy no puede sacar el certificado HTTPS de forma sencilla y el
+backend vería las IPs de Cloudflare en lugar de las de los visitantes. Borra los registros A/AAAA o "parking" que trajera el
+dominio y **no crees registros AAAA** (IPv6) salvo que configures IPv6 en Docker: sin eso, las visitas por IPv6
+llegarían al backend todas con la misma IP interna y compartirían el límite diario de invitados.
+
+Comprueba con `dig +short mecanicai.org` (o `ping mecanicai.org`) que ya devuelve la IP del servidor **antes del
+paso 5**: Caddy lo necesita para conseguir el certificado HTTPS.
 
 ### Paso 3 · Subir el código
 
@@ -234,7 +278,7 @@ cp .env.example .env
 nano .env
 ```
 
-Rellena `DOMAIN` (sin `https://`), `GEMINI_API_KEY`, `JWT_SECRET` (`openssl rand -base64 48`), `DB_PASSWORD`
+Rellena `DOMAIN` (`mecanicai.org`, sin `https://` ni `www`), `GEMINI_API_KEY`, `JWT_SECRET` (`openssl rand -base64 48`), `DB_PASSWORD`
 (`openssl rand -base64 24`) y, para el login, `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`.
 
 ### Paso 5 · Arrancar
@@ -258,12 +302,20 @@ docker compose logs -f backend    # debe aparecer "Started MecanicAiApplication"
 docker compose logs caddy         # debe aparecer "certificate obtained successfully"
 ```
 
-Abre `https://mecanicai.tudominio.com` en el móvil, elige un coche y haz una pregunta.
+Abre `https://mecanicai.org` en el móvil, entra como invitado, elige un coche y haz una pregunta. Después comprueba
+que el backend ve la **IP real** de cada visitante (el límite de invitados va por IP):
+
+```bash
+docker compose exec db psql -U mecanicai -c "SELECT subject, count FROM usage_counter WHERE subject LIKE 'ip:%'"
+```
+
+Debe salir la IP pública de tu conexión (la de <https://ifconfig.me>), no una del tipo `172.x.x.x` o `10.x.x.x`.
 
 ### Paso 7 · Login con Google en producción
 
 En la consola de Google (ver [Configurar el login con Google](#configurar-el-login-con-google)) añade el origen
-`https://mecanicai.tudominio.com` y la redirección `https://mecanicai.tudominio.com/login/oauth2/code/google`.
+`https://mecanicai.org` y la redirección `https://mecanicai.org/login/oauth2/code/google`, y **publica la app**
+(Público → Publicar aplicación) para que pueda entrar cualquier cuenta de Google.
 
 ### Mantenimiento
 
@@ -271,14 +323,25 @@ En la consola de Google (ver [Configurar el login con Google](#configurar-el-log
 | --- | --- |
 | Actualizar tras cambiar el código | `git pull && docker compose up -d --build` |
 | Ver errores | `docker compose logs -f backend` |
-| Copia de seguridad de la BD | `docker compose exec db pg_dump -U mecanicai mecanicai > copia-$(date +%F).sql` |
+| Copia de seguridad de la BD | `docker compose exec -T db pg_dump -U mecanicai mecanicai > copia-$(date +%F).sql` |
 | Restaurar una copia | `docker compose exec -T db psql -U mecanicai mecanicai < copia.sql` |
 | Parar todo (los datos se conservan) | `docker compose down` (con `down -v` se **borrarían** los datos) |
 
-**¿Podman en lugar de Docker?** Funciona igual con `podman-compose` (probado con la versión 1.6). Hay dos diferencias:
-para usar los puertos 80 y 443 sin ser root ejecuta `sudo sysctl net.ipv4.ip_unprivileged_port_start=80`, y al
-actualizar usa `podman-compose up -d --build --force-recreate`, porque podman-compose no recrea solo los contenedores
-que cambian.
+**Copia diaria automática** (guarda 14 días): `crontab -e` y añade esta línea:
+
+```
+0 4 * * * cd /opt/mecanicai && docker compose exec -T db pg_dump -U mecanicai mecanicai | gzip > /root/copia-mecanicai-$(date +\%F).sql.gz && find /root -name 'copia-mecanicai-*' -mtime +14 -delete
+```
+
+Mejor aún si además la copias fuera del servidor de vez en cuando (`scp root@IP:/root/copia-mecanicai-* .`).
+`DB_PASSWORD` solo se aplica al crear la base de datos la primera vez: si la cambias después en `.env`, el backend
+no podrá conectar.
+
+**¿Podman en lugar de Docker?** Funciona con `podman-compose` (probado con la versión 1.6), pero en el servidor es
+más sencillo Docker. Si usas podman **sin root**, el contenedor de Caddy no ve la IP real de los visitantes (todos
+llegan con la misma IP interna y compartirían el límite de 20 mensajes de invitado al día): ejecútalo como root
+(`sudo podman-compose ...`) y haz la comprobación de IP del paso 6. Al actualizar usa
+`podman-compose up -d --build --force-recreate`, porque podman-compose no recrea solo los contenedores que cambian.
 
 ## Próximos pasos (hoja de ruta)
 

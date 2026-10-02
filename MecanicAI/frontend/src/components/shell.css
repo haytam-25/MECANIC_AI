@@ -209,6 +209,11 @@
   text-overflow: ellipsis;
 }
 
+.drawer__legal {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
 .drawer__foot {
   display: flex;
   flex-direction: column;

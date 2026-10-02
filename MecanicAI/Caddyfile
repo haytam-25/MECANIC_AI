@@ -1,5 +1,22 @@
 # Caddy consigue y renueva automáticamente el certificado HTTPS (Let's Encrypt) para el dominio de .env
 # y reenvía todo al contenedor web (nginx), que sirve la app y la API.
 {$DOMAIN} {
+	# Cabeceras de seguridad para toda la web y la API ("defer": sustituyen a las que ya ponga el backend)
+	header {
+		defer
+		# El navegador solo usará HTTPS con este dominio durante un año
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Solo se cargan scripts, estilos y datos del propio dominio; imágenes también de Google (fotos de perfil)
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+	}
 	reverse_proxy frontend:80
+}
+
+# www.tudominio → tudominio (necesita también un registro DNS para www)
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
 }

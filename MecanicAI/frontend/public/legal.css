@@ -1,0 +1,204 @@
+/* Páginas legales (privacidad, términos, cookies): HTML estático con los colores de la app */
+:root {
+  color-scheme: dark;
+  --bg: #0c0e10;
+  --plate: #181b1f;
+  --line: #30363d;
+  --text: #eaeef1;
+  --text-2: #b0b9c1;
+  --text-3: #8c959e;
+  --accent: #ff7a1a;
+  --accent-hi: #ff9544;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-2);
+  font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, #2b3036 0%, #1f2328 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.top__inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+}
+
+.brand b {
+  color: var(--accent);
+}
+
+.back {
+  color: var(--text-2);
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+h1 {
+  margin: 0.5rem 0 0.25rem;
+  color: var(--text);
+  font-size: clamp(1.7rem, 6vw, 2.2rem);
+  line-height: 1.15;
+}
+
+.updated {
+  margin: 0 0 1.5rem;
+  color: var(--text-3);
+  font-size: 0.9rem;
+}
+
+h2 {
+  margin: 2rem 0 0.5rem;
+  padding-top: 0.25rem;
+  color: var(--text);
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+h3 {
+  margin: 1.25rem 0 0.25rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+p,
+ul {
+  margin: 0.5rem 0;
+}
+
+ul {
+  padding-left: 1.3rem;
+}
+
+li {
+  margin: 0.25rem 0;
+}
+
+strong {
+  color: var(--text);
+}
+
+a {
+  color: var(--accent-hi);
+}
+
+.summary {
+  margin: 1rem 0 1.5rem;
+  padding: 1rem 1.1rem;
+  background: var(--plate);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+}
+
+.summary p:first-child {
+  margin-top: 0;
+}
+
+.summary ul {
+  margin-bottom: 0;
+}
+
+.table {
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--text);
+  font-weight: 600;
+  background: var(--plate);
+}
+
+code {
+  padding: 0.05rem 0.3rem;
+  background: var(--plate);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.88em;
+  overflow-wrap: break-word;
+}
+
+footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--line);
+  color: var(--text-3);
+  font-size: 0.88rem;
+}
+
+footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+
+footer a:hover,
+footer a[aria-current='page'] {
+  color: var(--text);
+  text-decoration: underline;
+}

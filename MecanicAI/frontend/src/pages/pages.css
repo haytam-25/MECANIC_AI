@@ -53,13 +53,13 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 2rem 1rem calc(2rem + var(--safe-bottom));
+  padding: 2rem 1rem 1.5rem;
   text-align: center;
   /* Luz de taller sobre la rueda */
   background: radial-gradient(55% 32% at 50% 34%, rgba(255, 122, 26, 0.09), transparent 72%);
 }
 
-.welcome__wheel {
+.welcome__logo {
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65));
   animation: roll-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -125,6 +125,33 @@
 .welcome__plans strong {
   color: var(--text-2);
   font-weight: 600;
+}
+
+.welcome__features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: 0.95rem;
+  color: var(--text-2);
+}
+
+.welcome__features li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.welcome__features svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.welcome__footer {
+  padding: 0 1rem calc(1rem + var(--safe-bottom));
 }
 
 /* ---------- Garaje ---------- */

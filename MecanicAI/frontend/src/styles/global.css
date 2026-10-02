@@ -129,6 +129,32 @@ code {
   text-align: center;
 }
 
+/* Logo circular de la marca (public/logo.svg) */
+.brand-mark {
+  display: block;
+  flex: none;
+}
+
+/* Enlaces a privacidad, términos y cookies (portada y menú) */
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem 1.1rem;
+  font-size: 0.82rem;
+}
+
+.legal-links a {
+  color: var(--text-3);
+  text-decoration: none;
+}
+
+.legal-links a:hover,
+.legal-links a:focus-visible {
+  color: var(--text);
+  text-decoration: underline;
+}
+
 .accent {
   color: var(--accent);
 }

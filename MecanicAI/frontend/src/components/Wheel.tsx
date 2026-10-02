@@ -57,11 +57,19 @@ export function Wheel({ size = 32, spinning = false, className = '', title }: Wh
   )
 }
 
-/** Logotipo completo: rueda + "MecanicAI". */
+/**
+ * Logotipo circular de la marca (rueda con la M). Es el mismo dibujo de public/logo.svg, del que salen el favicon,
+ * los iconos de la app instalada y el logo de la pantalla de inicio de sesión de Google.
+ */
+export function BrandMark({ size = 32, className = '' }: { size?: number; className?: string }) {
+  return <img className={`brand-mark ${className}`} src="/logo.svg" alt="" width={size} height={size} />
+}
+
+/** Logotipo completo: logo circular + "MecanicAI". */
 export function Logo({ size = 30 }: { size?: number }) {
   return (
     <span className="logo">
-      <Wheel size={size} />
+      <BrandMark size={size} />
       <span className="logo__text">
         Mecanic<span className="logo__ai">AI</span>
       </span>

@@ -11,6 +11,7 @@ import { brandAbbr } from '../lib/vehicle.ts'
 import { Avatar } from './Avatar.tsx'
 import { Hubcap } from './Hubcap.tsx'
 import { Icon } from './Icon.tsx'
+import { LegalLinks } from './LegalLinks.tsx'
 import { LoginOptions } from './LoginOptions.tsx'
 import { Logo } from './Wheel.tsx'
 
@@ -181,6 +182,8 @@ export function Drawer({ open, onClose }: DrawerProps) {
               )}
             </section>
           )}
+
+          <LegalLinks className="drawer__legal" />
         </div>
 
         {user && me && (
