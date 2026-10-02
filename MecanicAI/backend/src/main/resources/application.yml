@@ -62,7 +62,8 @@ app:
       max-output-tokens: 4096
       history-messages: 20
     engines:
-      models: ${GEMINI_ENGINES_MODELS:gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash,gemini-3.1-flash-lite}
+      # La lista de motores se guarda en caché para siempre: aquí manda la precisión (Flash) más que la velocidad
+      models: ${GEMINI_ENGINES_MODELS:gemini-3.5-flash,gemini-3-flash-preview,gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
       thinking-level: low
       # Si la IA tarda más, se ofrece escribir el motor a mano en vez de hacer esperar al usuario
       timeout: 30s
@@ -71,8 +72,10 @@ app:
   # siguiente. El plan PRO queda preparado para el futuro.
   plans:
     free:
-      models: ${GEMINI_CHAT_MODELS:gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash,gemini-3.1-flash-lite}
-      thinking-level: low
+      # Flash-Lite primero: es el más rápido (empieza a escribir en ~1 s) y el que más peticiones gratis tiene al día
+      # (unas 500, frente a unas 20 de cada Flash). Razonamiento mínimo: responde antes y basta para estas preguntas.
+      models: ${GEMINI_CHAT_MODELS:gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3-flash-preview,gemini-3.1-flash-lite,gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
+      thinking-level: minimal
       daily-messages: ${FREE_DAILY_MESSAGES:20}
     pro:
       models: ${GEMINI_PRO_MODELS:gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}

@@ -106,19 +106,22 @@ prueba automáticamente el siguiente. Se cambian con variables de entorno (ver `
 
 | Uso | Modelos | Variable |
 | --- | --- | --- |
-| Chat plan gratuito | `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `gemini-3.5-flash`, `gemini-3.1-flash-lite` | `GEMINI_CHAT_MODELS` |
-| Sugerir motorizaciones | los mismos | `GEMINI_ENGINES_MODELS` |
+| Chat plan gratuito (razonamiento mínimo) | `gemini-3.5-flash-lite`, `gemini-3.5-flash`, `gemini-3-flash-preview`, `gemini-3.1-flash-lite`, `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash` | `GEMINI_CHAT_MODELS` |
+| Sugerir motorizaciones | `gemini-3.5-flash`, `gemini-3-flash-preview`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash` | `GEMINI_ENGINES_MODELS` |
 | Plan PRO (futuro) | `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash` | `GEMINI_PRO_MODELS` |
 
 **A tener en cuenta con la capa gratuita de Gemini:**
 
-- Los límites (peticiones por minuto y por día) son **por proyecto de Google, compartidos por todos tus usuarios**.
-  Consulta los tuyos en <https://aistudio.google.com/rate-limit>. Si se superan, la app muestra "La IA está saturada,
-  inténtalo en unos segundos" y no descuenta el mensaje al usuario. Si se te queda corto, activa la facturación del
-  proyecto (los modelos Flash cuestan céntimos por conversación).
-- La disponibilidad de cada modelo en la capa gratuita cambia a lo largo del día: en las pruebas, `gemini-3.6-flash`
-  respondía en 2-6 s mientras otros daban error 503 ("high demand") y `gemini-3.5-flash-lite` tardaba más de 25 s.
-  Por eso la app usa una lista de modelos y salta al siguiente cuando uno está saturado.
+- Los límites (peticiones por minuto y por día) son **por proyecto de Google y modelo, compartidos por todos tus
+  usuarios**. En octubre de 2026 eran de unas **20 peticiones al día por cada modelo Flash** y unas **500 para
+  `gemini-3.5-flash-lite`**; consulta los tuyos en <https://aistudio.google.com/rate-limit>. Si se superan en todos los
+  modelos, la app muestra "La IA está saturada, inténtalo en unos segundos" y no descuenta el mensaje al usuario. Si
+  se te queda corto, activa la facturación del proyecto (los modelos Flash cuestan céntimos por conversación).
+- La disponibilidad de cada modelo cambia a lo largo del día (errores 503 "high demand" o 429 sin cuota). Cuando un
+  modelo falla, la app lo deja **2 minutos al final de la lista** y responde con el siguiente, sin reintentos que hagan
+  esperar al usuario. Medido el 1 de octubre de 2026 con la misma pregunta: con el orden anterior (`gemini-3.6-flash`
+  primero, sin cuota, y `3.7`/`3.8` saturados) la respuesta empezaba a los 16 s; con `gemini-3.5-flash-lite` primero y
+  razonamiento mínimo, en 1 s (4 s en total).
 - En la capa gratuita **Google puede usar el contenido de las consultas para mejorar sus productos** (en la de pago no).
   Indícalo en tu política de privacidad antes de abrir la app al público.
 

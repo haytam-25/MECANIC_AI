@@ -5,7 +5,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,36 +38,52 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 			FinishReason.Known.PROHIBITED_CONTENT, FinishReason.Known.BLOCKLIST, FinishReason.Known.SPII,
 			FinishReason.Known.RECITATION);
 
-	// Reintenta automáticamente los errores temporales (incluido el 429 de la capa gratuita)
-	private static final HttpRetryOptions RETRY = HttpRetryOptions.builder()
-		.attempts(2)
-		.initialDelay(1.0)
-		.maxDelay(2.0)
-		.httpStatusCodes(List.of(429, 500, 503))
-		.build();
+	// Sin reintentos dentro del SDK: si un modelo está saturado (503) o sin cuota (429) es más rápido pasar al
+	// siguiente de la lista (ModelFallback) que esperar a que se recupere
+	private static final HttpRetryOptions NO_RETRY = HttpRetryOptions.builder().attempts(1).build();
+
+	private static final String MINIMAL = "minimal";
 
 	private final Client client;
+
+	private final ModelFallback fallback = new ModelFallback();
+
+	/** Modelos que rechazan el razonamiento MINIMAL (p. ej. gemini-3.8-flash): con ellos se usa LOW. */
+	private final Set<String> withoutMinimalThinking = ConcurrentHashMap.newKeySet();
 
 	public GeminiAiClient(String apiKey, Duration timeout) {
 		this.client = Client.builder().apiKey(apiKey).httpOptions(httpOptions(timeout)).build();
 	}
 
 	private static HttpOptions httpOptions(Duration timeout) {
-		return HttpOptions.builder().timeout((int) timeout.toMillis()).retryOptions(RETRY).build();
+		return HttpOptions.builder().timeout((int) timeout.toMillis()).retryOptions(NO_RETRY).build();
 	}
 
 	@Override
 	public String streamChat(AiChatRequest request, Consumer<String> onDelta, Runnable onRestart) {
-		return ModelFallback.stream(request.models(), (model, deltas) -> streamChat(model, request, deltas), onDelta,
+		return fallback.stream(request.models(), (model, deltas) -> streamChat(model, request, deltas), onDelta,
 				onRestart);
 	}
 
 	private String streamChat(String model, AiChatRequest request, Consumer<String> onDelta) {
+		try {
+			return withSupportedThinking(model, request.thinkingLevel(),
+					level -> streamChat(model, level, request, onDelta));
+		}
+		catch (ApiException ex) {
+			throw translate(ex, model);
+		}
+		catch (GenAiIOException ex) {
+			throw networkError(ex, model);
+		}
+	}
+
+	private String streamChat(String model, String thinkingLevel, AiChatRequest request, Consumer<String> onDelta) {
 		GenerateContentConfig.Builder config = GenerateContentConfig.builder()
 			.systemInstruction(Content.fromParts(Part.fromText(request.systemPrompt())))
 			.temperature(request.temperature())
 			.maxOutputTokens(request.maxOutputTokens());
-		applyThinking(config, request.thinkingLevel());
+		applyThinking(config, thinkingLevel);
 
 		List<Content> contents = request.messages().stream().map(GeminiAiClient::toContent).toList();
 		StringBuilder full = new StringBuilder();
@@ -85,12 +103,6 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 				}
 			}
 		}
-		catch (ApiException ex) {
-			throw translate(ex, model);
-		}
-		catch (GenAiIOException ex) {
-			throw networkError(ex, model);
-		}
 
 		if (full.isEmpty()) {
 			if (lastFinishReason != null && BLOCKED_REASONS.contains(lastFinishReason.knownEnum())) {
@@ -103,10 +115,22 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 
 	@Override
 	public String generateJson(AiJsonRequest request) {
-		return ModelFallback.run(request.models(), model -> generateJson(model, request));
+		return fallback.run(request.models(), model -> generateJson(model, request));
 	}
 
 	private String generateJson(String model, AiJsonRequest request) {
+		try {
+			return withSupportedThinking(model, request.thinkingLevel(), level -> generateJson(model, level, request));
+		}
+		catch (ApiException ex) {
+			throw translate(ex, model);
+		}
+		catch (GenAiIOException ex) {
+			throw networkError(ex, model);
+		}
+	}
+
+	private String generateJson(String model, String thinkingLevel, AiJsonRequest request) {
 		GenerateContentConfig.Builder config = GenerateContentConfig.builder()
 			.systemInstruction(Content.fromParts(Part.fromText(request.systemPrompt())))
 			.temperature(0.2f)
@@ -115,22 +139,44 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 		if (request.timeout() != null) {
 			config.httpOptions(httpOptions(request.timeout()));
 		}
-		applyThinking(config, request.thinkingLevel());
+		applyThinking(config, thinkingLevel);
+		GenerateContentResponse response = client.models.generateContent(model, request.userPrompt(), config.build());
+		rejectIfPromptBlocked(response);
+		String text = response.text();
+		if (text == null || text.isBlank()) {
+			throw new AiException(Kind.EMPTY, "Gemini devolvió un JSON vacío");
+		}
+		return text;
+	}
+
+	/**
+	 * Llama al modelo con el nivel de razonamiento pedido. El mínimo es el más rápido, pero no todos los modelos lo
+	 * admiten: si uno lo rechaza, se repite con LOW y se recuerda para las siguientes peticiones.
+	 */
+	<T> T withSupportedThinking(String model, String thinkingLevel, Function<String, T> call) {
+		boolean minimal = MINIMAL.equalsIgnoreCase(String.valueOf(thinkingLevel).trim());
+		if (!minimal) {
+			return call.apply(thinkingLevel);
+		}
+		if (withoutMinimalThinking.contains(model)) {
+			return call.apply("low");
+		}
 		try {
-			GenerateContentResponse response = client.models.generateContent(model, request.userPrompt(), config.build());
-			rejectIfPromptBlocked(response);
-			String text = response.text();
-			if (text == null || text.isBlank()) {
-				throw new AiException(Kind.EMPTY, "Gemini devolvió un JSON vacío");
-			}
-			return text;
+			return call.apply(thinkingLevel);
 		}
 		catch (ApiException ex) {
-			throw translate(ex, model);
+			if (!rejectsThinkingLevel(ex)) {
+				throw ex;
+			}
+			withoutMinimalThinking.add(model);
+			log.info("El modelo {} no admite el razonamiento mínimo: se usa LOW", model);
+			return call.apply("low");
 		}
-		catch (GenAiIOException ex) {
-			throw networkError(ex, model);
-		}
+	}
+
+	static boolean rejectsThinkingLevel(ApiException ex) {
+		String message = String.valueOf(ex.message()).toLowerCase(Locale.ROOT);
+		return ex.code() == 400 && message.contains("thinking level") && message.contains("not supported");
 	}
 
 	@Override
