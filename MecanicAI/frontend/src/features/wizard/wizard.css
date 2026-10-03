@@ -354,8 +354,25 @@
 }
 
 .engine-card__name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
   font-weight: 700;
   font-size: 1.05rem;
+}
+
+/* Código de motor (BMW, VW, Audi): estilo "placa grabada" */
+.engine-card__code {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid rgba(255, 122, 26, 0.45);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .engine-card__chips {

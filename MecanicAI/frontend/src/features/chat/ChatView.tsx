@@ -34,10 +34,10 @@ interface ChatViewProps {
 
 const SUGGESTIONS = [
   '¿Qué averías típicas tiene este modelo?',
+  '¿Que aceite usa y que marca es la mejor?',
+  'Hace un ruido raro el coche, ¿qué puede ser?',
+  '¿Qué mantenimientos tiene y cada cuánto?',
   'Se me ha encendido un testigo en el cuadro, ¿qué puede ser?',
-  'Hace un ruido raro al frenar, ¿qué puede ser?',
-  '¿Qué mantenimiento le toca y cada cuánto?',
-  'No arranca, ¿por dónde empiezo a revisar?',
   'Tengo un código de avería OBD: ',
 ]
 

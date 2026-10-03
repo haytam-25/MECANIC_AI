@@ -49,6 +49,8 @@ export interface EngineOption {
   name: string
   fuel: Fuel | null
   powerCv: number | null
+  /** Código de motor (BMW, Volkswagen y Audi), p. ej. "M57" o "BKD". */
+  code?: string | null
 }
 
 export interface EngineSuggestions {

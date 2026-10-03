@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { fetchEngines } from '../../api/endpoints.ts'
 import { isAbort } from '../../api/http.ts'
-import type { EngineSuggestions, Fuel, VehicleSpec } from '../../api/types.ts'
+import type { EngineOption, EngineSuggestions, Fuel, VehicleSpec } from '../../api/types.ts'
 import { Icon } from '../../components/Icon.tsx'
 import { Wheel } from '../../components/Wheel.tsx'
 import { FUEL_LABELS, FUELS } from '../../lib/vehicle.ts'
@@ -21,6 +21,24 @@ interface EngineStepProps {
 }
 
 type Mode = 'list' | 'manual' | 'unknown'
+
+/** Marcas en las que la IA devuelve también el código de motor (ver EngineSuggestionService). */
+const BRANDS_WITH_CODES = new Set(['bmw', 'volkswagen', 'audi'])
+
+const MANUAL_PLACEHOLDERS: Record<string, string> = {
+  bmw: 'Ej.: 118d, 320d (N47), 330d (M57)…',
+  volkswagen: 'Ej.: 1.9 TDI (BKC), 2.0 TDI (BKD)…',
+  audi: 'Ej.: 2.0 TDI (CAGA), 1.8 TFSI…',
+}
+
+/**
+ * El código va junto al nombre para que se guarde con el coche y le llegue al mecánico IA:
+ * "330d (M57)", o "330d (E46) · M57" si el nombre ya lleva la generación entre paréntesis.
+ */
+function engineName(engine: EngineOption): string {
+  if (!engine.code) return engine.name
+  return engine.name.includes('(') ? `${engine.name} · ${engine.code}` : `${engine.name} (${engine.code})`
+}
 
 export function EngineStep({ brand, model, year, saving, onPick, onBack }: EngineStepProps) {
   // Solo se pueden sugerir motorizaciones de coches del catálogo y de un año de venta conocido
@@ -68,13 +86,20 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
             <>
               <ul className="engine-list">
                 {suggestions.engines.map((engine) => (
-                  <li key={`${engine.name}-${engine.fuel}-${engine.powerCv}`}>
+                  <li key={`${engine.name}-${engine.fuel}-${engine.powerCv}-${engine.code ?? ''}`}>
                     <button
                       type="button"
                       className="engine-card"
-                      onClick={() => onPick({ engine: engine.name, fuel: engine.fuel, powerCv: engine.powerCv })}
+                      onClick={() => onPick({ engine: engineName(engine), fuel: engine.fuel, powerCv: engine.powerCv })}
                     >
-                      <span className="engine-card__name">{engine.name}</span>
+                      <span className="engine-card__name">
+                        {engine.name}
+                        {engine.code && (
+                          <span className="engine-card__code" title="Código de motor">
+                            {engine.code}
+                          </span>
+                        )}
+                      </span>
                       <span className="engine-card__chips">
                         {engine.powerCv && <span className="chip">{engine.powerCv} CV</span>}
                         {engine.fuel && <FuelChip fuel={engine.fuel} />}
@@ -86,14 +111,18 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
               <p className="muted small">
                 {suggestions.source === 'demo'
                   ? 'Lista de ejemplo: la IA está en modo demo.'
-                  : 'Lista sugerida por la IA. Si dudas, míralo en la ficha técnica o en el permiso de circulación.'}
+                  : brand.id && BRANDS_WITH_CODES.has(brand.id)
+                    ? 'Lista y códigos de motor sugeridos por la IA. Si dudas, el código viene en la ficha técnica o grabado en el bloque motor.'
+                    : 'Lista sugerida por la IA. Si dudas, míralo en la ficha técnica o en el permiso de circulación.'}
               </p>
             </>
           )}
         </>
       )}
 
-      {!saving && mode === 'manual' && <ManualEngineForm onSubmit={onPick} />}
+      {!saving && mode === 'manual' && (
+        <ManualEngineForm placeholder={(brand.id && MANUAL_PLACEHOLDERS[brand.id]) || undefined} onSubmit={onPick} />
+      )}
 
       {!saving && mode === 'unknown' && (
         <div className="fuel-picker">
@@ -138,7 +167,13 @@ export function FuelChip({ fuel }: { fuel: Fuel }) {
   return <span className={`chip chip--fuel chip--${fuel.toLowerCase()}`}>{FUEL_LABELS[fuel]}</span>
 }
 
-function ManualEngineForm({ onSubmit }: { onSubmit(choice: EngineChoice): void }) {
+function ManualEngineForm({
+  placeholder = 'Ej.: 1.6 TDI, 1.2 PureTech, 1.5 dCi…',
+  onSubmit,
+}: {
+  placeholder?: string
+  onSubmit(choice: EngineChoice): void
+}) {
   const [engine, setEngine] = useState('')
   const [fuel, setFuel] = useState<Fuel | null>(null)
   const [power, setPower] = useState('')
@@ -159,7 +194,7 @@ function ManualEngineForm({ onSubmit }: { onSubmit(choice: EngineChoice): void }
         <input
           value={engine}
           onChange={(e) => setEngine(e.target.value)}
-          placeholder="Ej.: 1.6 TDI, 1.2 PureTech, 1.5 dCi…"
+          placeholder={placeholder}
           maxLength={100}
         />
       </label>
