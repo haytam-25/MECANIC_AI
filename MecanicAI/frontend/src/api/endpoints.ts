@@ -1,3 +1,4 @@
+import { toSpec, vehicleKey } from '../lib/vehicle.ts'
 import { api } from './http.ts'
 import { postStream, type OnDelta } from './sse.ts'
 import type {
@@ -7,7 +8,11 @@ import type {
   ConversationDetail,
   ConversationSummary,
   EngineSuggestions,
+  MaintenancePlan,
   Me,
+  ReportInput,
+  ReportResult,
+  SavedReport,
   StreamDone,
   Vehicle,
   VehicleSpec,
@@ -42,6 +47,25 @@ export const fetchEngines = (brandId: string, modelId: string, year: number, sig
     `/api/catalog/engines?brand=${encodeURIComponent(brandId)}&model=${encodeURIComponent(modelId)}&year=${year}`,
     { signal },
   )
+
+// Informe médico: el plan de mantenimiento de cada coche solo se pide una vez mientras la app está abierta
+// (salvo si la IA no respondió: entonces se vuelve a intentar la próxima vez)
+const planCache = new Map<string, MaintenancePlan>()
+
+export async function fetchMaintenancePlan(vehicle: VehicleSpec): Promise<MaintenancePlan> {
+  const key = vehicleKey(vehicle)
+  const known = planCache.get(key)
+  if (known) return known
+  const plan = await api<MaintenancePlan>('/api/maintenance/plan', { method: 'POST', body: toSpec(vehicle) })
+  if (plan.source === 'ai' || plan.source === 'cache') planCache.set(key, plan)
+  return plan
+}
+
+// Informes guardados (con cuenta) y límite semanal de informes (con cuenta y como invitado)
+export const fetchReports = () => api<SavedReport[]>('/api/reports')
+export const saveReport = (vehicleId: string, input: ReportInput) =>
+  api<ReportResult>('/api/reports', { method: 'POST', body: { vehicleId, input } })
+export const countGuestReport = () => api<ReportResult>('/api/guest/reports', { method: 'POST' })
 
 // Garaje
 export const fetchVehicles = () => api<Vehicle[]>('/api/vehicles')

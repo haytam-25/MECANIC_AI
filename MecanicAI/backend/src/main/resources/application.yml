@@ -77,10 +77,15 @@ app:
       models: ${GEMINI_CHAT_MODELS:gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3-flash-preview,gemini-3.1-flash-lite,gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
       thinking-level: minimal
       daily-messages: ${FREE_DAILY_MESSAGES:20}
+      # Informes médicos por semana (de lunes a domingo)
+      weekly-reports: ${FREE_WEEKLY_REPORTS:5}
     pro:
       models: ${GEMINI_PRO_MODELS:gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
       thinking-level: medium
       daily-messages: 300
+      weekly-reports: 30
   guest:
     daily-messages: ${GUEST_DAILY_MESSAGES:5}
     daily-messages-per-ip: 20
+    weekly-reports: ${GUEST_WEEKLY_REPORTS:2}
+    weekly-reports-per-ip: 6

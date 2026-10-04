@@ -14,10 +14,12 @@ const STEPS = ['Marca', 'Modelo', 'Año', 'Motor'] as const
 interface VehicleWizardProps {
   /** Se llama con el coche completo; puede ser asíncrono (guardar y abrir el chat). */
   onComplete(vehicle: VehicleSpec): Promise<void> | void
+  /** Texto mientras se completa (por defecto, el del chat). */
+  savingText?: string
 }
 
 /** Asistente de 4 pasos para elegir el coche: marca → modelo → año → motorización. */
-export function VehicleWizard({ onComplete }: VehicleWizardProps) {
+export function VehicleWizard({ onComplete, savingText }: VehicleWizardProps) {
   const [step, setStep] = useState(0)
   const [brand, setBrand] = useState<PickedBrand | null>(null)
   const [model, setModel] = useState<PickedModel | null>(null)
@@ -108,7 +110,7 @@ export function VehicleWizard({ onComplete }: VehicleWizardProps) {
         />
       )}
       {step === 3 && brand && model && year !== null && (
-        <EngineStep brand={brand} model={model} year={year} saving={saving} onPick={(e) => void finish(e)} onBack={() => setStep(2)} />
+        <EngineStep brand={brand} model={model} year={year} saving={saving} savingText={savingText} onPick={(e) => void finish(e)} onBack={() => setStep(2)} />
       )}
     </section>
   )

@@ -27,6 +27,8 @@ interface ChatViewProps {
   banner?: ReactNode
   footer: ReactNode
   inputDisabled?: boolean
+  /** Texto con el que empieza la caja de mensaje (p. ej. la pregunta que prepara el informe médico). */
+  initialDraft?: string
   /** Devuelve false si el mensaje no se llegó a enviar (se recupera el texto). */
   onSend(text: string): Promise<boolean>
   onStop(): void
@@ -42,8 +44,9 @@ const SUGGESTIONS = [
 ]
 
 export function ChatView(props: ChatViewProps) {
-  const { vehicle, messages, streamingText, failure, notice, banner, footer, inputDisabled, onSend, onStop } = props
-  const [draft, setDraft] = useState('')
+  const { vehicle, messages, streamingText, failure, notice, banner, footer, inputDisabled, initialDraft, onSend, onStop } =
+    props
+  const [draft, setDraft] = useState(initialDraft ?? '')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
   const stickToBottom = useRef(true)

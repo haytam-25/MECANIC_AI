@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
 
 import { streamGuest } from '../api/endpoints.ts'
 import type { ChatMessage } from '../api/types.ts'
 import { useSession } from '../context/session.ts'
 import { DemoBanner, GuestLimitCard, UsageLine } from '../features/chat/ChatNotices.tsx'
 import { ChatView, type ChatFailure } from '../features/chat/ChatView.tsx'
+import { draftFromState } from '../lib/chatDraft.ts'
 import { loadGuestChat, saveGuestChat, type GuestChat } from '../lib/guestChat.ts'
 import { useStreamingReply } from '../lib/useStreamingReply.ts'
 
@@ -16,6 +17,7 @@ const GUEST_CONTEXT_MESSAGES = 20
  */
 export function GuestChatPage() {
   const { me, setUsage } = useSession()
+  const location = useLocation()
   const [chat, setChat] = useState<GuestChat | null>(() => loadGuestChat())
   const [failure, setFailure] = useState<ChatFailure | null>(null)
   const [limitReached, setLimitReached] = useState(false)
@@ -77,6 +79,7 @@ export function GuestChatPage() {
       banner={me.features.aiDemo ? <DemoBanner /> : undefined}
       notice={blocked ? <GuestLimitCard freeDailyMessages={me.features.freeDailyMessages} /> : undefined}
       inputDisabled={blocked}
+      initialDraft={draftFromState(location.state)}
       footer={<UsageLine usage={me.usage} guest />}
       onSend={(text) => ask(chat.messages, text)}
       onStop={reply.stop}

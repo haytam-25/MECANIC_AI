@@ -16,11 +16,21 @@ concreto.
 - **Chat con IA en tiempo real** (streaming, como ChatGPT/Gemini): respuestas en Markdown, botón de detener, reintentar
   si falla, copiar la respuesta y sugerencias rápidas. El "mecánico" conoce el coche, avisa de los riesgos de seguridad y
   dice cuándo ir al taller.
+- **Informe médico** (menú lateral): eliges el coche e indicas sus kilómetros y hace cuántos km o cuánto tiempo se
+  le cambió cada cosa (aceite, filtros, bujías, correa o cadena de distribución, correa de accesorios, frenos,
+  neumáticos, refrigerante, batería, amortiguadores…). Devuelve un informe por colores: **rojo** (toca cambiarlo),
+  **ámbar** (pronto), **verde** (al día) y **gris** (sin datos), con un botón para preguntar al mecánico IA por lo
+  pendiente. La IA indica si ese motor lleva correa (o correa bañada en aceite) o cadena y sus intervalos de
+  mantenimiento; se guarda en caché (`maintenance_cache`) y, si la IA no responde, se usan intervalos habituales.
+  Lo poco importante (filtro de habitáculo y escobillas) se revisa siempre cada 4 años.
+  **Con cuenta de Google** se guarda el último informe de cada coche (`health_report`) y se pueden hacer 5 informes a
+  la semana; **como invitado** no se guarda nada y solo se pueden hacer 2 (se le invita a iniciar sesión).
+  Configurable con `FREE_WEEKLY_REPORTS` y `GUEST_WEEKLY_REPORTS`.
 - **Portada** con dos opciones: **Iniciar con Google** o **Modo Invitado** (pocos mensajes al día y nada guardado en
   el servidor). Al iniciar sesión, la consulta del invitado y su coche se guardan automáticamente en la cuenta.
 - **Historial de consultas y garaje** (varios coches por usuario), borrar consultas/coches y **eliminar la cuenta** (RGPD).
-- **Límites diarios**: invitado 5 mensajes/día, cuenta gratuita 20/día (configurable). Plan **PRO** preparado para
-  el futuro (más mensajes y otro modelo de IA).
+- **Límites**: invitado 5 mensajes/día y 2 informes médicos/semana; cuenta gratuita 20 mensajes/día y 5
+  informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).
 - **Instalable como app** (PWA): pantalla completa y vertical, icono propio.
 - Diseño mecánico: grafito y acero cepillado, logotipo circular con la M, llanta como indicador de carga, tapacubos
@@ -186,7 +196,8 @@ flowchart LR
 - **Invitados**: la consulta se guarda solo en el navegador (localStorage). El límite va por cookie anónima (5 al día)
   y por IP (20 al día entre todos los invitados de una misma conexión): otro navegador o una ventana de incógnito es
   un invitado nuevo, pero desde la misma conexión no pasa de 20.
-- **Límites**: contador diario atómico en PostgreSQL (`usage_counter`). Si la IA falla, el mensaje no se descuenta.
+- **Límites**: contadores atómicos en PostgreSQL (`usage_counter`): por día para los mensajes y por semana (con el
+  lunes como fecha) para los informes médicos. Si la IA falla, el mensaje no se descuenta.
 - **Prompt del mecánico**: `backend/src/main/java/com/mecanicai/chat/PromptBuilder.java`.
 - **Catálogo**: `backend/src/main/resources/catalog/vehicles.json` (formato `"Modelo": "1991-2004,2024-"`); se puede
   ampliar sin tocar código.

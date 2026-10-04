@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mecanicai.ai.AiClient;
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.config.AppProperties.PlanSettings;
+import com.mecanicai.maintenance.HealthReportService;
 import com.mecanicai.usage.Usage;
 import com.mecanicai.usage.UsageService;
 import com.mecanicai.user.Plan;
@@ -61,17 +63,20 @@ public class AuthController {
 	}
 
 	/** Qué opciones debe mostrar el frontend. */
-	public record Features(boolean googleLogin, boolean aiDemo, int guestDailyMessages, int freeDailyMessages) {
+	public record Features(boolean googleLogin, boolean aiDemo, int guestDailyMessages, int freeDailyMessages,
+			int guestWeeklyReports, int freeWeeklyReports) {
 	}
 
-	public record MeResponse(boolean authenticated, UserDto user, Usage usage, Features features) {
+	/** {@code usage}: mensajes de hoy. {@code reports}: informes médicos de esta semana. */
+	public record MeResponse(boolean authenticated, UserDto user, Usage usage, Usage reports, Features features) {
 	}
 
 	@GetMapping("/me")
 	public MeResponse me(@AuthenticationPrincipal AuthUser principal, HttpServletRequest request,
 			HttpServletResponse response) {
 		Features features = new Features(props.auth().google().configured(), aiClient.isDemo(),
-				props.guest().dailyMessages(), props.plans().free().dailyMessages());
+				props.guest().dailyMessages(), props.plans().free().dailyMessages(), props.guest().weeklyReports(),
+				props.plans().free().weeklyReports());
 
 		if (principal != null) {
 			Optional<User> user = users.find(principal.id());
@@ -80,16 +85,18 @@ public class AuthController {
 				if (principal.issuedAt() == null || principal.issuedAt().isBefore(Instant.now().minus(RENEW_AFTER))) {
 					cookies.writeSession(response, jwtService.issue(u.getId()));
 				}
-				int limit = props.plans().of(u.getPlan()).dailyMessages();
-				return new MeResponse(true, UserDto.from(u), usage.peek(UsageService.userSubject(u.getId()), limit),
-						features);
+				PlanSettings plan = props.plans().of(u.getPlan());
+				return new MeResponse(true, UserDto.from(u),
+						usage.peek(UsageService.userSubject(u.getId()), plan.dailyMessages()),
+						usage.peekWeekly(HealthReportService.userSubject(u.getId()), plan.weeklyReports()), features);
 			}
 			cookies.clearSession(response);
 		}
 
 		String guestId = cookies.guestId(request, response);
 		Usage guestUsage = usage.peek(UsageService.guestSubject(guestId), props.guest().dailyMessages());
-		return new MeResponse(false, null, guestUsage, features);
+		Usage guestReports = usage.peekWeekly(HealthReportService.guestSubject(guestId), props.guest().weeklyReports());
+		return new MeResponse(false, null, guestUsage, guestReports, features);
 	}
 
 	@PostMapping("/logout")

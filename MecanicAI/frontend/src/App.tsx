@@ -8,6 +8,7 @@ import { GuestChatPage } from './pages/GuestChatPage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
 import { NewVehiclePage } from './pages/NewVehiclePage.tsx'
 import { NotFoundPage } from './pages/NotFoundPage.tsx'
+import { ReportPage } from './pages/ReportPage.tsx'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
               <Route index element={<HomePage />} />
               <Route path="vehiculo/nuevo" element={<NewVehiclePage />} />
               <Route path="chat/invitado" element={<GuestChatPage />} />
+              <Route path="informe" element={<ReportPage />} />
               {/* /chat/nuevo?coche=<id> o /chat/<id> */}
               <Route path="chat/:conversationId" element={<ChatPage />} />
               <Route path="*" element={<NotFoundPage />} />

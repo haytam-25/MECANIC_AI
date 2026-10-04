@@ -78,6 +78,9 @@ export function Drawer({ open, onClose }: DrawerProps) {
           <button type="button" className="btn btn--primary btn--block" onClick={() => go('/')}>
             <Icon name="plus" size={20} /> Nueva consulta
           </button>
+          <button type="button" className="btn btn--ghost btn--block" onClick={() => go('/informe')}>
+            <Icon name="pulse" size={20} /> Informe médico
+          </button>
 
           {user ? (
             <>

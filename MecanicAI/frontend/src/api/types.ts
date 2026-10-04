@@ -22,12 +22,17 @@ export interface Features {
   aiDemo: boolean
   guestDailyMessages: number
   freeDailyMessages: number
+  guestWeeklyReports: number
+  freeWeeklyReports: number
 }
 
 export interface Me {
   authenticated: boolean
   user: User | null
+  /** Mensajes de hoy. */
   usage: Usage
+  /** Informes médicos de esta semana. */
+  reports: Usage
   features: Features
 }
 
@@ -109,5 +114,65 @@ export interface StreamDone {
   messageId?: number
   conversationId?: string
   title?: string
+  usage: Usage
+}
+
+/** Distribución del motor según la IA (DESCONOCIDA: se le pregunta al usuario). */
+export type Timing = 'CORREA' | 'CORREA_EN_ACEITE' | 'CADENA' | 'NINGUNA' | 'DESCONOCIDA'
+
+/** Elemento del informe médico. Sin intervalos (cadena de distribución) no tiene cambio programado. */
+export interface PlanItem {
+  id: string
+  name: string
+  description: string
+  intervalKm: number | null
+  intervalMonths: number | null
+  /** Aviso concreto de este motor o modelo (de la IA). */
+  note: string | null
+  /** Afecta a la seguridad o puede romper el motor. */
+  critical: boolean
+  /** Poco importante (filtro de habitáculo, escobillas): se cambia cada 4 años y no alarma en el diagnóstico. */
+  minor: boolean
+}
+
+export interface MaintenancePlan {
+  timing: Timing
+  timingNote: string | null
+  items: PlanItem[]
+  /** limited / unavailable / demo: intervalos habituales, no los de ese coche. */
+  source: 'cache' | 'ai' | 'demo' | 'limited' | 'unavailable'
+}
+
+export type AnswerKind = 'known' | 'never' | 'unknown'
+export type TimeUnit = 'meses' | 'años'
+
+/** Respuesta del formulario del informe para un elemento (los números tal cual los escribe el usuario). */
+export interface ItemAnswer {
+  kind: AnswerKind
+  km: string
+  time: string
+  unit: TimeUnit
+}
+
+/** Solo se pregunta si la IA no sabe si el motor lleva correa o cadena. */
+export type TimingAnswer = 'CORREA' | 'CADENA' | 'NO_SE'
+
+export interface ReportInput {
+  currentKm: string
+  timing: TimingAnswer | null
+  answers: Record<string, ItemAnswer>
+}
+
+/** Último informe médico de un coche del garaje (solo cuentas de Google). */
+export interface SavedReport {
+  vehicleId: string
+  input: ReportInput
+  savedAt: string
+}
+
+export interface ReportResult {
+  /** null para los invitados: su informe no se guarda. */
+  report: SavedReport | null
+  /** Informes de esta semana. */
   usage: Usage
 }

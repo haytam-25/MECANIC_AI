@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { createConversation, fetchConversation, streamMessage, streamRetry } from '../api/endpoints.ts'
 import { ApiError } from '../api/http.ts'
@@ -9,6 +9,7 @@ import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
 import { DemoBanner, UsageLine, UserLimitCard } from '../features/chat/ChatNotices.tsx'
 import { ChatView } from '../features/chat/ChatView.tsx'
+import { draftFromState } from '../lib/chatDraft.ts'
 import { useStreamingReply, type ReplyResult } from '../lib/useStreamingReply.ts'
 
 interface LoadedChat {
@@ -32,6 +33,7 @@ export function ChatPage() {
   const vehicleId = searchParams.get('coche')
   const isNew = conversationId === 'nuevo'
   const { me, vehicles, refreshLists, refreshMe, setUsage } = useSession()
+  const location = useLocation()
   const navigate = useNavigate()
   const toast = useToast()
   const reply = useStreamingReply()
@@ -169,6 +171,7 @@ export function ChatPage() {
       banner={me.features.aiDemo ? <DemoBanner /> : undefined}
       notice={blocked ? <UserLimitCard usage={me.usage} /> : undefined}
       inputDisabled={blocked}
+      initialDraft={draftFromState(location.state)}
       footer={<UsageLine usage={me.usage} guest={false} />}
       onSend={send}
       onStop={reply.stop}

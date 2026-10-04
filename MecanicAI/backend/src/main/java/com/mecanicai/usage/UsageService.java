@@ -1,8 +1,10 @@
 package com.mecanicai.usage;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -54,7 +56,19 @@ public class UsageService {
 	 * Consume una unidad o lanza 429 si ya se alcanzó el límite de hoy.
 	 */
 	public Reservation consume(String subject, int limit, String limitMessage) {
-		LocalDate day = today();
+		return consume(subject, today(), resetsAt(), limit, limitMessage);
+	}
+
+	/**
+	 * Como {@link #consume}, pero el límite es por semana (de lunes a domingo). Se cuenta en la misma tabla, con el
+	 * lunes de la semana como fecha.
+	 */
+	public Reservation consumeWeekly(String subject, int limit, String limitMessage) {
+		return consume(subject, weekStart(), weekResetsAt(), limit, limitMessage);
+	}
+
+	private Reservation consume(String subject, LocalDate day, OffsetDateTime resetsAt, int limit,
+			String limitMessage) {
 		Optional<Integer> count = limit <= 0 ? Optional.empty() : jdbc.sql("""
 				INSERT INTO usage_counter (subject, day, count) VALUES (:subject, :day, 1)
 				ON CONFLICT (subject, day) DO UPDATE SET count = usage_counter.count + 1
@@ -66,9 +80,9 @@ public class UsageService {
 			.query(Integer.class)
 			.optional();
 		if (count.isEmpty()) {
-			throw AppException.quotaExceeded(Usage.of(limit, limit, resetsAt()), limitMessage);
+			throw AppException.quotaExceeded(Usage.of(limit, limit, resetsAt), limitMessage);
 		}
-		return new Reservation(subject, day, Usage.of(count.get(), limit, resetsAt()));
+		return new Reservation(subject, day, Usage.of(count.get(), limit, resetsAt));
 	}
 
 	/** Devuelve la unidad consumida (por ejemplo, si la IA no llegó a responder). */
@@ -81,13 +95,21 @@ public class UsageService {
 
 	/** Uso de hoy sin consumir nada. */
 	public Usage peek(String subject, int limit) {
-		int used = jdbc.sql("SELECT count FROM usage_counter WHERE subject = :subject AND day = :day")
+		return Usage.of(count(subject, today()), limit, resetsAt());
+	}
+
+	/** Uso de esta semana sin consumir nada. */
+	public Usage peekWeekly(String subject, int limit) {
+		return Usage.of(count(subject, weekStart()), limit, weekResetsAt());
+	}
+
+	private int count(String subject, LocalDate day) {
+		return jdbc.sql("SELECT count FROM usage_counter WHERE subject = :subject AND day = :day")
 			.param("subject", subject)
-			.param("day", today())
+			.param("day", day)
 			.query(Integer.class)
 			.optional()
 			.orElse(0);
-		return Usage.of(used, limit, resetsAt());
 	}
 
 	public LocalDate today() {
@@ -98,7 +120,17 @@ public class UsageService {
 		return today().plusDays(1).atStartOfDay(zone).toOffsetDateTime();
 	}
 
-	/** Limpieza diaria de contadores antiguos. */
+	/** Lunes de esta semana. */
+	public LocalDate weekStart() {
+		return today().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+	}
+
+	/** El lunes que viene a las 00:00. */
+	public OffsetDateTime weekResetsAt() {
+		return weekStart().plusWeeks(1).atStartOfDay(zone).toOffsetDateTime();
+	}
+
+	/** Limpieza diaria de contadores antiguos (los semanales llevan el lunes de esta semana: nunca más de 6 días). */
 	@Scheduled(cron = "0 30 4 * * *", zone = "${app.timezone:Europe/Madrid}")
 	public void purgeOldCounters() {
 		int deleted = jdbc.sql("DELETE FROM usage_counter WHERE day < :limitDay")

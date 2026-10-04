@@ -202,6 +202,19 @@
   color: var(--text-2);
 }
 
+/* La tarjeta también se usa como botón (informe médico) */
+.car-card--button {
+  width: 100%;
+  text-align: left;
+}
+
+.car-card__report {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-3);
+}
+
 .car-card__quote {
   display: -webkit-box;
   overflow: hidden;

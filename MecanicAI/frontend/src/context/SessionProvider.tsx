@@ -74,6 +74,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setMe((current) => (current ? { ...current, usage } : current))
   }, [])
 
+  const setReportUsage = useCallback((reports: Usage) => {
+    setMe((current) => (current ? { ...current, reports } : current))
+  }, [])
+
   const enterGuestMode = useCallback(() => {
     saveGuestMode(true)
     setGuestMode(true)
@@ -127,6 +131,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       refreshMe,
       refreshLists,
       setUsage,
+      setReportUsage,
       guestMode,
       enterGuestMode,
       loginWithGoogle,
@@ -142,6 +147,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       refreshMe,
       refreshLists,
       setUsage,
+      setReportUsage,
       guestMode,
       enterGuestMode,
       loginWithGoogle,

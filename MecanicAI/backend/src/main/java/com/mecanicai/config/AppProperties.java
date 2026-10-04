@@ -69,16 +69,20 @@ public record AppProperties(
 		}
 	}
 
-	/** Modelos de IA (en orden de preferencia) y límite diario de mensajes de cada plan. */
+	/** Modelos de IA (en orden de preferencia), límite diario de mensajes y semanal de informes médicos de cada plan. */
 	public record PlanSettings(
 			@DefaultValue("gemini-3.6-flash") List<String> models,
 			String thinkingLevel,
-			@DefaultValue("20") int dailyMessages) {
+			@DefaultValue("20") int dailyMessages,
+			@DefaultValue("5") int weeklyReports) {
 	}
 
+	/** {@code weeklyReportsPerIp}: freno extra por si alguien borra la cookie de invitado para saltarse el límite. */
 	public record Guest(
 			@DefaultValue("5") int dailyMessages,
-			@DefaultValue("20") int dailyMessagesPerIp) {
+			@DefaultValue("20") int dailyMessagesPerIp,
+			@DefaultValue("2") int weeklyReports,
+			@DefaultValue("6") int weeklyReportsPerIp) {
 	}
 
 }

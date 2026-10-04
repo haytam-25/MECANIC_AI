@@ -32,6 +32,10 @@
   --danger: #ff6b6b;
   --danger-soft: rgba(255, 100, 100, 0.12);
   --ok: #45d18f;
+  --ok-soft: rgba(69, 209, 143, 0.12);
+  --warn: #f2c14e;
+  --warn-soft: rgba(242, 193, 78, 0.13);
+  --info: #7dbbff;
 
   --radius-xs: 6px;
   --radius-s: 10px;

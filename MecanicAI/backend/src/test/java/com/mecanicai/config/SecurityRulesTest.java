@@ -27,6 +27,9 @@ import com.mecanicai.auth.CsrfHeaderFilter;
 import com.mecanicai.auth.JwtService;
 import com.mecanicai.auth.OAuth2LoginSuccessHandler;
 import com.mecanicai.auth.SessionCookies;
+import com.mecanicai.maintenance.HealthReportController;
+import com.mecanicai.maintenance.HealthReportService;
+import com.mecanicai.maintenance.HealthReportService.ReportResult;
 import com.mecanicai.usage.UsageService;
 import com.mecanicai.user.UserService;
 import com.mecanicai.vehicle.VehicleController;
@@ -36,7 +39,7 @@ import com.mecanicai.vehicle.VehicleService;
  * Reglas de seguridad de la API: qué es público, qué exige sesión y la protección CSRF.
  */
 // Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
-@WebMvcTest(controllers = { AuthController.class, VehicleController.class },
+@WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class },
 		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
 				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
@@ -61,6 +64,9 @@ class SecurityRulesTest {
 	@MockitoBean
 	VehicleService vehicles;
 
+	@MockitoBean
+	HealthReportService reports;
+
 	@Test
 	void guestsCanAskWhoTheyAreAndGetAGuestCookie() throws Exception {
 		mvc.perform(get("/api/auth/me"))
@@ -69,6 +75,8 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.features.googleLogin").value(false))
 			.andExpect(jsonPath("$.features.guestDailyMessages").value(5))
 			.andExpect(jsonPath("$.features.freeDailyMessages").value(20))
+			.andExpect(jsonPath("$.features.guestWeeklyReports").value(2))
+			.andExpect(jsonPath("$.features.freeWeeklyReports").value(5))
 			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
 			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_guest=")));
 	}
@@ -102,6 +110,27 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.code").value("CSRF"));
 		mvc.perform(post("/api/auth/logout").cookie(session).header(CsrfHeaderFilter.HEADER, "1"))
 			.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void savedReportsAreOnlyForAccountsButGuestsCanCountTheirs() throws Exception {
+		mvc.perform(get("/api/reports")).andExpect(status().isUnauthorized());
+		mvc.perform(post("/api/reports").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
+
+		given(reports.guest(any(), any())).willReturn(new ReportResult(null, null));
+		mvc.perform(post("/api/guest/reports").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isOk());
+	}
+
+	@Test
+	void aReportWithInvalidAnswersIsRejected() throws Exception {
+		String body = """
+				{"vehicleId": "%s", "input": {"currentKm": "98000", "timing": null,
+				 "answers": {"ACEITE": {"kind": "hackeado", "km": "", "time": "", "unit": "meses"}}}}"""
+			.formatted(UUID.randomUUID());
+		mvc.perform(post("/api/reports").cookie(session(UUID.randomUUID()))
+			.header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content(body)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION"));
 	}
 
 	private Cookie session(UUID userId) {

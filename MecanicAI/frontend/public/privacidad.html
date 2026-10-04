@@ -53,7 +53,10 @@
         <li><strong>Tu garaje:</strong> los coches que guardas (marca, modelo, año, motorización, combustible y
           potencia).</li>
         <li><strong>Tus consultas:</strong> las preguntas que escribes y las respuestas de la IA, con su fecha.</li>
-        <li><strong>Uso diario:</strong> cuántos mensajes has enviado hoy, para aplicar el límite gratuito.</li>
+        <li><strong>Tus informes médicos:</strong> el último informe de cada coche (kilómetros, cuándo se le hizo cada
+          mantenimiento y la fecha del informe). Se borra al borrar el coche o la cuenta.</li>
+        <li><strong>Uso:</strong> cuántos mensajes has enviado hoy y cuántos informes médicos has hecho esta semana,
+          para aplicar los límites gratuitos.</li>
         <li><strong>Datos técnicos:</strong> fecha de alta y del último acceso, y el plan de tu cuenta.</li>
       </ul>
 
@@ -61,12 +64,17 @@
       <ul>
         <li>Tu consulta y el coche elegido se guardan <strong>solo en tu navegador</strong> (almacenamiento local). Se
           envían a nuestro servidor en cada pregunta para generar la respuesta, pero no se guardan en él.</li>
-        <li>Para aplicar el límite diario de invitados guardamos un <strong>identificador anónimo</strong> (en una
-          cookie) y tu <strong>dirección IP</strong>, junto con el número de mensajes de ese día.</li>
+        <li>Tus informes médicos <strong>no se guardan</strong> en ningún sitio: se pierden al salir de la página.</li>
+        <li>Para aplicar los límites de invitados guardamos un <strong>identificador anónimo</strong> (en una
+          cookie) y tu <strong>dirección IP</strong>, junto con el número de mensajes de ese día y de informes médicos
+          de esa semana.</li>
       </ul>
 
       <h3>En todos los casos</h3>
       <ul>
+        <li><strong>Informe médico:</strong> para preparar el informe enviamos los datos del coche (marca, modelo, año
+          y motorización) a Google Gemini para consultar su plan de mantenimiento. Los kilómetros y las fechas de
+          mantenimiento nunca se envían a Google.</li>
         <li><strong>Registros del servidor:</strong> dirección IP, fecha y hora, página solicitada y tipo de navegador.
           Son necesarios para que la web funcione y para detectar abusos o errores.</li>
         <li><strong>Dictado por voz:</strong> si usas el micrófono, el reconocimiento de voz lo hace tu navegador (por

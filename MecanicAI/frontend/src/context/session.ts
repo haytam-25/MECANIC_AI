@@ -12,6 +12,8 @@ export interface SessionValue {
   refreshMe(): Promise<Me | null>
   refreshLists(): Promise<void>
   setUsage(usage: Usage): void
+  /** Informes médicos de esta semana. */
+  setReportUsage(usage: Usage): void
   /** Eligió "Modo Invitado" en la portada (se recuerda en este navegador hasta que cierra sesión). */
   guestMode: boolean
   enterGuestMode(): void

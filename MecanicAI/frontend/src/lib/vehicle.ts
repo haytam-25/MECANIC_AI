@@ -26,6 +26,18 @@ export function engineLabel(vehicle: Pick<VehicleSpec, 'engine' | 'powerCv' | 'f
   return parts.length > 0 ? parts.join(' · ') : null
 }
 
+/** Solo los datos del coche (sin el id ni los textos de un coche del garaje). */
+export function toSpec(vehicle: VehicleSpec): VehicleSpec {
+  const { brandId, brand, modelId, model, year, engine, fuel, powerCv } = vehicle
+  return { brandId, brand, modelId, model, year, engine, fuel, powerCv }
+}
+
+/** Identifica una versión de coche (mismos datos = mismo coche), sin distinguir mayúsculas ni espacios. */
+export function vehicleKey(vehicle: VehicleSpec): string {
+  const text = (value: string | null) => (value ?? '').trim().replace(/\s+/g, ' ').toLowerCase()
+  return [text(vehicle.brand), text(vehicle.model), vehicle.year, text(vehicle.engine), vehicle.fuel ?? '', vehicle.powerCv ?? ''].join('|')
+}
+
 /** Iniciales para el tapacubos: "Alfa Romeo" → "AR", "BMW" → "BMW", "Toyota" → "T". */
 export function brandAbbr(name: string): string {
   const words = name.trim().split(/[\s/&-]+/).filter(Boolean)

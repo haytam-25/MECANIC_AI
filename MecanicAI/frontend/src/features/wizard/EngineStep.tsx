@@ -16,6 +16,7 @@ interface EngineStepProps {
   model: PickedModel
   year: number
   saving: boolean
+  savingText?: string
   onPick(choice: EngineChoice): void
   onBack(): void
 }
@@ -40,7 +41,7 @@ function engineName(engine: EngineOption): string {
   return engine.name.includes('(') ? `${engine.name} · ${engine.code}` : `${engine.name} (${engine.code})`
 }
 
-export function EngineStep({ brand, model, year, saving, onPick, onBack }: EngineStepProps) {
+export function EngineStep({ brand, model, year, saving, savingText = 'Preparando el chat…', onPick, onBack }: EngineStepProps) {
   // Solo se pueden sugerir motorizaciones de coches del catálogo y de un año de venta conocido
   const canSuggest = Boolean(brand.id && model.id && model.years.includes(year))
   const [mode, setMode] = useState<Mode>(canSuggest ? 'list' : 'manual')
@@ -64,7 +65,7 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
       {saving && (
         <div className="loading-row" aria-busy="true">
           <Wheel size={32} spinning />
-          <span className="muted">Preparando el chat…</span>
+          <span className="muted">{savingText}</span>
         </div>
       )}
 
