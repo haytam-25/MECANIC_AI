@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 
 import { fetchEngines } from '../../api/endpoints.ts'
-import { isAbort } from '../../api/http.ts'
 import type { EngineOption, EngineSuggestions, Fuel, VehicleSpec } from '../../api/types.ts'
 import { Icon } from '../../components/Icon.tsx'
 import { Wheel } from '../../components/Wheel.tsx'
@@ -49,13 +48,13 @@ export function EngineStep({ brand, model, year, saving, savingText = 'Preparand
 
   useEffect(() => {
     if (!canSuggest || !brand.id || !model.id) return
-    const controller = new AbortController()
-    fetchEngines(brand.id, model.id, year, controller.signal)
-      .then(setSuggestions)
-      .catch((error: unknown) => {
-        if (!isAbort(error)) setSuggestions({ engines: [], source: 'unavailable' })
-      })
-    return () => controller.abort()
+    let active = true
+    fetchEngines(brand.id, model.id, year)
+      .then((result) => active && setSuggestions(result))
+      .catch(() => active && setSuggestions({ engines: [], source: 'unavailable' }))
+    return () => {
+      active = false
+    }
   }, [canSuggest, brand.id, model.id, year])
 
   return (
@@ -72,12 +71,10 @@ export function EngineStep({ brand, model, year, saving, savingText = 'Preparand
       {!saving && mode === 'list' && (
         <>
           {suggestions === null ? (
-            <div className="engine-loading" aria-busy="true">
-              <Wheel size={52} spinning />
-              <p>
-                Consultando las motorizaciones del {brand.name} {model.name} de {year}…
-              </p>
-            </div>
+            <EngineLoading
+              carName={`${brand.name} ${model.name} de ${year}`}
+              withCodes={Boolean(brand.id && BRANDS_WITH_CODES.has(brand.id))}
+            />
           ) : suggestions.engines.length === 0 ? (
             <div className="notice">
               <Icon name="alert" size={20} />
@@ -160,6 +157,41 @@ export function EngineStep({ brand, model, year, saving, savingText = 'Preparand
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/** Cada cuánto cambia el texto mientras la IA busca los motores. */
+const LOADING_STEP_MS = 3000
+
+/**
+ * La IA puede tardar 10-20 s en devolver la lista: el texto va cambiando para que se vea que la búsqueda sigue en
+ * marcha y la página no se ha quedado colgada. El último mensaje se queda fijo hasta que llega la respuesta.
+ */
+function EngineLoading({ carName, withCodes }: { carName: string; withCodes: boolean }) {
+  const messages = [
+    `Consultando las motorizaciones del ${carName}…`,
+    'Clasificándolas por tipo de combustible…',
+    withCodes ? 'Buscando el código de cada motor…' : 'Comprobando potencias y versiones…',
+    'Preparando la lista de motores encontrados…',
+    'Revisando que los datos sean correctos…',
+    'Casi listo, un momento más…',
+  ]
+  const last = messages.length - 1
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    if (index >= last) return
+    const timer = setTimeout(() => setIndex(index + 1), LOADING_STEP_MS)
+    return () => clearTimeout(timer)
+  }, [index, last])
+
+  return (
+    <div className="engine-loading" aria-busy="true">
+      <Wheel size={52} spinning />
+      <p key={index} className="engine-loading__text" role="status" aria-live="polite">
+        {messages[index]}
+      </p>
     </div>
   )
 }

@@ -42,11 +42,28 @@ export const deleteAccount = () => api<void>('/api/auth/account', { method: 'DEL
 export const fetchBrands = () => cached('brands', () => api<Brand[]>('/api/catalog/brands'))
 export const fetchModels = (brandId: string) =>
   cached(`models:${brandId}`, () => api<CarModel[]>(`/api/catalog/brands/${encodeURIComponent(brandId)}/models`))
-export const fetchEngines = (brandId: string, modelId: string, year: number, signal?: AbortSignal) =>
-  api<EngineSuggestions>(
-    `/api/catalog/engines?brand=${encodeURIComponent(brandId)}&model=${encodeURIComponent(modelId)}&year=${year}`,
-    { signal },
-  )
+// Las motorizaciones tardan varios segundos en llegar de la IA: si el usuario vuelve atrás y entra otra vez en el
+// mismo coche se reutiliza la consulta (en curso o terminada) en vez de empezar otra. No admite AbortSignal a
+// propósito: la consulta es compartida y no debe cortarse porque un paso del asistente se desmonte.
+const engineCache = new Map<string, Promise<EngineSuggestions>>()
+
+export function fetchEngines(brandId: string, modelId: string, year: number): Promise<EngineSuggestions> {
+  const key = `${brandId}/${modelId}/${year}`
+  let promise = engineCache.get(key)
+  if (!promise) {
+    const loading = api<EngineSuggestions>(
+      `/api/catalog/engines?brand=${encodeURIComponent(brandId)}&model=${encodeURIComponent(modelId)}&year=${year}`,
+    )
+    engineCache.set(key, loading)
+    // Si la IA no respondió (lista vacía o error), la próxima vez se vuelve a preguntar
+    loading.then(
+      (result) => result.engines.length === 0 && engineCache.delete(key),
+      () => engineCache.delete(key),
+    )
+    promise = loading
+  }
+  return promise
+}
 
 // Informe médico: el plan de mantenimiento de cada coche solo se pide una vez mientras la app está abierta
 // (salvo si la IA no respondió: entonces se vuelve a intentar la próxima vez)

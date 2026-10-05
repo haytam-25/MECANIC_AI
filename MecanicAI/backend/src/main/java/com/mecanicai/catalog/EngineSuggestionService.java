@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -104,6 +106,9 @@ public class EngineSuggestionService {
 
 	private final AppProperties.Engines settings;
 
+	/** Consultas a la IA en curso, por marca/modelo/año: las peticiones del mismo coche esperan a la primera. */
+	private final Map<String, CompletableFuture<EngineSuggestions>> inFlight = new ConcurrentHashMap<>();
+
 	public EngineSuggestionService(CatalogService catalog, AiClient ai, UsageService usage, JdbcClient jdbc,
 			JsonMapper jsonMapper, AppProperties props) {
 		this.catalog = catalog;
@@ -143,6 +148,31 @@ public class EngineSuggestionService {
 			return new EngineSuggestions(List.of(), "limited");
 		}
 
+		// La IA tarda unos segundos: si ya se está preguntando por este mismo coche (otra pestaña, otro usuario, el
+		// usuario que vuelve atrás y entra otra vez...) se espera esa respuesta en vez de lanzar otra consulta
+		String key = brand.id() + "/" + model.id() + "/" + year;
+		CompletableFuture<EngineSuggestions> mine = new CompletableFuture<>();
+		CompletableFuture<EngineSuggestions> running = inFlight.putIfAbsent(key, mine);
+		if (running != null) {
+			usage.refund(reservation);
+			return running.exceptionally(ex -> new EngineSuggestions(List.of(), "unavailable")).join();
+		}
+		try {
+			EngineSuggestions result = askAi(brand, model, year, detailed, maxEngines, reservation);
+			mine.complete(result);
+			return result;
+		}
+		catch (RuntimeException ex) {
+			mine.completeExceptionally(ex);
+			throw ex;
+		}
+		finally {
+			inFlight.remove(key, mine);
+		}
+	}
+
+	private EngineSuggestions askAi(Brand brand, Model model, int year, boolean detailed, int maxEngines,
+			Reservation reservation) {
 		try {
 			String json = ai.generateJson(new AiJsonRequest(settings.models(), settings.thinkingLevel(), SYSTEM_PROMPT,
 					detailed ? detailedPrompt(brand, model, year) : prompt(brand, model, year),
