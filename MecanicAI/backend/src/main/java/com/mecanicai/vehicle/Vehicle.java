@@ -73,12 +73,4 @@ public class Vehicle {
 		return id;
 	}
 
-	public UUID getUserId() {
-		return userId;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mecanicai.auth.AuthUser;
 import com.mecanicai.maintenance.MaintenancePlanService.MaintenancePlan;
+import com.mecanicai.usage.UsageService;
 import com.mecanicai.vehicle.VehicleSpec;
 
 /** "Informe médico": abierto también a invitados (el coche va en la petición, no hace falta tenerlo guardado). */
@@ -27,7 +28,7 @@ public class MaintenanceController {
 	@PostMapping("/plan")
 	public MaintenancePlan plan(@Valid @RequestBody VehicleSpec vehicle, @AuthenticationPrincipal AuthUser user,
 			HttpServletRequest request) {
-		String clientKey = user != null ? "user:" + user.id() : "ip:" + request.getRemoteAddr();
+		String clientKey = user != null ? UsageService.userSubject(user.id()) : UsageService.ipSubject(request.getRemoteAddr());
 		return plans.plan(vehicle, clientKey);
 	}
 

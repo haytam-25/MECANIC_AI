@@ -66,10 +66,6 @@ public class User {
 		return id;
 	}
 
-	public String getAuthSubject() {
-		return authSubject;
-	}
-
 	public String getEmail() {
 		return email;
 	}
@@ -84,14 +80,6 @@ public class User {
 
 	public Plan getPlan() {
 		return plan;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-
-	public Instant getLastLoginAt() {
-		return lastLoginAt;
 	}
 
 }

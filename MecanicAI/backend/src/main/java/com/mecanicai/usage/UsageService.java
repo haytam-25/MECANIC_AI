@@ -40,6 +40,9 @@ public class UsageService {
 	public record Reservation(String subject, LocalDate day, Usage usage) {
 	}
 
+	/** Todos los invitados juntos (cupo diario global de mensajes del modo invitado). */
+	public static final String ALL_GUESTS = "guest:all";
+
 	public static String userSubject(Object userId) {
 		return "user:" + userId;
 	}
@@ -48,8 +51,9 @@ public class UsageService {
 		return "guest:" + guestId;
 	}
 
-	public static String ipSubject(String ip) {
-		return "ip:" + ip;
+	/** Conexión del invitado: la IPv4, o el bloque /64 de una IPv6 (ver {@link ClientNetwork}). */
+	public static String ipSubject(String remoteAddr) {
+		return "ip:" + ClientNetwork.of(remoteAddr);
 	}
 
 	/**

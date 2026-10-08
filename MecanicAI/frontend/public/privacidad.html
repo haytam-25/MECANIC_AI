@@ -21,7 +21,7 @@
 
     <main>
       <h1>Política de privacidad</h1>
-      <p class="updated">Última actualización: 2 de octubre de 2026</p>
+      <p class="updated">Última actualización: 8 de octubre de 2026</p>
 
       <div class="summary">
         <p><strong>En resumen:</strong></p>
@@ -50,9 +50,10 @@
         <li><strong>Datos de tu cuenta de Google:</strong> identificador de cuenta, nombre, dirección de correo y foto
           de perfil (ámbitos <code>openid</code>, <code>email</code> y <code>profile</code>). No tenemos acceso a tu
           contraseña ni a ningún otro dato de tu cuenta de Google (correos, contactos, archivos…).</li>
-        <li><strong>Tu garaje:</strong> los coches que guardas (marca, modelo, año, motorización, combustible y
-          potencia).</li>
-        <li><strong>Tus consultas:</strong> las preguntas que escribes y las respuestas de la IA, con su fecha.</li>
+        <li><strong>Tu garaje:</strong> los coches que guardas, hasta 5 (marca, modelo, año, motorización,
+          combustible y potencia).</li>
+        <li><strong>Tus consultas:</strong> las preguntas que escribes y las respuestas de la IA, con su fecha. Se
+          guardan tus 20 consultas más recientes: al empezar una nueva, se borra la más antigua.</li>
         <li><strong>Tus informes médicos:</strong> el último informe de cada coche (kilómetros, cuándo se le hizo cada
           mantenimiento y la fecha del informe). Se borra al borrar el coche o la cuenta.</li>
         <li><strong>Uso:</strong> cuántos mensajes has enviado hoy y cuántos informes médicos has hecho esta semana,
@@ -62,12 +63,13 @@
 
       <h3>Si usas el modo invitado</h3>
       <ul>
-        <li>Tu consulta y el coche elegido se guardan <strong>solo en tu navegador</strong> (almacenamiento local). Se
-          envían a nuestro servidor en cada pregunta para generar la respuesta, pero no se guardan en él.</li>
+        <li>Tus coches y sus consultas se guardan <strong>solo en tu navegador</strong>, en el almacenamiento de la
+          pestaña, y <strong>se borran al cerrarla</strong>. Se envían a nuestro servidor en cada pregunta para generar
+          la respuesta, pero no se guardan en él. Si inicias sesión con Google, pasan a tu cuenta.</li>
         <li>Tus informes médicos <strong>no se guardan</strong> en ningún sitio: se pierden al salir de la página.</li>
         <li>Para aplicar los límites de invitados guardamos un <strong>identificador anónimo</strong> (en una
-          cookie) y tu <strong>dirección IP</strong>, junto con el número de mensajes de ese día y de informes médicos
-          de esa semana.</li>
+          cookie) y tu <strong>dirección IP</strong> (si es IPv6, solo su bloque de red /64), junto con el número de
+          mensajes de ese día y de informes médicos de esa semana.</li>
       </ul>
 
       <h3>En todos los casos</h3>
@@ -157,14 +159,16 @@
 
       <h2>6. Cuánto tiempo los conservamos</h2>
       <ul>
-        <li><strong>Cuenta, garaje y consultas:</strong> mientras tengas la cuenta. Si borras una consulta, un coche o
+        <li><strong>Cuenta, garaje y consultas:</strong> mientras tengas la cuenta (de las consultas, solo las 20 más
+          recientes). Si borras una consulta, un coche o
           la cuenta, se elimina de inmediato de la base de datos; de las copias de seguridad desaparece en un máximo de
           14 días.</li>
         <li><strong>Contadores de uso diario</strong> (incluida la IP de los invitados): se borran automáticamente a
-          los 7 días.</li>
+          los 7 días. Para frenar abusos también contamos las peticiones de cada cuenta o conexión por minuto: esa
+          cuenta solo está en la memoria del servidor y se olvida a los pocos minutos.</li>
         <li><strong>Registros del servidor:</strong> se sobrescriben automáticamente al alcanzar un tamaño limitado.</li>
-        <li><strong>Datos del modo invitado en tu navegador:</strong> hasta que los borres, borres los datos del sitio
-          o inicies sesión (entonces se guardan en tu cuenta y se eliminan del navegador).</li>
+        <li><strong>Datos del modo invitado en tu navegador:</strong> hasta que cierres la pestaña o inicies sesión
+          (entonces se guardan en tu cuenta y se eliminan del navegador).</li>
         <li><strong>Correos que nos envíes:</strong> el tiempo necesario para atenderte y, después, el que exija la ley.</li>
       </ul>
 

@@ -53,10 +53,6 @@ public class Message {
 		return id;
 	}
 
-	public UUID getConversationId() {
-		return conversationId;
-	}
-
 	public Role getRole() {
 		return role;
 	}

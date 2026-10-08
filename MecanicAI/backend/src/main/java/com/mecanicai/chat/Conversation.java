@@ -66,20 +66,12 @@ public class Conversation {
 		return id;
 	}
 
-	public UUID getUserId() {
-		return userId;
-	}
-
 	public Vehicle getVehicle() {
 		return vehicle;
 	}
 
 	public String getTitle() {
 		return title;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
 	}
 
 	public Instant getUpdatedAt() {

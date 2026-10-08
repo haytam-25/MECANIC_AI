@@ -1,6 +1,10 @@
 # Secretos (claves de API, contraseñas)
 .env
 
+# Copias de seguridad de la base de datos (servicio backup de compose.yaml)
+backups/*
+!backups/.gitkeep
+
 # Editores
 .idea/
 .vscode/

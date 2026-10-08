@@ -25,8 +25,8 @@ import com.mecanicai.catalog.CatalogService.Brand;
 import com.mecanicai.catalog.CatalogService.Model;
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
-import com.mecanicai.usage.UsageService;
-import com.mecanicai.usage.UsageService.Reservation;
+import com.mecanicai.usage.LookupQuota;
+import com.mecanicai.usage.LookupQuota.Ticket;
 import com.mecanicai.vehicle.Fuel;
 
 import tools.jackson.core.JacksonException;
@@ -98,7 +98,7 @@ public class EngineSuggestionService {
 
 	private final AiClient ai;
 
-	private final UsageService usage;
+	private final LookupQuota quota;
 
 	private final JdbcClient jdbc;
 
@@ -109,11 +109,11 @@ public class EngineSuggestionService {
 	/** Consultas a la IA en curso, por marca/modelo/año: las peticiones del mismo coche esperan a la primera. */
 	private final Map<String, CompletableFuture<EngineSuggestions>> inFlight = new ConcurrentHashMap<>();
 
-	public EngineSuggestionService(CatalogService catalog, AiClient ai, UsageService usage, JdbcClient jdbc,
+	public EngineSuggestionService(CatalogService catalog, AiClient ai, LookupQuota quota, JdbcClient jdbc,
 			JsonMapper jsonMapper, AppProperties props) {
 		this.catalog = catalog;
 		this.ai = ai;
-		this.usage = usage;
+		this.quota = quota;
 		this.jdbc = jdbc;
 		this.jsonMapper = jsonMapper;
 		this.settings = props.ai().engines();
@@ -139,14 +139,11 @@ public class EngineSuggestionService {
 			return new EngineSuggestions(parse(jsonMapper, cached.get(), maxEngines), "cache");
 		}
 
-		Reservation reservation;
-		try {
-			reservation = usage.consume("engines:" + clientKey, settings.dailyLookupsPerClient(),
-					"Demasiadas consultas de motorizaciones por hoy");
-		}
-		catch (AppException ex) {
+		Optional<Ticket> acquired = quota.acquire("engines", clientKey);
+		if (acquired.isEmpty()) {
 			return new EngineSuggestions(List.of(), "limited");
 		}
+		Ticket ticket = acquired.get();
 
 		// La IA tarda unos segundos: si ya se está preguntando por este mismo coche (otra pestaña, otro usuario, el
 		// usuario que vuelve atrás y entra otra vez...) se espera esa respuesta en vez de lanzar otra consulta
@@ -154,11 +151,11 @@ public class EngineSuggestionService {
 		CompletableFuture<EngineSuggestions> mine = new CompletableFuture<>();
 		CompletableFuture<EngineSuggestions> running = inFlight.putIfAbsent(key, mine);
 		if (running != null) {
-			usage.refund(reservation);
+			quota.refund(ticket);
 			return running.exceptionally(ex -> new EngineSuggestions(List.of(), "unavailable")).join();
 		}
 		try {
-			EngineSuggestions result = askAi(brand, model, year, detailed, maxEngines, reservation);
+			EngineSuggestions result = askAi(brand, model, year, detailed, maxEngines, ticket);
 			mine.complete(result);
 			return result;
 		}
@@ -172,7 +169,7 @@ public class EngineSuggestionService {
 	}
 
 	private EngineSuggestions askAi(Brand brand, Model model, int year, boolean detailed, int maxEngines,
-			Reservation reservation) {
+			Ticket ticket) {
 		try {
 			String json = ai.generateJson(new AiJsonRequest(settings.models(), settings.thinkingLevel(), SYSTEM_PROMPT,
 					detailed ? detailedPrompt(brand, model, year) : prompt(brand, model, year),
@@ -187,7 +184,7 @@ public class EngineSuggestionService {
 			return new EngineSuggestions(engines, "ai");
 		}
 		catch (AiException | JacksonException ex) {
-			usage.refund(reservation);
+			quota.refund(ticket);
 			log.warn("No se pudieron sugerir motorizaciones para {} {} {}: {}", brand.name(), model.name(), year,
 					ex.getMessage());
 			return new EngineSuggestions(List.of(), "unavailable");

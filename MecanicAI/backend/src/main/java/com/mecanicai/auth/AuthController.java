@@ -62,9 +62,9 @@ public class AuthController {
 		}
 	}
 
-	/** Qué opciones debe mostrar el frontend. */
+	/** Qué opciones debe mostrar el frontend. {@code maxVehicles} y {@code maxConversations}: topes por usuario. */
 	public record Features(boolean googleLogin, boolean aiDemo, int guestDailyMessages, int freeDailyMessages,
-			int guestWeeklyReports, int freeWeeklyReports) {
+			int guestWeeklyReports, int freeWeeklyReports, int maxVehicles, int maxConversations) {
 	}
 
 	/** {@code usage}: mensajes de hoy. {@code reports}: informes médicos de esta semana. */
@@ -76,7 +76,7 @@ public class AuthController {
 			HttpServletResponse response) {
 		Features features = new Features(props.auth().google().configured(), aiClient.isDemo(),
 				props.guest().dailyMessages(), props.plans().free().dailyMessages(), props.guest().weeklyReports(),
-				props.plans().free().weeklyReports());
+				props.plans().free().weeklyReports(), props.limits().maxVehicles(), props.limits().maxConversations());
 
 		if (principal != null) {
 			Optional<User> user = users.find(principal.id());

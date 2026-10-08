@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -16,6 +17,7 @@ import com.mecanicai.chat.ChatService.TurnContext;
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
 import com.mecanicai.config.AppProperties.PlanSettings;
+import com.mecanicai.usage.RateLimiter;
 import com.mecanicai.usage.UsageService;
 import com.mecanicai.usage.UsageService.Reservation;
 import com.mecanicai.user.User;
@@ -39,21 +41,25 @@ public class ChatTurnService {
 
 	private final UserService users;
 
+	private final RateLimiter rateLimiter;
+
 	private final AppProperties props;
 
 	public ChatTurnService(ChatService chats, ChatStreamer streamer, PromptBuilder prompts, UsageService usage,
-			UserService users, AppProperties props) {
+			UserService users, RateLimiter rateLimiter, AppProperties props) {
 		this.chats = chats;
 		this.streamer = streamer;
 		this.prompts = prompts;
 		this.usage = usage;
 		this.users = users;
+		this.rateLimiter = rateLimiter;
 		this.props = props;
 	}
 
 	public SseEmitter send(UUID userId, UUID conversationId, String content) {
 		PlanSettings plan = planOf(userId);
 		chats.requireOwned(userId, conversationId);
+		checkRate(UsageService.userSubject(userId));
 		Reservation reservation = consumeUserQuota(userId, plan);
 		TurnContext context;
 		try {
@@ -70,23 +76,36 @@ public class ChatTurnService {
 	public SseEmitter retry(UUID userId, UUID conversationId) {
 		PlanSettings plan = planOf(userId);
 		TurnContext context = chats.retryContext(userId, conversationId);
+		checkRate(UsageService.userSubject(userId));
 		Reservation reservation = consumeUserQuota(userId, plan);
 		return streamForUser(context, plan, reservation);
 	}
 
 	/** Chat de invitado: nada se guarda en la base de datos y el historial lo envía el navegador. */
-	public SseEmitter guest(GuestChatRequest body, String guestId, String ip) {
+	public SseEmitter guest(GuestChatRequest body, String guestId, String remoteAddr) {
 		VehicleSpec vehicle = body.vehicle().normalized();
 		vehicle.validateYear(props.timezone());
+		// Por conexión y no por cookie: la cookie de invitado se puede borrar
+		String network = UsageService.ipSubject(remoteAddr);
+		checkRate(network);
 
 		AppProperties.Guest guest = props.guest();
 		Reservation byGuest = usage.consume(UsageService.guestSubject(guestId), guest.dailyMessages(),
 				"Has usado tus %d mensajes gratis de hoy como invitado. Inicia sesión con Google para seguir (%d al día) y guardar tus conversaciones."
 					.formatted(guest.dailyMessages(), props.plans().free().dailyMessages()));
 		Reservation byIp;
+		Reservation byAllGuests;
 		try {
-			byIp = usage.consume(UsageService.ipSubject(ip), guest.dailyMessagesPerIp(),
+			byIp = usage.consume(network, guest.dailyMessagesPerIp(),
 					"Se ha alcanzado el límite de mensajes gratis de hoy desde tu conexión. Inicia sesión con Google para seguir.");
+			try {
+				byAllGuests = usage.consume(UsageService.ALL_GUESTS, guest.dailyMessagesTotal(),
+						"Hoy hay muchísimos invitados usando MecanicAI y se ha agotado el cupo gratuito. Inicia sesión con Google para seguir.");
+			}
+			catch (AppException ex) {
+				usage.refund(byIp);
+				throw ex;
+			}
 		}
 		catch (AppException ex) {
 			usage.refund(byGuest);
@@ -116,6 +135,7 @@ public class ChatTurnService {
 				if (!clientAborted || partialText.isBlank()) {
 					usage.refund(byGuest);
 					usage.refund(byIp);
+					usage.refund(byAllGuests);
 				}
 			}
 		});
@@ -143,6 +163,14 @@ public class ChatTurnService {
 				}
 			}
 		});
+	}
+
+	/** Freno contra las ráfagas: como mucho {@code app.limits.chat-per-minute} mensajes por minuto. */
+	private void checkRate(String subject) {
+		if (!rateLimiter.tryAcquire("chat:" + subject, props.limits().chatPerMinute())) {
+			throw new AppException(HttpStatus.TOO_MANY_REQUESTS, "TOO_FAST",
+					"Vas demasiado rápido. Espera un minuto y vuelve a intentarlo.");
+		}
 	}
 
 	private PlanSettings planOf(UUID userId) {

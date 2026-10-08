@@ -24,6 +24,10 @@ export interface Features {
   freeDailyMessages: number
   guestWeeklyReports: number
   freeWeeklyReports: number
+  /** Coches como mucho en el garaje. */
+  maxVehicles: number
+  /** Consultas guardadas como mucho: al empezar una más se borra la más antigua. */
+  maxConversations: number
 }
 
 export interface Me {

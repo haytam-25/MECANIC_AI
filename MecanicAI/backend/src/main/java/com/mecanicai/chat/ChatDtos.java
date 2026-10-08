@@ -26,6 +26,9 @@ public final class ChatDtos {
 	/** Longitud máxima de un mensaje del historial (las respuestas largas de la IA rondan los 16.000 caracteres). */
 	public static final int MAX_TURN = 20000;
 
+	/** Mensajes que se guardan como mucho de cada conversación de invitado al iniciar sesión. */
+	public static final int MAX_IMPORT_MESSAGES = 60;
+
 	private ChatDtos() {
 	}
 
@@ -62,9 +65,9 @@ public final class ChatDtos {
 			@NotBlank @Size(max = MAX_QUESTION) String message) {
 	}
 
-	/** Conversación hecha como invitado que se guarda al iniciar sesión. */
+	/** Conversación hecha como invitado que se guarda al iniciar sesión (sus últimos mensajes). */
 	public record ImportRequest(@NotNull @Valid VehicleSpec vehicle,
-			@NotNull @Size(max = 200) List<@Valid ChatTurn> messages) {
+			@NotNull @Size(max = MAX_IMPORT_MESSAGES) List<@Valid ChatTurn> messages) {
 	}
 
 	/** Evento final del streaming. */

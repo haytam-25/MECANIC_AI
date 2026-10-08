@@ -32,6 +32,8 @@ export function Drawer({ open, onClose }: DrawerProps) {
   const [confirm, setConfirm] = useState<Confirm>(null)
 
   const user = me?.authenticated ? me.user : null
+  const maxVehicles = me?.features.maxVehicles ?? 0
+  const full = maxVehicles > 0 && vehicles.length >= maxVehicles
 
   const go = (path: string) => {
     onClose()
@@ -69,7 +71,9 @@ export function Drawer({ open, onClose }: DrawerProps) {
 
         <div className="drawer__body">
           <section className="drawer__section">
-            <h2 className="section-label">Mi garaje</h2>
+            <h2 className="section-label">
+              Mi garaje{maxVehicles > 0 && ` · ${vehicles.length}/${maxVehicles}`}
+            </h2>
             {vehicles.length === 0 ? (
               <p className="muted small">Aún no tienes coches. Elige el tuyo para empezar.</p>
             ) : (
@@ -110,9 +114,13 @@ export function Drawer({ open, onClose }: DrawerProps) {
                 ))}
               </ul>
             )}
-            <button type="button" className="btn btn--ghost btn--block btn--sm" onClick={() => go('/')}>
-              <Icon name="plus" size={18} /> Añadir coche
-            </button>
+            {full ? (
+              <p className="muted small">Garaje lleno: borra un coche para añadir otro.</p>
+            ) : (
+              <button type="button" className="btn btn--ghost btn--block btn--sm" onClick={() => go('/')}>
+                <Icon name="plus" size={18} /> Añadir coche
+              </button>
+            )}
           </section>
 
           <GuestSaveCard compact />

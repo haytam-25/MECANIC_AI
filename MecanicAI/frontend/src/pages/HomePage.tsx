@@ -33,6 +33,7 @@ export function HomePage() {
           <Icon name="car" size={20} />
           <span>
             {vehicles.length === 1 ? 'Tienes 1 coche' : `Tienes ${vehicles.length} coches`} en tu garaje
+            {vehicles.length >= me.features.maxVehicles && ' (lleno: borra uno para añadir otro)'}
           </span>
           <span className="garage-hint__cta">
             Abrir garaje <Icon name="next" size={16} />

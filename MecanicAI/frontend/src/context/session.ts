@@ -30,8 +30,11 @@ export interface SessionValue {
   guestMode: boolean
   enterGuestMode(): void
   loginWithGoogle(): void
-  /** Tras iniciar sesión: guarda en la cuenta el garaje del invitado y devuelve a dónde ir. */
-  completeLogin(): Promise<string | null>
+  /**
+   * Tras iniciar sesión: guarda en la cuenta el garaje del invitado. Devuelve a dónde ir y cuántos coches no cabían
+   * en el garaje de la cuenta.
+   */
+  completeLogin(): Promise<{ path: string | null; skipped: number }>
   logout(): Promise<void>
   removeAccount(): Promise<void>
 }

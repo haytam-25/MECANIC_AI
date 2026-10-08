@@ -11,6 +11,7 @@ import {
   importConversation,
   logout as apiLogout,
 } from '../api/endpoints.ts'
+import { ApiError } from '../api/http.ts'
 import type { ConversationSummary, Me, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
 import {
   EMPTY_GUEST_GARAGE,
@@ -39,33 +40,46 @@ async function loadSession(): Promise<SessionData> {
   return { me, conversations, vehicles }
 }
 
+/** Mensajes que el servidor guarda como mucho de cada consulta de invitado (los últimos). */
+const MAX_IMPORT_MESSAGES = 60
+
+/** Mismo error que da el servidor cuando el garaje está lleno. */
+function garageFull(max: number): ApiError {
+  return new ApiError(409, 'VEHICLE_LIMIT', `Tu garaje está lleno (máximo ${max} coches). Borra uno para añadir otro.`)
+}
+
 /**
  * Guarda en la cuenta el garaje del invitado: cada coche con sus consultas. Devuelve el id en la cuenta del coche
- * más reciente. Lo ya guardado se va quitando del garaje de invitado para no duplicarlo si algo falla a mitad.
+ * más reciente y cuántos coches no cabían en el garaje de la cuenta. Lo ya procesado se va quitando del garaje de
+ * invitado para no duplicarlo si algo falla a mitad.
  */
-async function importGuestGarage(garage: GuestGarage): Promise<string | null> {
+async function importGuestGarage(garage: GuestGarage): Promise<{ newest: string | null; skipped: number }> {
   let pending = garage
   let newest: string | null = null
+  let skipped = 0
   // Del más antiguo al más reciente, para que en la cuenta queden en el mismo orden
   for (const vehicle of [...garage.vehicles].reverse()) {
     const chats = garage.conversations.filter((c) => c.vehicleId === vehicle.id && c.messages.length > 0).reverse()
-    let savedId: string
-    if (chats.length === 0) {
-      savedId = (await createVehicle(toSpec(vehicle))).id
-    } else {
-      savedId = ''
-      for (const chat of chats) {
-        savedId = (await importConversation(toSpec(vehicle), chat.messages.slice(-200))).vehicle.id
+    try {
+      if (chats.length === 0) {
+        newest = (await createVehicle(toSpec(vehicle))).id
+      } else {
+        for (const chat of chats) {
+          newest = (await importConversation(toSpec(vehicle), chat.messages.slice(-MAX_IMPORT_MESSAGES))).vehicle.id
+        }
       }
+    } catch (error) {
+      // Garaje de la cuenta lleno: ese coche no cabe, pero el resto puede ser uno que ya tenía
+      if (!(error instanceof ApiError && error.code === 'VEHICLE_LIMIT')) throw error
+      skipped++
     }
-    newest = savedId
     pending = {
       vehicles: pending.vehicles.filter((v) => v.id !== vehicle.id),
       conversations: pending.conversations.filter((c) => c.vehicleId !== vehicle.id),
     }
     saveGuestGarage(pending)
   }
-  return newest
+  return { newest, skipped }
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -137,11 +151,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
       const known = guestGarage.vehicles.find((v) => vehicleKey(v) === vehicleKey(spec))
       if (known) return known
+      const max = me?.features.maxVehicles ?? 0
+      if (max > 0 && guestGarage.vehicles.length >= max) throw garageFull(max)
       const vehicle = newGuestVehicle(spec)
       setGuestGarage((g) => ({ ...g, vehicles: [vehicle, ...g.vehicles] }))
       return vehicle
     },
-    [authenticated, guestGarage.vehicles, refreshLists],
+    [authenticated, guestGarage.vehicles, me?.features.maxVehicles, refreshLists],
   )
 
   const removeVehicle = useCallback(
@@ -176,13 +192,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [guestGarage.conversations],
   )
 
-  // La consulta tocada pasa a ser la primera (el historial va de la más reciente a la más antigua)
-  const saveGuestConversation = useCallback((conversation: GuestConversation) => {
-    setGuestGarage((g) => ({
-      ...g,
-      conversations: [conversation, ...g.conversations.filter((c) => c.id !== conversation.id)],
-    }))
-  }, [])
+  // La consulta tocada pasa a ser la primera (el historial va de la más reciente a la más antigua). Como en la
+  // cuenta, se guardan como mucho maxConversations: al empezar una más se borra la más antigua.
+  const maxConversations = me?.features.maxConversations ?? 0
+  const saveGuestConversation = useCallback(
+    (conversation: GuestConversation) => {
+      setGuestGarage((g) => {
+        const conversations = [conversation, ...g.conversations.filter((c) => c.id !== conversation.id)]
+        return { ...g, conversations: maxConversations > 0 ? conversations.slice(0, maxConversations) : conversations }
+      })
+    },
+    [maxConversations],
+  )
 
   const setUsage = useCallback((usage: Usage) => {
     setMe((current) => (current ? { ...current, usage } : current))
@@ -212,16 +233,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const completeLogin = useCallback(async () => {
     const garage = loadGuestGarage()
     let path: string | null = null
+    let skipped = 0
     try {
-      const newest = await importGuestGarage(garage)
-      if (newest) path = `/coche/${newest}`
+      const imported = await importGuestGarage(garage)
+      if (imported.newest) path = `/coche/${imported.newest}`
+      skipped = imported.skipped
     } finally {
       setGuestGarage(loadGuestGarage())
       const [convs, cars] = await Promise.all([fetchConversations(), fetchVehicles()])
       setAccountConversations(convs)
       setAccountVehicles(cars)
     }
-    return path
+    return { path, skipped }
   }, [])
 
   const logout = useCallback(async () => {

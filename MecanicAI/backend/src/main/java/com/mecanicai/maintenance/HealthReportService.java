@@ -88,16 +88,6 @@ public class HealthReportService {
 		return "reports:guest:" + guestId;
 	}
 
-	/** Informes que lleva esta semana una cuenta. */
-	public Usage userUsage(UUID userId) {
-		return usage.peekWeekly(userSubject(userId), planOf(userId).weeklyReports());
-	}
-
-	/** Informes que lleva esta semana un invitado. */
-	public Usage guestUsage(String guestId) {
-		return usage.peekWeekly(guestSubject(guestId), props.guest().weeklyReports());
-	}
-
 	/** Último informe de cada coche del usuario, del más reciente al más antiguo. */
 	public List<SavedReport> list(UUID userId) {
 		return jdbc.sql("""
@@ -138,14 +128,14 @@ public class HealthReportService {
 		return new ReportResult(new SavedReport(request.vehicleId(), request.input(), now), reservation.usage());
 	}
 
-	/** Invitado: solo cuenta el informe (por su cookie y por IP); no se guarda nada. */
-	public ReportResult guest(String guestId, String ip) {
+	/** Invitado: solo cuenta el informe (por su cookie y por su conexión); no se guarda nada. */
+	public ReportResult guest(String guestId, String remoteAddr) {
 		AppProperties.Guest guest = props.guest();
 		Reservation byGuest = usage.consumeWeekly(guestSubject(guestId), guest.weeklyReports(),
 				"Ya has hecho tus %d informes médicos gratis de esta semana como invitado. Inicia sesión con Google para hacer hasta %d a la semana y tenerlos guardados."
 					.formatted(guest.weeklyReports(), props.plans().free().weeklyReports()));
 		try {
-			usage.consumeWeekly("reports:ip:" + ip, guest.weeklyReportsPerIp(),
+			usage.consumeWeekly("reports:" + UsageService.ipSubject(remoteAddr), guest.weeklyReportsPerIp(),
 					"Se ha alcanzado el límite de informes médicos de esta semana desde tu conexión. Inicia sesión con Google para seguir.");
 		}
 		catch (AppException ex) {

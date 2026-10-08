@@ -4,9 +4,11 @@ SaaS web (pensado para el móvil) en el que el usuario elige su coche —**marca
 después pregunta lo que necesite a un mecánico de inteligencia artificial que responde teniendo en cuenta ese coche
 concreto.
 
-| Elige la marca | Motorización | Chat con la IA | Historial y garaje |
+| Portada | Elige la marca | Motorización | Tu coche |
 | :---: | :---: | :---: | :---: |
-| ![Elegir marca](docs/capturas/1-elige-marca.png) | ![Motorización](docs/capturas/2-motorizacion.png) | ![Chat](docs/capturas/3-chat.png) | ![Historial](docs/capturas/4-historial.png) |
+| ![Portada con inicio de sesión con Google o modo invitado](docs/capturas/1-portada.png) | ![Asistente: elegir la marca](docs/capturas/2-elige-marca.png) | ![Motorizaciones sugeridas por la IA](docs/capturas/3-motorizacion.png) | ![Página del coche: chat e informe médico](docs/capturas/4-coche.png) |
+| **Chat con la IA** | **Garaje** | **Informe médico** | |
+| ![Chat con el mecánico IA](docs/capturas/5-chat.png) | ![Garaje en el menú lateral](docs/capturas/6-garaje.png) | ![Informe médico por colores](docs/capturas/7-informe.png) | |
 
 ## Funcionalidades
 
@@ -31,10 +33,14 @@ concreto.
 - **Portada** con dos opciones: **Iniciar con Google** o **Modo Invitado** (pocos mensajes al día y nada guardado en
   el servidor). Como invitado, los coches y sus consultas solo duran mientras la pestaña esté abierta
   (`sessionStorage`); al iniciar sesión se guardan automáticamente en la cuenta.
-- **Garaje** en el menú lateral (varios coches por usuario), con la recomendación de iniciar sesión para los
-  invitados. Historial de consultas por coche, borrar consultas/coches y **eliminar la cuenta** (RGPD).
+- **Garaje** en el menú lateral (hasta 5 coches por usuario), con la recomendación de iniciar sesión para los
+  invitados. Historial de consultas por coche (se guardan las 20 más recientes: al empezar la 21ª se borra la más
+  antigua), borrar consultas/coches y **eliminar la cuenta** (RGPD).
 - **Límites**: invitado 5 mensajes/día y 2 informes médicos/semana; cuenta gratuita 20 mensajes/día y 5
   informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
+  Contra abusos: 6 mensajes y 10 consultas de motores o mantenimiento por minuto, y un cupo diario entre todos los
+  invitados (`GUEST_DAILY_MESSAGES_TOTAL` y `GUEST_DAILY_LOOKUPS_TOTAL`, 300 por defecto) para que nadie pueda
+  agotar la cuota de Gemini que comparten con las cuentas. Los topes están en `app.limits` (`application.yml`).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).
 - **Instalable como app** (PWA): pantalla completa y vertical, icono propio.
 - Diseño mecánico: grafito y acero cepillado, logotipo circular con la M, llanta como indicador de carga, tapacubos
@@ -194,14 +200,17 @@ flowchart LR
   S --- DB[(PostgreSQL)]
 ```
 
-- **Sesión**: tras el login de Google, el backend crea una cookie `HttpOnly` con un JWT propio (30 días, se renueva
-  sola). Protección CSRF: cookie `SameSite=Lax` + cabecera obligatoria `X-MecanicAI` en las peticiones que modifican
+- **Sesión**: tras el login de Google, el backend crea una cookie `HttpOnly` con un JWT propio (7 días, se renueva
+  sola mientras se use la app). Protección CSRF: cookie `SameSite=Lax` + cabecera obligatoria `X-MecanicAI` en las peticiones que modifican
   datos.
-- **Invitados**: la consulta se guarda solo en el navegador (localStorage). El límite va por cookie anónima (5 al día)
-  y por IP (20 al día entre todos los invitados de una misma conexión): otro navegador o una ventana de incógnito es
-  un invitado nuevo, pero desde la misma conexión no pasa de 20.
+- **Invitados**: sus coches y consultas se guardan solo en la pestaña del navegador (`sessionStorage`). El límite va
+  por cookie anónima (5 al día) y por conexión (20 al día entre todos los invitados de una misma IPv4 o del mismo
+  bloque /64 de IPv6, porque cada cliente IPv6 tiene millones de direcciones): otro navegador o una ventana de
+  incógnito es un invitado nuevo, pero desde la misma conexión no pasa de 20. Además hay un cupo diario entre todos
+  los invitados.
 - **Límites**: contadores atómicos en PostgreSQL (`usage_counter`): por día para los mensajes y por semana (con el
-  lunes como fecha) para los informes médicos. Si la IA falla, el mensaje no se descuenta.
+  lunes como fecha) para los informes médicos. Si la IA falla, el mensaje no se descuenta. El límite por minuto va
+  en memoria (`RateLimiter`), así que vale para una sola instancia del backend.
 - **Prompt del mecánico**: `backend/src/main/java/com/mecanicai/chat/PromptBuilder.java`.
 - **Catálogo**: `backend/src/main/resources/catalog/vehicles.json` (formato `"Modelo": "1991-2004,2024-"`); se puede
   ampliar sin tocar código.
@@ -284,7 +293,7 @@ git clone https://github.com/TU-USUARIO/mecanicai.git /opt/mecanicai && cd /opt/
 ```
 
 O cópialo desde tu PC:
-`rsync -av --exclude node_modules --exclude target --exclude .env MecanicAI/ root@IP-DEL-SERVIDOR:/opt/mecanicai/`
+`rsync -av --exclude node_modules --exclude target --exclude .env --exclude backups MecanicAI/ root@IP-DEL-SERVIDOR:/opt/mecanicai/`
 
 ### Paso 4 · Configurar las claves
 
@@ -306,13 +315,14 @@ La primera vez tarda unos minutos (compila el backend y el frontend). Compose ar
 
 1. **db**: PostgreSQL; espera a que esté lista para aceptar conexiones.
 2. **backend**: Spring Boot; al arrancar crea o actualiza las tablas automáticamente (Flyway).
-3. **frontend**: nginx con la web; reenvía `/api` al backend.
-4. **caddy**: consigue el certificado HTTPS y publica la web en los puertos 80 y 443.
+3. **backup**: copia de seguridad diaria de la base de datos en `backups/`.
+4. **frontend**: nginx con la web; reenvía `/api` al backend.
+5. **caddy**: consigue el certificado HTTPS y publica la web en los puertos 80 y 443.
 
 ### Paso 6 · Comprobar
 
 ```bash
-docker compose ps                 # los 4 servicios en marcha ("Up")
+docker compose ps                 # los 5 servicios en marcha ("Up")
 docker compose logs -f backend    # debe aparecer "Started MecanicAiApplication"
 docker compose logs caddy         # debe aparecer "certificate obtained successfully"
 ```
@@ -338,17 +348,26 @@ En la consola de Google (ver [Configurar el login con Google](#configurar-el-log
 | --- | --- |
 | Actualizar tras cambiar el código | `git pull && docker compose up -d --build` |
 | Ver errores | `docker compose logs -f backend` |
-| Copia de seguridad de la BD | `docker compose exec -T db pg_dump -U mecanicai mecanicai > copia-$(date +%F).sql` |
-| Restaurar una copia | `docker compose exec -T db psql -U mecanicai mecanicai < copia.sql` |
+| Copia de seguridad ahora mismo | `docker compose exec backup sh /opt/backup/backup.sh` |
+| Ver las copias | `ls -lh backups/` y `docker compose logs backup` |
+| Restaurar una copia | `gunzip -c backups/mecanicai-FECHA.sql.gz \| docker compose exec -T db psql -q -U mecanicai mecanicai` |
 | Parar todo (los datos se conservan) | `docker compose down` (con `down -v` se **borrarían** los datos) |
 
-**Copia diaria automática** (guarda 14 días): `crontab -e` y añade esta línea:
+**Copias de seguridad automáticas**: el servicio `backup` de `compose.yaml` hace cada día a las 04:00 (hora de
+España) una copia comprimida de la base de datos en la carpeta `backups/` del servidor y borra las de más de 14 días
+(es lo que dice la política de privacidad sobre los datos borrados; se cambia con `BACKUP_KEEP_DAYS` en `.env`). Si
+pg_dump falla, no se deja una copia a medias y el error sale en `docker compose logs backup`. Los scripts están en
+`backup/`.
 
-```
-0 4 * * * cd /opt/mecanicai && docker compose exec -T db pg_dump -U mecanicai mecanicai | gzip > /root/copia-mecanicai-$(date +\%F).sql.gz && find /root -name 'copia-mecanicai-*' -mtime +14 -delete
+Las copias están en el mismo servidor: si se pierde el disco, se pierden con él. **Bájalas a tu ordenador de vez en
+cuando** (por ejemplo, una vez a la semana):
+
+```bash
+rsync -av root@IP-DEL-SERVIDOR:/opt/mecanicai/backups/ ~/copias-mecanicai/
 ```
 
-Mejor aún si además la copias fuera del servidor de vez en cuando (`scp root@IP:/root/copia-mecanicai-* .`).
+Al restaurar una copia se sustituye todo lo que haya en la base de datos (`--clean`): para recuperar una cuenta
+concreta, restáurala primero en una base de datos de prueba.
 `DB_PASSWORD` solo se aplica al crear la base de datos la primera vez: si la cambias después en `.env`, el backend
 no podrá conectar.
 

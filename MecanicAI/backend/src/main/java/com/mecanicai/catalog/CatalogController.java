@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mecanicai.auth.AuthUser;
 import com.mecanicai.catalog.EngineSuggestionService.EngineSuggestions;
 import com.mecanicai.common.AppException;
+import com.mecanicai.usage.UsageService;
 
 @RestController
 @RequestMapping("/api/catalog")
@@ -63,7 +64,7 @@ public class CatalogController {
 	@GetMapping("/engines")
 	public EngineSuggestions engines(@RequestParam String brand, @RequestParam String model, @RequestParam int year,
 			@AuthenticationPrincipal AuthUser user, HttpServletRequest request) {
-		String clientKey = user != null ? "user:" + user.id() : "ip:" + request.getRemoteAddr();
+		String clientKey = user != null ? UsageService.userSubject(user.id()) : UsageService.ipSubject(request.getRemoteAddr());
 		return engines.suggest(brand, model, year, clientKey);
 	}
 

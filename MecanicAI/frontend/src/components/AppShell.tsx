@@ -39,8 +39,14 @@ export function AppShell() {
       return
     }
     completeLogin()
-      .then((path) => {
+      .then(({ path, skipped }) => {
         toast(`¡Hola${me.user?.name ? `, ${firstName(me.user.name)}` : ''}! Tus coches y consultas se guardarán en tu cuenta.`, 'success')
+        if (skipped > 0) {
+          toast(
+            `Tu garaje ya tenía ${me.features.maxVehicles} coches: ${skipped === 1 ? '1 coche' : `${skipped} coches`} del modo invitado no se ${skipped === 1 ? 'ha' : 'han'} guardado.`,
+            'error',
+          )
+        }
         if (path) navigate(path, { replace: true })
       })
       .catch(() => toast('No se pudo guardar tu garaje de invitado en la cuenta.', 'error'))

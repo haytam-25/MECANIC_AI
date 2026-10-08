@@ -17,6 +17,7 @@ import com.mecanicai.chat.ChatDtos.ImportRequest;
 import com.mecanicai.chat.ChatDtos.MessageDto;
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.usage.UsageService;
 import com.mecanicai.vehicle.Vehicle;
 import com.mecanicai.vehicle.VehicleDto;
 import com.mecanicai.vehicle.VehicleService;
@@ -28,7 +29,8 @@ import com.mecanicai.vehicle.VehicleSpec;
 @Service
 public class ChatService {
 
-	private static final int MAX_CONVERSATIONS = 100;
+	/** Caracteres de todos los mensajes de una conversación importada. */
+	private static final int MAX_IMPORT_CHARS = 200_000;
 
 	private final ConversationRepository conversations;
 
@@ -36,14 +38,23 @@ public class ChatService {
 
 	private final VehicleService vehicles;
 
+	private final UsageService usage;
+
 	private final int historyMessages;
 
+	private final int maxConversations;
+
+	private final int dailyImports;
+
 	public ChatService(ConversationRepository conversations, MessageRepository messages, VehicleService vehicles,
-			AppProperties props) {
+			UsageService usage, AppProperties props) {
 		this.conversations = conversations;
 		this.messages = messages;
 		this.vehicles = vehicles;
+		this.usage = usage;
+		this.dailyImports = props.limits().dailyImports();
 		this.historyMessages = props.ai().chat().historyMessages();
+		this.maxConversations = props.limits().maxConversations();
 	}
 
 	/** Lo necesario para pedir la siguiente respuesta a la IA. */
@@ -52,7 +63,7 @@ public class ChatService {
 
 	@Transactional(readOnly = true)
 	public List<ConversationSummary> list(UUID userId) {
-		return conversations.findByUserIdOrderByUpdatedAtDesc(userId, Limit.of(MAX_CONVERSATIONS))
+		return conversations.findByUserIdOrderByUpdatedAtDesc(userId, Limit.of(maxConversations))
 			.stream()
 			.map(ChatService::summary)
 			.toList();
@@ -61,7 +72,9 @@ public class ChatService {
 	@Transactional
 	public ConversationSummary create(UUID userId, UUID vehicleId) {
 		Vehicle vehicle = vehicles.require(userId, vehicleId);
-		return summary(conversations.save(new Conversation(userId, vehicle)));
+		Conversation conversation = conversations.save(new Conversation(userId, vehicle));
+		keepNewest(userId);
+		return summary(conversation);
 	}
 
 	@Transactional(readOnly = true)
@@ -80,9 +93,19 @@ public class ChatService {
 		conversations.delete(require(userId, conversationId));
 	}
 
-	/** Guarda en la cuenta la conversación que el usuario tuvo como invitado. */
+	/**
+	 * Guarda en la cuenta la conversación que el usuario tuvo como invitado. Con límite diario: no es una forma de
+	 * subir conversaciones sin pasar por la IA.
+	 */
 	@Transactional
 	public ConversationSummary importGuest(UUID userId, ImportRequest request) {
+		// El contador va en la misma transacción: si la importación falla, no cuenta
+		usage.consume("imports:" + UsageService.userSubject(userId), dailyImports,
+				"Ya has guardado muchas conversaciones de invitado hoy. Inténtalo mañana.");
+		int chars = request.messages().stream().mapToInt(turn -> turn.content().length()).sum();
+		if (chars > MAX_IMPORT_CHARS) {
+			throw AppException.badRequest("TOO_LONG", "La conversación es demasiado larga para guardarla");
+		}
 		Vehicle vehicle = vehicles.create(userId, request.vehicle());
 		Conversation conversation = conversations.save(new Conversation(userId, vehicle));
 		request.messages()
@@ -94,6 +117,7 @@ public class ChatService {
 			Message.Role role = turn.isUser() ? Message.Role.USER : Message.Role.ASSISTANT;
 			messages.save(new Message(conversation.getId(), role, turn.content()));
 		}
+		keepNewest(userId);
 		return summary(conversation);
 	}
 
@@ -130,6 +154,11 @@ public class ChatService {
 		Message saved = messages.save(new Message(conversationId, Message.Role.ASSISTANT, content));
 		conversations.findById(conversationId).ifPresent(Conversation::touch);
 		return MessageDto.from(saved);
+	}
+
+	/** Como mucho {@code app.limits.max-conversations} por usuario: al empezar una más se borra la más antigua. */
+	private void keepNewest(UUID userId) {
+		conversations.deleteAllButNewest(userId, maxConversations);
 	}
 
 	private Conversation require(UUID userId, UUID conversationId) {

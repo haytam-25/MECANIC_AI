@@ -88,9 +88,11 @@ export function ConversationsPage() {
             ))}
           </ul>
         )}
-        {!me.authenticated && chats.length > 0 && (
-          <p className="muted small">Como invitado, estas consultas se borran al cerrar la página.</p>
-        )}
+        <p className="muted small">
+          {!me.authenticated && chats.length > 0 && 'Como invitado, estas consultas se borran al cerrar la página. '}
+          Se guardan tus {me.features.maxConversations} consultas más recientes (de todos tus coches): al empezar una
+          más, se borra la más antigua.
+        </p>
       </section>
     </div>
   )

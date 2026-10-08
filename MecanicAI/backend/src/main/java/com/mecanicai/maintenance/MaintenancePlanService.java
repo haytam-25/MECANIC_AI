@@ -19,11 +19,10 @@ import org.springframework.stereotype.Service;
 import com.mecanicai.ai.AiClient;
 import com.mecanicai.ai.AiException;
 import com.mecanicai.ai.AiJsonRequest;
-import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
 import com.mecanicai.maintenance.MaintenanceItem.Interval;
-import com.mecanicai.usage.UsageService;
-import com.mecanicai.usage.UsageService.Reservation;
+import com.mecanicai.usage.LookupQuota;
+import com.mecanicai.usage.LookupQuota.Ticket;
 import com.mecanicai.vehicle.Fuel;
 import com.mecanicai.vehicle.VehicleSpec;
 
@@ -101,7 +100,7 @@ public class MaintenancePlanService {
 
 	private final AiClient ai;
 
-	private final UsageService usage;
+	private final LookupQuota quota;
 
 	private final JdbcClient jdbc;
 
@@ -111,10 +110,10 @@ public class MaintenancePlanService {
 
 	private final ZoneId zone;
 
-	public MaintenancePlanService(AiClient ai, UsageService usage, JdbcClient jdbc, JsonMapper jsonMapper,
+	public MaintenancePlanService(AiClient ai, LookupQuota quota, JdbcClient jdbc, JsonMapper jsonMapper,
 			AppProperties props) {
 		this.ai = ai;
-		this.usage = usage;
+		this.quota = quota;
 		this.jdbc = jdbc;
 		this.jsonMapper = jsonMapper;
 		// Mismos modelos y límites que las motorizaciones: también es una consulta corta que se guarda en caché
@@ -145,12 +144,8 @@ public class MaintenancePlanService {
 			return build(fuel, null, "demo");
 		}
 
-		Reservation reservation;
-		try {
-			reservation = usage.consume("maintenance:" + clientKey, settings.dailyLookupsPerClient(),
-					"Demasiadas consultas de mantenimiento por hoy");
-		}
-		catch (AppException ex) {
+		Optional<Ticket> ticket = quota.acquire("maintenance", clientKey);
+		if (ticket.isEmpty()) {
 			return build(fuel, null, "limited");
 		}
 
@@ -164,7 +159,7 @@ public class MaintenancePlanService {
 			return build(fuel, plan, "ai");
 		}
 		catch (AiException | JacksonException ex) {
-			usage.refund(reservation);
+			quota.refund(ticket.get());
 			log.warn("No se pudo obtener el plan de mantenimiento de {}: {}", spec.label(), ex.getMessage());
 			return build(fuel, null, "unavailable");
 		}

@@ -3,6 +3,7 @@ package com.mecanicai.vehicle;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +27,23 @@ public class VehicleService {
 		return vehicles.findByUserIdOrderByCreatedAtDesc(userId).stream().map(VehicleDto::from).toList();
 	}
 
-	/** Guarda el vehículo en el garaje del usuario; si ya tenía uno idéntico, reutiliza ese. */
+	/**
+	 * Guarda el vehículo en el garaje del usuario; si ya tenía uno idéntico, reutiliza ese. Como mucho
+	 * {@code app.limits.max-vehicles} coches por usuario.
+	 */
 	@Transactional
 	public Vehicle create(UUID userId, VehicleSpec rawSpec) {
 		VehicleSpec spec = rawSpec.normalized();
 		spec.validateYear(props.timezone());
-		return vehicles.findByUserIdOrderByCreatedAtDesc(userId)
-			.stream()
-			.filter(existing -> existing.toSpec().equals(spec))
-			.findFirst()
-			.orElseGet(() -> vehicles.save(new Vehicle(userId, spec)));
+		List<Vehicle> garage = vehicles.findByUserIdOrderByCreatedAtDesc(userId);
+		return garage.stream().filter(existing -> existing.toSpec().equals(spec)).findFirst().orElseGet(() -> {
+			int max = props.limits().maxVehicles();
+			if (garage.size() >= max) {
+				throw new AppException(HttpStatus.CONFLICT, "VEHICLE_LIMIT",
+						"Tu garaje está lleno (máximo %d coches). Borra uno para añadir otro.".formatted(max));
+			}
+			return vehicles.save(new Vehicle(userId, spec));
+		});
 	}
 
 	@Transactional(readOnly = true)
