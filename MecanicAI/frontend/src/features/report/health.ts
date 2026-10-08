@@ -236,7 +236,7 @@ export function diagnose(results: ItemResult[]): Diagnosis {
     const safety = results.some((r) => r.status === 'urgent' && r.item.critical)
     return {
       tone: 'urgent',
-      title: 'Necesita pasar por el taller',
+      title: 'Necesita ser reparado',
       text:
         `${urgent} ${plural(urgent, 'elemento ya debería haberse cambiado', 'elementos ya deberían haberse cambiado')}` +
         (safety ? ', y alguno afecta a la seguridad o al motor.' : '.'),

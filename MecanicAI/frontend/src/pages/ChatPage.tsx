@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { createConversation, fetchConversation, streamMessage, streamRetry } from '../api/endpoints.ts'
 import { ApiError } from '../api/http.ts'
@@ -9,6 +9,7 @@ import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
 import { DemoBanner, UsageLine, UserLimitCard } from '../features/chat/ChatNotices.tsx'
 import { ChatView } from '../features/chat/ChatView.tsx'
+import { chatPath, chatsPath } from '../features/garage/paths.ts'
 import { draftFromState } from '../lib/chatDraft.ts'
 import { useStreamingReply, type ReplyResult } from '../lib/useStreamingReply.ts'
 
@@ -25,12 +26,10 @@ function questionWasSaved(error: ApiError): boolean {
 }
 
 /**
- * Chat con cuenta: /chat/:id (consulta guardada) o /chat/nuevo?coche=:vehicleId (consulta nueva).
+ * Chat con cuenta: /coche/:vehicleId/consultas/:id (consulta guardada) o /coche/:vehicleId/consultas/nuevo.
  */
 export function ChatPage() {
-  const { conversationId } = useParams()
-  const [searchParams] = useSearchParams()
-  const vehicleId = searchParams.get('coche')
+  const { vehicleId, conversationId } = useParams()
   const isNew = conversationId === 'nuevo'
   const { me, vehicles, refreshLists, refreshMe, setUsage } = useSession()
   const location = useLocation()
@@ -46,7 +45,7 @@ export function ChatPage() {
 
   // Carga de la conversación o preparación de una nueva
   useEffect(() => {
-    if (!me?.authenticated) return
+    if (!me?.authenticated || !vehicleId) return
     if (isNew) {
       const vehicle = vehicles.find((v) => v.id === vehicleId)
       if (!vehicle) {
@@ -55,7 +54,7 @@ export function ChatPage() {
       }
       shownId.current = null
       // Reinicio intencionado al abrir una consulta nueva: el componente no se desmonta para no cortar
-      // la respuesta en curso cuando la URL pasa de /chat/nuevo a /chat/:id
+      // la respuesta en curso cuando la URL pasa de …/consultas/nuevo a …/consultas/:id
       // oxlint-disable-next-line react/set-state-in-effect
       setChat({ id: null, vehicle, messages: [] })
       setFailure(null)
@@ -77,7 +76,7 @@ export function ChatPage() {
       .catch((error: unknown) => {
         if (!stillShown()) return
         toast(error instanceof ApiError ? error.message : 'No se pudo abrir la consulta.', 'error')
-        navigate('/', { replace: true })
+        navigate(chatsPath(vehicleId), { replace: true })
       })
   }, [me?.authenticated, isNew, vehicleId, conversationId, vehicles, navigate, toast])
 
@@ -89,7 +88,6 @@ export function ChatPage() {
     }
   }, [chat])
 
-  if (me && !me.authenticated) return <Navigate to="/" replace />
   if (!chat || !me || (!isNew && chat.id !== conversationId)) {
     return (
       <div className="center-screen" aria-busy="true">
@@ -149,7 +147,7 @@ export function ChatPage() {
         id = created.id
         shownId.current = created.id
         setChat((c) => c && { ...c, id: created.id })
-        navigate(`/chat/${created.id}`, { replace: true })
+        navigate(chatPath(chat.vehicle.id, created.id), { replace: true })
       } catch (error) {
         setChat((c) => c && { ...c, messages: c.messages.filter((m) => m !== question) })
         toast(error instanceof ApiError ? error.message : 'No se pudo crear la consulta.', 'error')
@@ -165,6 +163,7 @@ export function ChatPage() {
   return (
     <ChatView
       vehicle={chat.vehicle}
+      backTo={chatsPath(chat.vehicle.id)}
       messages={chat.messages}
       streamingText={reply.streamingText}
       failure={failure ? { message: failure, onRetry: () => void retry() } : null}

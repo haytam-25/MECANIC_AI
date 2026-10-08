@@ -12,6 +12,11 @@ import { Icon } from './Icon.tsx'
 import { Logo, Wheel } from './Wheel.tsx'
 import './shell.css'
 
+/** Lo que las páginas reciben del marco de la app (useOutletContext). */
+export interface ShellContext {
+  openGarage(): void
+}
+
 export function AppShell() {
   const { me, offline, refreshMe, completeLogin, guestMode } = useSession()
   const location = useLocation()
@@ -21,6 +26,7 @@ export function AppShell() {
   const [searchParams, setSearchParams] = useSearchParams()
   const toast = useToast()
   const loginHandled = useRef(false)
+  const openGarage = () => setDrawerPath(location.pathname)
 
   // Vuelta del login de Google: /?login=ok o /?login=error
   useEffect(() => {
@@ -34,10 +40,10 @@ export function AppShell() {
     }
     completeLogin()
       .then((path) => {
-        toast(`¡Hola${me.user?.name ? `, ${firstName(me.user.name)}` : ''}! Tus consultas se guardarán en tu cuenta.`, 'success')
+        toast(`¡Hola${me.user?.name ? `, ${firstName(me.user.name)}` : ''}! Tus coches y consultas se guardarán en tu cuenta.`, 'success')
         if (path) navigate(path, { replace: true })
       })
-      .catch(() => toast('No se pudo guardar tu consulta de invitado en la cuenta.', 'error'))
+      .catch(() => toast('No se pudo guardar tu garaje de invitado en la cuenta.', 'error'))
   }, [searchParams, setSearchParams, me, completeLogin, navigate, toast])
 
   // Portada: sin sesión y sin haber elegido el modo invitado
@@ -45,7 +51,7 @@ export function AppShell() {
 
   return (
     <div className="shell">
-      <TopBar onMenu={() => setDrawerPath(location.pathname)} />
+      <TopBar onMenu={openGarage} />
       <Drawer open={drawerOpen} onClose={() => setDrawerPath(null)} />
       <main className="shell__main">
         {offline && !me ? (
@@ -62,7 +68,7 @@ export function AppShell() {
             <Wheel size={64} spinning title="Cargando" />
           </div>
         ) : (
-          <Outlet />
+          <Outlet context={{ openGarage } satisfies ShellContext} />
         )}
       </main>
     </div>
@@ -77,7 +83,7 @@ function TopBar({ onMenu }: { onMenu(): void }) {
   return (
     <header className="topbar">
       <div className="topbar__inner">
-        <button type="button" className="icon-btn" onClick={onMenu} aria-label="Abrir menú">
+        <button type="button" className="icon-btn" onClick={onMenu} aria-label="Abrir mi garaje">
           <Icon name="menu" />
         </button>
         <Link to="/" className="topbar__brand" aria-label="MecanicAI, inicio">

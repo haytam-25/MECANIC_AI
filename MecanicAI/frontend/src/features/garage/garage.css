@@ -1,0 +1,186 @@
+/* ---------- Placa del coche ---------- */
+
+.car-plate {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-m);
+}
+
+.car-plate--lg {
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: var(--radius-l);
+}
+
+.car-plate__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.car-plate__text strong,
+.car-plate__text span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.car-plate__text span {
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+
+.car-plate--lg .car-plate__text strong {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.car-plate--lg .car-plate__text span {
+  font-size: 0.92rem;
+  color: var(--text-2);
+}
+
+/* ---------- Página del coche: chat e informe médico ---------- */
+
+.hub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hub-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+/* Solo con ratón: en móvil el :hover se queda "pegado" tras tocar */
+@media (hover: hover) {
+  .hub-card:hover {
+    border-color: rgba(255, 122, 26, 0.45);
+  }
+}
+
+.hub-card__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(255, 122, 26, 0.35);
+  border-radius: var(--radius-m);
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+}
+
+.hub-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.hub-card__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.hub-card__meta {
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+
+.hub-card__arrow {
+  flex: none;
+  color: var(--text-3);
+}
+
+/* ---------- Lista de consultas ---------- */
+
+.chat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.chat-row > .recent__item {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Aviso del inicio: abrir el garaje ---------- */
+
+.garage-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.garage-hint > svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.garage-hint > span:first-of-type {
+  flex: 1;
+}
+
+.garage-hint__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent-hi);
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .garage-hint:hover {
+    border-color: rgba(255, 122, 26, 0.4);
+  }
+}
+
+/* ---------- Recomendación de iniciar sesión (invitado) ---------- */
+
+.guest-save {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+.guest-save--compact {
+  border: 1px solid rgba(255, 122, 26, 0.3);
+  border-radius: var(--radius-m);
+  background: var(--accent-soft);
+}
+
+.guest-save__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}

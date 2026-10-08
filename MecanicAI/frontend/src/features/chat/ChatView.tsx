@@ -17,6 +17,8 @@ export interface ChatFailure {
 
 interface ChatViewProps {
   vehicle: VehicleSpec
+  /** A dónde lleva el botón "Volver" (las consultas del coche). */
+  backTo: string
   messages: ChatMessage[]
   /** Texto de la respuesta que está llegando (null si no hay ninguna en curso). */
   streamingText: string | null
@@ -44,7 +46,7 @@ const SUGGESTIONS = [
 ]
 
 export function ChatView(props: ChatViewProps) {
-  const { vehicle, messages, streamingText, failure, notice, banner, footer, inputDisabled, initialDraft, onSend, onStop } =
+  const { vehicle, backTo, messages, streamingText, failure, notice, banner, footer, inputDisabled, initialDraft, onSend, onStop } =
     props
   const [draft, setDraft] = useState(initialDraft ?? '')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -85,8 +87,8 @@ export function ChatView(props: ChatViewProps) {
           <strong>{displayName(vehicle)}</strong>
           <span>{engine ?? 'Motorización sin especificar'}</span>
         </div>
-        <Link to="/" className="btn btn--ghost btn--xs" aria-label="Cambiar de coche">
-          <Icon name="swap" size={16} /> Cambiar
+        <Link to={backTo} className="btn btn--ghost btn--xs" aria-label="Volver a las consultas de este coche">
+          <Icon name="back" size={16} /> Consultas
         </Link>
       </div>
 

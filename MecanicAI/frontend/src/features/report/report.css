@@ -162,6 +162,11 @@
   flex: 1 1 9rem;
 }
 
+/* La del tiempo lleva los botones meses/años: necesita más sitio (en el móvil va en su propia fila) */
+.item-field__inputs .field:has(.unit-toggle) {
+  flex-basis: 15rem;
+}
+
 .item-field__or {
   padding-bottom: 0.75rem;
   font-size: 0.85rem;
@@ -191,21 +196,41 @@
   pointer-events: none;
 }
 
-.unit-input:has(select) input {
+.unit-input:has(.unit-toggle) input {
   padding-right: 0.85rem;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.unit-input__select {
+/* Meses / años: dos botones pegados a la caja de texto */
+.unit-toggle {
+  display: flex;
   flex: none;
-  min-height: 46px;
-  padding: 0 0.6rem;
   border: 1px solid var(--steel-600);
   border-left: 0;
   border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  overflow: hidden;
   background: var(--metal-raised);
-  font-size: 16px;
+}
+
+.unit-toggle__option {
+  min-height: 44px;
+  padding: 0 0.7rem;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.unit-toggle__option + .unit-toggle__option {
+  border-left: 1px solid var(--steel-600);
+}
+
+.unit-toggle__option--selected {
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 .field-error {

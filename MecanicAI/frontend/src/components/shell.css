@@ -241,20 +241,6 @@
   text-overflow: ellipsis;
 }
 
-.guest-card {
-  gap: 0.65rem;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: var(--radius-m);
-  background: var(--metal-plate);
-}
-
-.guest-card__title {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  text-transform: uppercase;
-}
-
 .install-card {
   flex-direction: row;
   align-items: center;

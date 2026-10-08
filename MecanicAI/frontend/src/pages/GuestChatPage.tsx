@@ -1,48 +1,70 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useLocation } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 
 import { streamGuest } from '../api/endpoints.ts'
 import type { ChatMessage } from '../api/types.ts'
 import { useSession } from '../context/session.ts'
 import { DemoBanner, GuestLimitCard, UsageLine } from '../features/chat/ChatNotices.tsx'
 import { ChatView, type ChatFailure } from '../features/chat/ChatView.tsx'
+import { chatPath, chatsPath } from '../features/garage/paths.ts'
+import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import { draftFromState } from '../lib/chatDraft.ts'
-import { loadGuestChat, saveGuestChat, type GuestChat } from '../lib/guestChat.ts'
+import { newGuestConversation, withQuestion, type GuestConversation } from '../lib/guestGarage.ts'
 import { useStreamingReply } from '../lib/useStreamingReply.ts'
 
 const GUEST_CONTEXT_MESSAGES = 20
 
 /**
- * Chat de invitado: pocos mensajes al día y todo se guarda solo en este navegador hasta que inicia sesión.
+ * Chat de invitado: pocos mensajes al día y las consultas solo duran mientras la página esté abierta (al iniciar
+ * sesión se guardan en la cuenta).
  */
 export function GuestChatPage() {
-  const { me, setUsage } = useSession()
+  const { conversationId = 'nuevo' } = useParams()
+  const { me, setUsage, guestConversation, saveGuestConversation, removeConversation } = useSession()
+  const vehicle = useGarageVehicle()
   const location = useLocation()
-  const [chat, setChat] = useState<GuestChat | null>(() => loadGuestChat())
+  const navigate = useNavigate()
+  const lookup = (id: string) => (id === 'nuevo' ? null : (guestConversation(id) ?? null))
+  /** null hasta que se envía la primera pregunta (así no se guardan consultas vacías). */
+  const [chat, setChat] = useState<GuestConversation | null>(() => lookup(conversationId))
+  const [shownParam, setShownParam] = useState(conversationId)
   const [failure, setFailure] = useState<ChatFailure | null>(null)
   const [limitReached, setLimitReached] = useState(false)
   const reply = useStreamingReply()
   const chatRef = useRef(chat)
 
+  // Se abrió otra consulta sin salir de la página. Si es la que se acaba de crear (la URL pasa de "nuevo" a su id)
+  // no se toca, para no cortar la respuesta en curso.
+  if (conversationId !== shownParam) {
+    setShownParam(conversationId)
+    if (conversationId !== chat?.id) {
+      setChat(lookup(conversationId))
+      setFailure(null)
+    }
+  }
+
   useEffect(() => {
     chatRef.current = chat
-    if (chat) saveGuestChat(chat)
-  }, [chat])
+    if (chat) saveGuestConversation(chat)
+  }, [chat, saveGuestConversation])
 
   if (!me) return null
-  // Si ya tiene sesión, AppShell se encarga de guardar esta consulta en su cuenta
-  if (me.authenticated || !chat) return <Navigate to="/" replace />
+  if (!vehicle) return <Navigate to="/" replace />
+  if (conversationId !== 'nuevo' && !chat) return <Navigate to={chatsPath(vehicle.id)} replace />
 
   const ask = async (history: ChatMessage[], text: string): Promise<boolean> => {
-    const current = chatRef.current
-    if (!current || reply.busy) return false
+    if (reply.busy) return false
+    const current = chatRef.current ?? newGuestConversation(vehicle.id, text)
     setFailure(null)
     const question: ChatMessage = { role: 'user', content: text }
-    setChat({ ...current, messages: [...history, question] })
+    const asked = withQuestion(current, [...history, question])
+    chatRef.current = asked
+    setChat(asked)
+    if (!current.messages.length && conversationId === 'nuevo') navigate(chatPath(vehicle.id, current.id), { replace: true })
 
     // El servidor solo usa los últimos mensajes como contexto
     const recent = history.slice(-GUEST_CONTEXT_MESSAGES)
-    const result = await reply.run((onDelta, signal) => streamGuest(current.vehicle, recent, text, onDelta, signal))
+    const result = await reply.run((onDelta, signal) => streamGuest(vehicle, recent, text, onDelta, signal))
     if (result.done) {
       setChat((c) => c && { ...c, messages: [...c.messages, { role: 'assistant', content: result.text }] })
       setUsage(result.done.usage)
@@ -58,7 +80,15 @@ export function GuestChatPage() {
     if (error?.code === 'QUOTA_EXCEEDED') {
       if (error.usage) setUsage(error.usage)
       setLimitReached(true)
-      setChat((c) => c && { ...c, messages: history })
+      if (history.length === 0) {
+        // Era su primera pregunta: la consulta no llega a existir
+        chatRef.current = null
+        setChat(null)
+        void removeConversation(current.id)
+        navigate(chatPath(vehicle.id, 'nuevo'), { replace: true })
+      } else {
+        setChat((c) => c && { ...c, messages: history })
+      }
       return false
     }
     setFailure({
@@ -72,8 +102,9 @@ export function GuestChatPage() {
 
   return (
     <ChatView
-      vehicle={chat.vehicle}
-      messages={chat.messages}
+      vehicle={vehicle}
+      backTo={chatsPath(vehicle.id)}
+      messages={chat?.messages ?? []}
       streamingText={reply.streamingText}
       failure={failure}
       banner={me.features.aiDemo ? <DemoBanner /> : undefined}
@@ -81,7 +112,7 @@ export function GuestChatPage() {
       inputDisabled={blocked}
       initialDraft={draftFromState(location.state)}
       footer={<UsageLine usage={me.usage} guest />}
-      onSend={(text) => ask(chat.messages, text)}
+      onSend={(text) => ask(chat?.messages ?? [], text)}
       onStop={reply.stop}
     />
   )

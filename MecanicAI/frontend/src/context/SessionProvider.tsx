@@ -3,15 +3,26 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import {
   createVehicle,
   deleteAccount,
+  deleteConversation,
+  deleteVehicle,
   fetchConversations,
   fetchMe,
   fetchVehicles,
   importConversation,
   logout as apiLogout,
 } from '../api/endpoints.ts'
-import type { ConversationSummary, Me, Usage, Vehicle } from '../api/types.ts'
-import { loadGuestChat, saveGuestChat } from '../lib/guestChat.ts'
+import type { ConversationSummary, Me, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
+import {
+  EMPTY_GUEST_GARAGE,
+  guestSummary,
+  loadGuestGarage,
+  newGuestVehicle,
+  saveGuestGarage,
+  type GuestConversation,
+  type GuestGarage,
+} from '../lib/guestGarage.ts'
 import { loadGuestMode, saveGuestMode } from '../lib/guestMode.ts'
+import { toSpec, vehicleKey } from '../lib/vehicle.ts'
 import { SessionContext, type SessionValue } from './session.ts'
 
 interface SessionData {
@@ -28,17 +39,52 @@ async function loadSession(): Promise<SessionData> {
   return { me, conversations, vehicles }
 }
 
+/**
+ * Guarda en la cuenta el garaje del invitado: cada coche con sus consultas. Devuelve el id en la cuenta del coche
+ * más reciente. Lo ya guardado se va quitando del garaje de invitado para no duplicarlo si algo falla a mitad.
+ */
+async function importGuestGarage(garage: GuestGarage): Promise<string | null> {
+  let pending = garage
+  let newest: string | null = null
+  // Del más antiguo al más reciente, para que en la cuenta queden en el mismo orden
+  for (const vehicle of [...garage.vehicles].reverse()) {
+    const chats = garage.conversations.filter((c) => c.vehicleId === vehicle.id && c.messages.length > 0).reverse()
+    let savedId: string
+    if (chats.length === 0) {
+      savedId = (await createVehicle(toSpec(vehicle))).id
+    } else {
+      savedId = ''
+      for (const chat of chats) {
+        savedId = (await importConversation(toSpec(vehicle), chat.messages.slice(-200))).vehicle.id
+      }
+    }
+    newest = savedId
+    pending = {
+      vehicles: pending.vehicles.filter((v) => v.id !== vehicle.id),
+      conversations: pending.conversations.filter((c) => c.vehicleId !== vehicle.id),
+    }
+    saveGuestGarage(pending)
+  }
+  return newest
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [offline, setOffline] = useState(false)
-  const [conversations, setConversations] = useState<ConversationSummary[]>([])
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [accountConversations, setAccountConversations] = useState<ConversationSummary[]>([])
+  const [accountVehicles, setAccountVehicles] = useState<Vehicle[]>([])
+  const [guestGarage, setGuestGarage] = useState(loadGuestGarage)
   const [guestMode, setGuestMode] = useState(loadGuestMode)
+  const authenticated = Boolean(me?.authenticated)
+
+  useEffect(() => {
+    saveGuestGarage(guestGarage)
+  }, [guestGarage])
 
   // Se actualizan juntos: cuando la app ve al usuario, su garaje ya está cargado
   const apply = useCallback((data: SessionData) => {
-    setConversations(data.conversations)
-    setVehicles(data.vehicles)
+    setAccountConversations(data.conversations)
+    setAccountVehicles(data.vehicles)
     setMe(data.me)
     setOffline(false)
   }, [])
@@ -65,9 +111,77 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [apply])
 
   const refreshLists = useCallback(async () => {
+    if (!authenticated) return
     const [convs, cars] = await Promise.all([fetchConversations(), fetchVehicles()])
-    setConversations(convs)
-    setVehicles(cars)
+    setAccountConversations(convs)
+    setAccountVehicles(cars)
+  }, [authenticated])
+
+  const vehicles = authenticated ? accountVehicles : guestGarage.vehicles
+
+  const conversations = useMemo(() => {
+    if (authenticated) return accountConversations
+    const byId = new Map(guestGarage.vehicles.map((v) => [v.id, v]))
+    return guestGarage.conversations.flatMap((c) => {
+      const vehicle = byId.get(c.vehicleId)
+      return vehicle ? [guestSummary(c, vehicle)] : []
+    })
+  }, [authenticated, accountConversations, guestGarage])
+
+  const addVehicle = useCallback(
+    async (spec: VehicleSpec) => {
+      if (authenticated) {
+        const vehicle = await createVehicle(toSpec(spec))
+        await refreshLists()
+        return vehicle
+      }
+      const known = guestGarage.vehicles.find((v) => vehicleKey(v) === vehicleKey(spec))
+      if (known) return known
+      const vehicle = newGuestVehicle(spec)
+      setGuestGarage((g) => ({ ...g, vehicles: [vehicle, ...g.vehicles] }))
+      return vehicle
+    },
+    [authenticated, guestGarage.vehicles, refreshLists],
+  )
+
+  const removeVehicle = useCallback(
+    async (id: string) => {
+      if (authenticated) {
+        await deleteVehicle(id)
+        await refreshLists()
+        return
+      }
+      setGuestGarage((g) => ({
+        vehicles: g.vehicles.filter((v) => v.id !== id),
+        conversations: g.conversations.filter((c) => c.vehicleId !== id),
+      }))
+    },
+    [authenticated, refreshLists],
+  )
+
+  const removeConversation = useCallback(
+    async (id: string) => {
+      if (authenticated) {
+        await deleteConversation(id)
+        await refreshLists()
+        return
+      }
+      setGuestGarage((g) => ({ ...g, conversations: g.conversations.filter((c) => c.id !== id) }))
+    },
+    [authenticated, refreshLists],
+  )
+
+  const guestConversation = useCallback(
+    (id: string) => guestGarage.conversations.find((c) => c.id === id),
+    [guestGarage.conversations],
+  )
+
+  // La consulta tocada pasa a ser la primera (el historial va de la más reciente a la más antigua)
+  const saveGuestConversation = useCallback((conversation: GuestConversation) => {
+    setGuestGarage((g) => ({
+      ...g,
+      conversations: [conversation, ...g.conversations.filter((c) => c.id !== conversation.id)],
+    }))
   }, [])
 
   const setUsage = useCallback((usage: Usage) => {
@@ -87,28 +201,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const leaveGuestMode = useCallback(() => {
     saveGuestMode(false)
     setGuestMode(false)
+    setGuestGarage(EMPTY_GUEST_GARAGE)
   }, [])
 
+  // El garaje de invitado sobrevive a la redirección de Google porque está en sessionStorage (misma pestaña)
   const loginWithGoogle = useCallback(() => {
     window.location.assign('/oauth2/authorization/google')
   }, [])
 
   const completeLogin = useCallback(async () => {
-    const guest = loadGuestChat()
+    const garage = loadGuestGarage()
     let path: string | null = null
-    if (guest) {
-      if (guest.messages.length > 0) {
-        const conversation = await importConversation(guest.vehicle, guest.messages.slice(-200))
-        path = `/chat/${conversation.id}`
-      } else {
-        const vehicle = await createVehicle(guest.vehicle)
-        path = `/chat/nuevo?coche=${vehicle.id}`
-      }
-      saveGuestChat(null)
+    try {
+      const newest = await importGuestGarage(garage)
+      if (newest) path = `/coche/${newest}`
+    } finally {
+      setGuestGarage(loadGuestGarage())
+      const [convs, cars] = await Promise.all([fetchConversations(), fetchVehicles()])
+      setAccountConversations(convs)
+      setAccountVehicles(cars)
     }
-    await refreshLists()
     return path
-  }, [refreshLists])
+  }, [])
 
   const logout = useCallback(async () => {
     await apiLogout()
@@ -130,6 +244,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       vehicles,
       refreshMe,
       refreshLists,
+      addVehicle,
+      removeVehicle,
+      removeConversation,
+      guestConversation,
+      saveGuestConversation,
       setUsage,
       setReportUsage,
       guestMode,
@@ -146,6 +265,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       vehicles,
       refreshMe,
       refreshLists,
+      addVehicle,
+      removeVehicle,
+      removeConversation,
+      guestConversation,
+      saveGuestConversation,
       setUsage,
       setReportUsage,
       guestMode,

@@ -1,18 +1,18 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
-import { deleteConversation, deleteVehicle } from '../api/endpoints.ts'
 import { ApiError } from '../api/http.ts'
 import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
-import { relativeDay } from '../lib/format.ts'
+import { GuestSaveCard } from '../features/garage/GuestSaveCard.tsx'
+import { carPath } from '../features/garage/paths.ts'
 import { useInstallPrompt } from '../lib/useInstallPrompt.ts'
 import { brandAbbr } from '../lib/vehicle.ts'
 import { Avatar } from './Avatar.tsx'
+import { ConfirmRow } from './ConfirmRow.tsx'
 import { Hubcap } from './Hubcap.tsx'
 import { Icon } from './Icon.tsx'
 import { LegalLinks } from './LegalLinks.tsx'
-import { LoginOptions } from './LoginOptions.tsx'
 import { Logo } from './Wheel.tsx'
 
 interface DrawerProps {
@@ -20,12 +20,12 @@ interface DrawerProps {
   onClose(): void
 }
 
-type Confirm = { kind: 'conversation' | 'vehicle'; id: string } | { kind: 'account' } | null
+type Confirm = { kind: 'vehicle'; id: string } | { kind: 'account' } | null
 
-/** Menú lateral: historial de consultas, garaje y cuenta (al estilo ChatGPT / Gemini). */
+/** Menú lateral: el garaje con los coches del usuario y su cuenta. */
 export function Drawer({ open, onClose }: DrawerProps) {
-  const { me, conversations, vehicles, refreshLists, logout, removeAccount } = useSession()
-  const { conversationId } = useParams()
+  const { me, vehicles, removeVehicle, logout, removeAccount } = useSession()
+  const { vehicleId } = useParams()
   const navigate = useNavigate()
   const toast = useToast()
   const { canInstall, showIosHint, install } = useInstallPrompt()
@@ -49,127 +49,73 @@ export function Drawer({ open, onClose }: DrawerProps) {
     }
   }
 
-  const removeConversation = (id: string) =>
+  const remove = (id: string) =>
     run(async () => {
-      await deleteConversation(id)
-      await refreshLists()
-      if (id === conversationId) go('/')
-    }, 'Consulta borrada')
-
-  const removeVehicle = (id: string) =>
-    run(async () => {
-      await deleteVehicle(id)
-      await refreshLists()
-      go('/')
+      await removeVehicle(id)
+      // Si estaba viendo ese coche, vuelve al inicio
+      if (id === vehicleId) go('/')
     }, 'Coche borrado del garaje')
 
   return (
     <>
       <div className={`drawer-backdrop ${open ? 'drawer-backdrop--open' : ''}`} onClick={onClose} aria-hidden="true" />
-      <aside className={`drawer ${open ? 'drawer--open' : ''}`} aria-label="Menú" inert={!open}>
+      <aside className={`drawer ${open ? 'drawer--open' : ''}`} aria-label="Mi garaje" inert={!open}>
         <div className="drawer__head">
           <Logo size={28} />
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Cerrar menú">
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Cerrar garaje">
             <Icon name="close" />
           </button>
         </div>
 
         <div className="drawer__body">
-          <button type="button" className="btn btn--primary btn--block" onClick={() => go('/')}>
-            <Icon name="plus" size={20} /> Nueva consulta
-          </button>
-          <button type="button" className="btn btn--ghost btn--block" onClick={() => go('/informe')}>
-            <Icon name="pulse" size={20} /> Informe médico
-          </button>
+          <section className="drawer__section">
+            <h2 className="section-label">Mi garaje</h2>
+            {vehicles.length === 0 ? (
+              <p className="muted small">Aún no tienes coches. Elige el tuyo para empezar.</p>
+            ) : (
+              <ul className="drawer__list">
+                {vehicles.map((v) => (
+                  <li key={v.id} className={`drawer__item ${v.id === vehicleId ? 'drawer__item--active' : ''}`}>
+                    {confirm?.kind === 'vehicle' && confirm.id === v.id ? (
+                      <ConfirmRow
+                        text="¿Borrar el coche y sus consultas?"
+                        onYes={() => void remove(v.id)}
+                        onNo={() => setConfirm(null)}
+                      />
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="drawer__link drawer__link--car"
+                          aria-current={v.id === vehicleId ? 'page' : undefined}
+                          onClick={() => go(carPath(v.id))}
+                        >
+                          <Hubcap label={brandAbbr(v.brand)} size="sm" />
+                          <span>
+                            <span className="drawer__title">{v.displayName}</span>
+                            {v.engineLabel && <span className="drawer__meta">{v.engineLabel}</span>}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-btn icon-btn--sm"
+                          aria-label={`Borrar ${v.displayName}`}
+                          onClick={() => setConfirm({ kind: 'vehicle', id: v.id })}
+                        >
+                          <Icon name="trash" size={18} />
+                        </button>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button type="button" className="btn btn--ghost btn--block btn--sm" onClick={() => go('/')}>
+              <Icon name="plus" size={18} /> Añadir coche
+            </button>
+          </section>
 
-          {user ? (
-            <>
-              <section className="drawer__section">
-                <h2 className="section-label">Consultas</h2>
-                {conversations.length === 0 ? (
-                  <p className="muted small">Aún no tienes consultas guardadas.</p>
-                ) : (
-                  <ul className="drawer__list">
-                    {conversations.map((c) => (
-                      <li key={c.id} className={`drawer__item ${c.id === conversationId ? 'drawer__item--active' : ''}`}>
-                        {confirm?.kind === 'conversation' && confirm.id === c.id ? (
-                          <ConfirmRow
-                            text="¿Borrar esta consulta?"
-                            onYes={() => void removeConversation(c.id)}
-                            onNo={() => setConfirm(null)}
-                          />
-                        ) : (
-                          <>
-                            <Link to={`/chat/${c.id}`} className="drawer__link" onClick={onClose}>
-                              <span className="drawer__title">{c.title}</span>
-                              <span className="drawer__meta">
-                                {c.vehicle.brand} {c.vehicle.model} · {relativeDay(c.updatedAt)}
-                              </span>
-                            </Link>
-                            <button
-                              type="button"
-                              className="icon-btn icon-btn--sm"
-                              aria-label={`Borrar consulta ${c.title}`}
-                              onClick={() => setConfirm({ kind: 'conversation', id: c.id })}
-                            >
-                              <Icon name="trash" size={18} />
-                            </button>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-
-              <section className="drawer__section">
-                <h2 className="section-label">Mi garaje</h2>
-                <ul className="drawer__list">
-                  {vehicles.map((v) => (
-                    <li key={v.id} className="drawer__item">
-                      {confirm?.kind === 'vehicle' && confirm.id === v.id ? (
-                        <ConfirmRow
-                          text="¿Borrar el coche y sus consultas?"
-                          onYes={() => void removeVehicle(v.id)}
-                          onNo={() => setConfirm(null)}
-                        />
-                      ) : (
-                        <>
-                          <button type="button" className="drawer__link drawer__link--car" onClick={() => go(`/chat/nuevo?coche=${v.id}`)}>
-                            <Hubcap label={brandAbbr(v.brand)} size="sm" />
-                            <span>
-                              <span className="drawer__title">{v.displayName}</span>
-                              {v.engineLabel && <span className="drawer__meta">{v.engineLabel}</span>}
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-btn icon-btn--sm"
-                            aria-label={`Borrar ${v.displayName}`}
-                            onClick={() => setConfirm({ kind: 'vehicle', id: v.id })}
-                          >
-                            <Icon name="trash" size={18} />
-                          </button>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-                <button type="button" className="btn btn--ghost btn--block btn--sm" onClick={() => go('/vehiculo/nuevo')}>
-                  <Icon name="car" size={18} /> Añadir coche
-                </button>
-              </section>
-            </>
-          ) : (
-            <section className="drawer__section guest-card">
-              <h2 className="guest-card__title">Guarda tus consultas</h2>
-              <p className="muted small">
-                Inicia sesión para tener tu historial y tu garaje en cualquier dispositivo y hasta{' '}
-                {me?.features.freeDailyMessages} mensajes al día.
-              </p>
-              <LoginOptions />
-            </section>
-          )}
+          <GuestSaveCard compact />
 
           {(canInstall || showIosHint) && (
             <section className="drawer__section install-card">
@@ -242,19 +188,5 @@ export function Drawer({ open, onClose }: DrawerProps) {
         )}
       </aside>
     </>
-  )
-}
-
-function ConfirmRow({ text, onYes, onNo }: { text: string; onYes(): void; onNo(): void }) {
-  return (
-    <div className="confirm-row">
-      <span className="small">{text}</span>
-      <button type="button" className="btn btn--danger btn--xs" onClick={onYes}>
-        Borrar
-      </button>
-      <button type="button" className="btn btn--ghost btn--xs" onClick={onNo}>
-        No
-      </button>
-    </div>
   )
 }

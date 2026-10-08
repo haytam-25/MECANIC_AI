@@ -16,7 +16,9 @@ concreto.
 - **Chat con IA en tiempo real** (streaming, como ChatGPT/Gemini): respuestas en Markdown, botón de detener, reintentar
   si falla, copiar la respuesta y sugerencias rápidas. El "mecánico" conoce el coche, avisa de los riesgos de seguridad y
   dice cuándo ir al taller.
-- **Informe médico** (menú lateral): eliges el coche e indicas sus kilómetros y hace cuántos km o cuánto tiempo se
+- **Página de cada coche**: al elegir un coche (con el asistente o desde el garaje) se abre su página con dos
+  opciones: **Chat con el mecánico** (sus consultas anteriores y el botón para empezar una nueva) e **Informe médico**.
+- **Informe médico**: indicas sus kilómetros y hace cuántos km o cuánto tiempo se
   le cambió cada cosa (aceite, filtros, bujías, correa o cadena de distribución, correa de accesorios, frenos,
   neumáticos, refrigerante, batería, amortiguadores…). Devuelve un informe por colores: **rojo** (toca cambiarlo),
   **ámbar** (pronto), **verde** (al día) y **gris** (sin datos), con un botón para preguntar al mecánico IA por lo
@@ -27,8 +29,10 @@ concreto.
   la semana; **como invitado** no se guarda nada y solo se pueden hacer 2 (se le invita a iniciar sesión).
   Configurable con `FREE_WEEKLY_REPORTS` y `GUEST_WEEKLY_REPORTS`.
 - **Portada** con dos opciones: **Iniciar con Google** o **Modo Invitado** (pocos mensajes al día y nada guardado en
-  el servidor). Al iniciar sesión, la consulta del invitado y su coche se guardan automáticamente en la cuenta.
-- **Historial de consultas y garaje** (varios coches por usuario), borrar consultas/coches y **eliminar la cuenta** (RGPD).
+  el servidor). Como invitado, los coches y sus consultas solo duran mientras la pestaña esté abierta
+  (`sessionStorage`); al iniciar sesión se guardan automáticamente en la cuenta.
+- **Garaje** en el menú lateral (varios coches por usuario), con la recomendación de iniciar sesión para los
+  invitados. Historial de consultas por coche, borrar consultas/coches y **eliminar la cuenta** (RGPD).
 - **Límites**: invitado 5 mensajes/día y 2 informes médicos/semana; cuenta gratuita 20 mensajes/día y 5
   informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).

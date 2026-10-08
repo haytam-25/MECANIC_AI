@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 
 import type {
   AnswerKind,
@@ -6,6 +6,7 @@ import type {
   MaintenancePlan,
   PlanItem,
   ReportInput,
+  TimeUnit,
   TimingAnswer,
   Usage,
 } from '../../api/types.ts'
@@ -33,6 +34,8 @@ const KINDS: { kind: AnswerKind; label: string }[] = [
   { kind: 'never', label: 'Nunca se ha cambiado' },
   { kind: 'unknown', label: 'No lo sé' },
 ]
+
+const UNITS: TimeUnit[] = ['meses', 'años']
 
 const TIMING_OPTIONS: { value: TimingAnswer; label: string }[] = [
   { value: 'CORREA', label: 'Correa' },
@@ -141,6 +144,7 @@ function ItemField({ plan, item, input, error, onAnswer, onTiming }: ItemFieldPr
   const interval = askType && input.timing !== 'CORREA' ? null : intervalText(item)
   const title = askType && input.timing === 'CORREA' ? 'Correa de distribución' : askType && input.timing === 'CADENA' ? 'Cadena de distribución' : item.name
   const errorId = `error-${item.id}`
+  const timeId = useId()
   // La nota general de la distribución (p. ej. el aceite que exige una correa bañada en aceite) va con su elemento
   const note = item.note ?? (item.id === 'DISTRIBUCION' && plan.timing !== 'DESCONOCIDA' ? plan.timingNote : null)
 
@@ -223,10 +227,15 @@ function ItemField({ plan, item, input, error, onAnswer, onTiming }: ItemFieldPr
           )}
           {item.intervalKm !== null && item.intervalMonths !== null && <span className="item-field__or">o</span>}
           {item.intervalMonths !== null && (
-            <label className="field">
-              <span className="field__label">Hace…</span>
+            // Sin <select>: en el móvil su desplegable nativo se veía mal con el tema oscuro (y dentro de un <label>
+            // el toque podía irse a la caja de texto). Dos botones se ven igual en todos los navegadores.
+            <div className="field">
+              <label className="field__label" htmlFor={timeId}>
+                Hace…
+              </label>
               <span className="unit-input">
                 <input
+                  id={timeId}
                   value={answer.time}
                   onChange={(e) => onAnswer({ time: e.target.value })}
                   inputMode="decimal"
@@ -235,17 +244,21 @@ function ItemField({ plan, item, input, error, onAnswer, onTiming }: ItemFieldPr
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? errorId : undefined}
                 />
-                <select
-                  className="unit-input__select"
-                  value={answer.unit}
-                  onChange={(e) => onAnswer({ unit: e.target.value === 'años' ? 'años' : 'meses' })}
-                  aria-label="Unidad de tiempo"
-                >
-                  <option value="meses">meses</option>
-                  <option value="años">años</option>
-                </select>
+                <span className="unit-toggle" role="group" aria-label="Unidad de tiempo">
+                  {UNITS.map((unit) => (
+                    <button
+                      key={unit}
+                      type="button"
+                      className={`unit-toggle__option ${answer.unit === unit ? 'unit-toggle__option--selected' : ''}`}
+                      aria-pressed={answer.unit === unit}
+                      onClick={() => onAnswer({ unit })}
+                    >
+                      {unit}
+                    </button>
+                  ))}
+                </span>
               </span>
-            </label>
+            </div>
           )}
         </div>
       )}

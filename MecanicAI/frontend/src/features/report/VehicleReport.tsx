@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import { countGuestReport, fetchMaintenancePlan, saveReport } from '../../api/endpoints.ts'
 import { ApiError } from '../../api/http.ts'
@@ -9,8 +9,8 @@ import { Icon } from '../../components/Icon.tsx'
 import { Wheel } from '../../components/Wheel.tsx'
 import { useSession } from '../../context/session.ts'
 import { useToast } from '../../context/toast.ts'
-import { loadGuestChat, saveGuestChat } from '../../lib/guestChat.ts'
-import { brandAbbr, displayName, engineLabel, toSpec, vehicleKey } from '../../lib/vehicle.ts'
+import { brandAbbr, displayName, engineLabel } from '../../lib/vehicle.ts'
+import { chatPath } from '../garage/paths.ts'
 import { chatQuestion, evaluate } from './health.ts'
 import { ReportForm } from './ReportForm.tsx'
 import { GuestReportHint, ReportLimitCard, SaveReportCard } from './ReportNotices.tsx'
@@ -19,12 +19,13 @@ import './report.css'
 
 interface VehicleReportProps {
   vehicle: VehicleSpec
-  /** Coche del garaje (con cuenta): su informe se guarda. null como invitado. */
-  vehicleId: string | null
+  /** Coche del garaje. Con cuenta su informe se guarda; como invitado, no. */
+  vehicleId: string
   /** Último informe guardado de este coche (solo con cuenta). */
   saved: SavedReport | null
   onSaved(report: SavedReport): void
-  onChangeVehicle(): void
+  /** Página del coche, a la que se vuelve. */
+  backTo: string
 }
 
 /** Informe en pantalla: el guardado en la cuenta o, como invitado, el que se acaba de hacer (solo en memoria). */
@@ -36,7 +37,7 @@ interface ShownReport {
 const EMPTY_INPUT: ReportInput = { currentKm: '', timing: null, answers: {} }
 
 /** Informe médico de un coche: carga su plan de mantenimiento, pide los datos y muestra el resultado. */
-export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehicle }: VehicleReportProps) {
+export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: VehicleReportProps) {
   const { me, setReportUsage } = useSession()
   const navigate = useNavigate()
   const toast = useToast()
@@ -78,7 +79,7 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehi
   const submit = async (input: ReportInput) => {
     setSubmitting(true)
     try {
-      if (vehicleId && !guest) {
+      if (!guest) {
         const { report, usage } = await saveReport(vehicleId, input)
         setReportUsage(usage)
         if (report) {
@@ -100,20 +101,10 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehi
     }
   }
 
-  // Como invitado solo hay una consulta: no se pisa la de otro coche
-  const guestChat = guest ? loadGuestChat() : null
-  const canAsk =
-    !guestChat || guestChat.messages.length === 0 || vehicleKey(guestChat.vehicle) === vehicleKey(vehicle)
-
+  // Abre una consulta nueva con la pregunta ya escrita
   const askMechanic = () => {
     const draft = chatQuestion(results, shown?.input.currentKm ?? '')
-    if (vehicleId && !guest) {
-      navigate(`/chat/nuevo?coche=${vehicleId}`, { state: { draft } })
-      return
-    }
-    const messages = guestChat && vehicleKey(guestChat.vehicle) === vehicleKey(vehicle) ? guestChat.messages : []
-    saveGuestChat({ vehicle: toSpec(vehicle), messages })
-    navigate('/chat/invitado', { state: { draft } })
+    navigate(chatPath(vehicleId, 'nuevo'), { state: { draft } })
   }
 
   const engine = engineLabel(vehicle)
@@ -133,9 +124,9 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehi
           <strong>{displayName(vehicle)}</strong>
           {engine && <span>{engine}</span>}
         </span>
-        <button type="button" className="btn btn--ghost btn--xs" onClick={onChangeVehicle}>
-          <Icon name="swap" size={16} /> Cambiar
-        </button>
+        <Link to={backTo} className="btn btn--ghost btn--xs">
+          <Icon name="back" size={16} /> Volver
+        </Link>
       </div>
 
       {error ? (
@@ -217,11 +208,9 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehi
               />
               {guest && <SaveReportCard features={me.features} />}
               <div className="report-actions">
-                {canAsk && (
-                  <button type="button" className="btn btn--primary btn--block" onClick={askMechanic}>
-                    <Icon name="chat" size={20} /> Preguntar al mecánico IA
-                  </button>
-                )}
+                <button type="button" className="btn btn--primary btn--block" onClick={askMechanic}>
+                  <Icon name="chat" size={20} /> Preguntar al mecánico IA
+                </button>
                 <button
                   type="button"
                   className="btn btn--ghost btn--block"
@@ -231,9 +220,6 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, onChangeVehi
                   }}
                 >
                   <Icon name="edit" size={20} /> Actualizar datos
-                </button>
-                <button type="button" className="btn btn--ghost btn--block" onClick={onChangeVehicle}>
-                  <Icon name="car" size={20} /> Revisar otro coche
                 </button>
               </div>
             </>
