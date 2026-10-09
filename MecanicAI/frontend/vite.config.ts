@@ -49,6 +49,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // El PDF del diario (jsPDF, ~430 kB) solo se descarga si se usa. html2canvas, DOMPurify y canvg (index.es)
+        // son extras de jsPDF para convertir HTML y SVG que la app no usa
+        globIgnores: ['**/repairPdf-*.js', '**/html2canvas-*.js', '**/purify.es-*.js', '**/index.es-*.js'],
         navigateFallback: '/index.html',
         // Nunca servir la app desde caché en rutas del backend (API, login con Google) ni en las páginas legales,
         // que son HTML estático

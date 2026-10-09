@@ -28,6 +28,7 @@ export function RepairsPage() {
   const [open, setOpen] = useState<string | null>(null)
   const [confirming, setConfirming] = useState<string | null>(null)
   const [plan, setPlan] = useState<MaintenancePlan | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   // Con el plan se sabe cuándo toca el próximo cambio de lo que se ha hecho (si falla, simplemente no se muestra)
   useEffect(() => {
@@ -64,6 +65,19 @@ export function RepairsPage() {
       toast(error instanceof ApiError ? error.message : 'No se pudo borrar la reparación.', 'error')
     } finally {
       setConfirming(null)
+    }
+  }
+
+  // La librería de PDF solo se descarga al pulsar el botón
+  const exportPdf = async () => {
+    setExporting(true)
+    try {
+      const { downloadRepairPdf } = await import('../features/repairs/repairPdf.ts')
+      downloadRepairPdf(vehicle, list, plan)
+    } catch {
+      toast('No se pudo generar el PDF. Inténtalo de nuevo.', 'error')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -152,6 +166,12 @@ export function RepairsPage() {
             </li>
           ))}
         </ol>
+      )}
+
+      {list.length > 0 && (
+        <button type="button" className="btn btn--ghost btn--block" onClick={() => void exportPdf()} disabled={exporting}>
+          <Icon name="install" size={20} /> {exporting ? 'Generando PDF…' : 'Descargar historial en PDF'}
+        </button>
       )}
 
       <p className="muted small">
