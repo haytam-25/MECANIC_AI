@@ -10,7 +10,7 @@ export function GuestSaveCard({ compact = false }: { compact?: boolean }) {
     <section className={`guest-save ${compact ? 'guest-save--compact' : 'plate'}`}>
       <h2 className="guest-save__title">Guarda tus coches</h2>
       <p className="muted small">
-        En modo invitado tus coches y consultas <strong>se borran al cerrar la página</strong>. Inicia sesión con Google
+        En modo invitado tus coches, consultas y reparaciones <strong>se borran al cerrar la página</strong>. Inicia sesión con Google
         para tenerlos siempre en tu garaje, en cualquier dispositivo, y hasta {me.features.freeDailyMessages} mensajes al
         día.
       </p>

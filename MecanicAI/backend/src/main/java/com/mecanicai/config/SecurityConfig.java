@@ -50,7 +50,8 @@ public class SecurityConfig {
 			.securityContext(context -> context.securityContextRepository(new RequestAttributeSecurityContextRepository()))
 			.authorizeHttpRequests(auth -> auth
 				.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
-				.requestMatchers("/api/vehicles/**", "/api/conversations/**", "/api/reports/**", "/api/auth/logout",
+				.requestMatchers("/api/vehicles/**", "/api/conversations/**", "/api/reports/**", "/api/repairs/**",
+						"/api/auth/logout",
 						"/api/auth/account")
 				.authenticated()
 				.anyRequest().permitAll())

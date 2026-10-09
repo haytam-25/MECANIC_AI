@@ -30,6 +30,8 @@ import com.mecanicai.auth.SessionCookies;
 import com.mecanicai.maintenance.HealthReportController;
 import com.mecanicai.maintenance.HealthReportService;
 import com.mecanicai.maintenance.HealthReportService.ReportResult;
+import com.mecanicai.repair.RepairController;
+import com.mecanicai.repair.RepairService;
 import com.mecanicai.usage.UsageService;
 import com.mecanicai.user.UserService;
 import com.mecanicai.vehicle.VehicleController;
@@ -39,7 +41,8 @@ import com.mecanicai.vehicle.VehicleService;
  * Reglas de seguridad de la API: qué es público, qué exige sesión y la protección CSRF.
  */
 // Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
-@WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class },
+@WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class,
+		RepairController.class },
 		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
 				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
@@ -67,6 +70,9 @@ class SecurityRulesTest {
 	@MockitoBean
 	HealthReportService reports;
 
+	@MockitoBean
+	RepairService repairs;
+
 	@Test
 	void guestsCanAskWhoTheyAreAndGetAGuestCookie() throws Exception {
 		mvc.perform(get("/api/auth/me"))
@@ -77,6 +83,7 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.features.freeDailyMessages").value(20))
 			.andExpect(jsonPath("$.features.guestWeeklyReports").value(2))
 			.andExpect(jsonPath("$.features.freeWeeklyReports").value(5))
+			.andExpect(jsonPath("$.features.maxRepairs").value(30))
 			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
 			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_guest=")));
 	}
@@ -131,6 +138,26 @@ class SecurityRulesTest {
 			.header(CsrfHeaderFilter.HEADER, "1")
 			.contentType("application/json")
 			.content(body)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION"));
+	}
+
+	@Test
+	void theRepairLogIsOnlyForAccounts() throws Exception {
+		mvc.perform(get("/api/repairs")).andExpect(status().isUnauthorized());
+		mvc.perform(post("/api/repairs").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
+
+		given(repairs.list(any())).willReturn(List.of());
+		mvc.perform(get("/api/repairs").cookie(session(UUID.randomUUID()))).andExpect(status().isOk());
+	}
+
+	@Test
+	void aRepairWithoutTypesOrWithNegativeKmIsRejected() throws Exception {
+		String body = """
+				{"vehicleId": "%s", "date": "2026-01-15", "km": -5, "types": [], "priceCents": null}"""
+			.formatted(UUID.randomUUID());
+		mvc.perform(post("/api/repairs").cookie(session(UUID.randomUUID()))
+			.header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content(body)).andExpect(status().isBadRequest());
 	}
 
 	private Cookie session(UUID userId) {

@@ -1,8 +1,8 @@
-import type { ChatMessage, ConversationSummary, Vehicle, VehicleSpec } from '../api/types.ts'
+import type { ChatMessage, ConversationSummary, Repair, RepairInput, Vehicle, VehicleSpec } from '../api/types.ts'
 import { displayName, engineLabel, toSpec } from './vehicle.ts'
 
 /**
- * Garaje del modo invitado: sus coches y sus consultas. Vive en sessionStorage, así que dura mientras la pestaña
+ * Garaje del modo invitado: sus coches, sus consultas y su diario de reparaciones. Vive en sessionStorage, así que dura mientras la pestaña
  * esté abierta (también al recargar o al volver del inicio de sesión con Google, que es cuando se guarda en la
  * cuenta) y se pierde al cerrarla.
  */
@@ -18,9 +18,11 @@ export interface GuestGarage {
   /** El más reciente primero, como el garaje de la cuenta. */
   vehicles: Vehicle[]
   conversations: GuestConversation[]
+  /** Diario de reparaciones, de la más reciente a la más antigua. */
+  repairs: Repair[]
 }
 
-export const EMPTY_GUEST_GARAGE: GuestGarage = { vehicles: [], conversations: [] }
+export const EMPTY_GUEST_GARAGE: GuestGarage = { vehicles: [], conversations: [], repairs: [] }
 
 const KEY = 'mecanicai.garaje-invitado'
 
@@ -39,7 +41,12 @@ export function loadGuestGarage(): GuestGarage {
             messages: c.messages.filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'),
           }))
       : []
-    return { vehicles, conversations }
+    const repairs = Array.isArray(data.repairs)
+      ? data.repairs.filter(
+          (r) => r?.id && ids.has(r.vehicleId) && typeof r.date === 'string' && Number.isFinite(r.km) && Array.isArray(r.types),
+        )
+      : []
+    return { vehicles, conversations, repairs }
   } catch {
     return EMPTY_GUEST_GARAGE
   }
@@ -69,6 +76,11 @@ export function newGuestConversation(vehicleId: string, firstQuestion: string): 
   const clean = firstQuestion.trim().replace(/\s+/g, ' ')
   const title = clean.length <= 60 ? clean : `${clean.slice(0, 59).trim()}…`
   return { id: localId(), vehicleId, title, updatedAt: new Date().toISOString(), messages: [] }
+}
+
+/** Reparación nueva de invitado, con la misma forma que una de la cuenta. */
+export function newGuestRepair(input: RepairInput): Repair {
+  return { ...input, id: localId(), createdAt: new Date().toISOString() }
 }
 
 export function guestSummary(conversation: GuestConversation, vehicle: Vehicle): ConversationSummary {

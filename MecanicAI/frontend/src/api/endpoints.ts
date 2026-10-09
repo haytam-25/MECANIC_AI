@@ -10,6 +10,8 @@ import type {
   EngineSuggestions,
   MaintenancePlan,
   Me,
+  Repair,
+  RepairInput,
   ReportInput,
   ReportResult,
   SavedReport,
@@ -83,6 +85,13 @@ export const fetchReports = () => api<SavedReport[]>('/api/reports')
 export const saveReport = (vehicleId: string, input: ReportInput) =>
   api<ReportResult>('/api/reports', { method: 'POST', body: { vehicleId, input } })
 export const countGuestReport = () => api<ReportResult>('/api/guest/reports', { method: 'POST' })
+
+// Diario de reparaciones (solo con cuenta: el de invitado no sale del navegador)
+export const fetchRepairs = () => api<Repair[]>('/api/repairs')
+export const createRepair = (input: RepairInput) => api<Repair>('/api/repairs', { method: 'POST', body: input })
+export const updateRepair = (id: string, input: RepairInput) =>
+  api<Repair>(`/api/repairs/${id}`, { method: 'PUT', body: input })
+export const deleteRepair = (id: string) => api<void>(`/api/repairs/${id}`, { method: 'DELETE' })
 
 // Garaje
 export const fetchVehicles = () => api<Vehicle[]>('/api/vehicles')

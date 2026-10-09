@@ -28,6 +28,8 @@ export interface Features {
   maxVehicles: number
   /** Consultas guardadas como mucho: al empezar una más se borra la más antigua. */
   maxConversations: number
+  /** Reparaciones como mucho en el diario (entre todos los coches). */
+  maxRepairs: number
 }
 
 export interface Me {
@@ -179,4 +181,23 @@ export interface ReportResult {
   report: SavedReport | null
   /** Informes de esta semana. */
   usage: Usage
+}
+
+/** Lo que se apunta en el diario de reparaciones. `types`: ids de elementos del plan de mantenimiento o de averías. */
+export interface RepairInput {
+  vehicleId: string
+  /** "2026-10-09" */
+  date: string
+  km: number
+  types: string[]
+  /** Precio en céntimos de euro. */
+  priceCents: number | null
+  workshop: string | null
+  notes: string | null
+}
+
+/** Una reparación del diario (con cuenta, guardada en el servidor; como invitado, en esta pestaña). */
+export interface Repair extends RepairInput {
+  id: string
+  createdAt: string
 }

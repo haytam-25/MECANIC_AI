@@ -7,6 +7,8 @@ import { ChatRoute } from './pages/ChatRoute.tsx'
 import { ConversationsPage } from './pages/ConversationsPage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
 import { NotFoundPage } from './pages/NotFoundPage.tsx'
+import { RepairFormPage } from './pages/RepairFormPage.tsx'
+import { RepairsPage } from './pages/RepairsPage.tsx'
 import { ReportPage } from './pages/ReportPage.tsx'
 import { VehiclePage } from './pages/VehiclePage.tsx'
 
@@ -18,13 +20,16 @@ export default function App() {
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
-              {/* Cada coche del garaje: su página, sus consultas con el mecánico y su informe médico */}
+              {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico y su diario */}
               <Route path="coche/:vehicleId">
                 <Route index element={<VehiclePage />} />
                 <Route path="consultas" element={<ConversationsPage />} />
                 {/* …/consultas/nuevo o …/consultas/<id> */}
                 <Route path="consultas/:conversationId" element={<ChatRoute />} />
                 <Route path="informe" element={<ReportPage />} />
+                <Route path="reparaciones" element={<RepairsPage />} />
+                {/* …/reparaciones/nueva o …/reparaciones/<id> (para corregirla) */}
+                <Route path="reparaciones/:repairId" element={<RepairFormPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>

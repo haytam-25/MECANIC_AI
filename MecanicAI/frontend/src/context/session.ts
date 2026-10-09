@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import type { ConversationSummary, Me, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
+import type { ConversationSummary, Me, Repair, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
 import type { GuestConversation } from '../lib/guestGarage.ts'
 
 export interface SessionValue {
@@ -16,13 +16,18 @@ export interface SessionValue {
   refreshLists(): Promise<void>
   /** Guarda el coche en el garaje (si ya estaba, devuelve el mismo). */
   addVehicle(spec: VehicleSpec): Promise<Vehicle>
-  /** Borra el coche y sus consultas. */
+  /** Borra el coche, sus consultas y sus reparaciones. */
   removeVehicle(id: string): Promise<void>
   removeConversation(id: string): Promise<void>
   /** Consulta de invitado con sus mensajes. */
   guestConversation(id: string): GuestConversation | undefined
   /** Crea o actualiza una consulta de invitado. */
   saveGuestConversation(conversation: GuestConversation): void
+  /** Diario de reparaciones del invitado (el de la cuenta se carga con useRepairs). */
+  guestRepairs: Repair[]
+  /** Crea o corrige una reparación de invitado. */
+  saveGuestRepair(repair: Repair): void
+  removeGuestRepair(id: string): void
   setUsage(usage: Usage): void
   /** Informes médicos de esta semana. */
   setReportUsage(usage: Usage): void
@@ -31,10 +36,10 @@ export interface SessionValue {
   enterGuestMode(): void
   loginWithGoogle(): void
   /**
-   * Tras iniciar sesión: guarda en la cuenta el garaje del invitado. Devuelve a dónde ir y cuántos coches no cabían
-   * en el garaje de la cuenta.
+   * Tras iniciar sesión: guarda en la cuenta el garaje del invitado. Devuelve a dónde ir y cuántos coches y
+   * reparaciones no cabían en la cuenta.
    */
-  completeLogin(): Promise<{ path: string | null; skipped: number }>
+  completeLogin(): Promise<{ path: string | null; skipped: number; skippedRepairs: number }>
   logout(): Promise<void>
   removeAccount(): Promise<void>
 }

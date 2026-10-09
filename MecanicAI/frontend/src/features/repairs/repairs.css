@@ -1,0 +1,438 @@
+/* ---------- Diario de reparaciones ---------- */
+
+.repair-card__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+/* Resumen: número de reparaciones, gasto y últimos km */
+.repair-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0.85rem 0.5rem;
+  border-radius: var(--radius-m);
+  text-align: center;
+}
+
+.repair-stats > div + div {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.repair-stats dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.repair-stats dd {
+  margin: 0.15rem 0 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 4.6vw, 1.4rem);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--accent-hi);
+}
+
+.repair-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.4rem 1.1rem;
+  text-align: center;
+}
+
+/* ---------- Lista ---------- */
+
+.repair-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.repair-item {
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.repair-item__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.8rem 0.85rem;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+
+.repair-item__when {
+  display: flex;
+  flex-direction: column;
+  min-width: 5.6rem;
+  line-height: 1.2;
+}
+
+.repair-item__when strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.repair-item__when span {
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+
+.repair-item__types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.repair-item__types .chip {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repair-item__price {
+  font-weight: 700;
+  color: var(--accent-hi);
+  white-space: nowrap;
+}
+
+.repair-item__arrow {
+  color: var(--text-3);
+  transition: transform 0.15s ease;
+}
+
+.repair-item--open .repair-item__arrow {
+  transform: rotate(90deg);
+}
+
+.repair-item__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0 0.85rem 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.7rem;
+}
+
+.repair-item__notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-2);
+}
+
+.repair-item__next {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-xs);
+  background: var(--accent-soft);
+  list-style: none;
+  color: #ffdcc4;
+}
+
+.repair-item__next li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.repair-item__next svg {
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+.repair-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+/* En el móvil el precio baja debajo de los tipos */
+@media (max-width: 480px) {
+  .repair-item__head {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'when price arrow'
+      'types types types';
+    row-gap: 0.55rem;
+  }
+  .repair-item__when {
+    grid-area: when;
+  }
+  .repair-item__price {
+    grid-area: price;
+    justify-self: end;
+  }
+  .repair-item__arrow {
+    grid-area: arrow;
+  }
+  .repair-item__types {
+    grid-area: types;
+  }
+}
+
+/* ---------- Formulario por pasos ---------- */
+
+.repair-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  scroll-margin-top: calc(var(--header-total) + 1rem);
+}
+
+.repair-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.repair-steps__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 3px solid var(--steel-600);
+  border-radius: var(--radius-s);
+  background: var(--metal-raised);
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.repair-steps__step:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.repair-steps__step--done {
+  border-bottom-color: var(--ok);
+}
+
+.repair-steps__step--current {
+  border-bottom-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+}
+
+.repair-steps__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* En pantallas muy estrechas solo se lee el nombre del paso actual */
+@media (max-width: 360px) {
+  .repair-steps__step:not(.repair-steps__step--current) .repair-steps__label {
+    display: none;
+  }
+}
+
+.repair-steps__num {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.8rem;
+}
+
+.repair-form__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 6vw, 1.7rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.repair-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 2rem 0;
+}
+
+.repair-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* Mantenimiento: casillas grandes con su intervalo de cambio */
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.type-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-height: 52px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-s);
+  background: var(--metal-raised);
+  color: var(--text);
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+@media (hover: hover) {
+  .type-tile:hover {
+    border-color: rgba(255, 122, 26, 0.5);
+  }
+}
+
+.type-tile--selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.type-tile__check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.05rem;
+  border: 2px solid var(--steel-500);
+  border-radius: var(--radius-xs);
+  color: var(--accent-ink);
+}
+
+.type-tile--selected .type-tile__check {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.type-tile__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.type-tile__label {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.type-tile__hint {
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+
+.repair-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1rem;
+  border-radius: var(--radius-m);
+}
+
+.repair-fields .unit-input,
+.repair-fields input[type='date'] {
+  max-width: 16rem;
+}
+
+.repair-price.unit-input {
+  max-width: 12rem;
+}
+
+.repair-notes {
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--steel-600);
+  border-radius: var(--radius-s);
+  background: #0f1214;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.4;
+  resize: vertical;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.repair-notes:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 0 3px var(--accent-soft);
+}
+
+.repair-notes__count {
+  align-self: flex-end;
+}
+
+.repair-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  color: var(--warn);
+}
+
+.repair-warning svg {
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+.repair-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem 1rem;
+  border-radius: var(--radius-m);
+}
+
+.repair-summary .section-label {
+  margin: 0;
+}
+
+/* Atrás / siguiente siempre a mano al final de la pantalla */
+.repair-form__nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 -1rem;
+  padding: 0.75rem 1rem calc(0.75rem + var(--safe-bottom));
+  background: linear-gradient(180deg, transparent, var(--bg-0) 30%);
+}
+
+.repair-form__next {
+  flex: 1;
+}

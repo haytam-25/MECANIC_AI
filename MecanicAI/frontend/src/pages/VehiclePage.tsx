@@ -3,23 +3,30 @@ import { Link, Navigate } from 'react-router'
 import { Icon, type IconName } from '../components/Icon.tsx'
 import { useSession } from '../context/session.ts'
 import { CarPlate } from '../features/garage/CarPlate.tsx'
-import { chatsPath, reportPath } from '../features/garage/paths.ts'
+import { chatsPath, repairsPath, reportPath } from '../features/garage/paths.ts'
 import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
+import { formatDate } from '../features/repairs/diary.ts'
+import { useRepairs } from '../features/repairs/useRepairs.ts'
 import { useSavedReports } from '../features/report/useSavedReports.ts'
 import { relativeDay } from '../lib/format.ts'
 import './pages.css'
 
-/** Un coche del garaje: desde aquí se abre el chat con el mecánico (sus consultas) o el informe médico. */
+/**
+ * Un coche del garaje: desde aquí se abre el chat con el mecánico (sus consultas), el informe médico o el diario de
+ * reparaciones.
+ */
 export function VehiclePage() {
   const { me, conversations } = useSession()
   const vehicle = useGarageVehicle()
   const { reports } = useSavedReports()
+  const { repairs } = useRepairs()
 
   if (!me) return null
   if (!vehicle) return <Navigate to="/" replace />
 
   const chats = conversations.filter((c) => c.vehicle.id === vehicle.id)
   const report = reports?.find((r) => r.vehicleId === vehicle.id)
+  const carRepairs = repairs?.filter((r) => r.vehicleId === vehicle.id) ?? []
 
   return (
     <div className="page">
@@ -51,9 +58,17 @@ export function VehiclePage() {
               : 'Qué mantenimiento le toca según sus kilómetros y su edad'
           }
         />
+        <HubCard
+          to={repairsPath(vehicle.id)}
+          icon="wrench"
+          title="Diario de reparaciones"
+          text={
+            carRepairs.length === 0
+              ? 'Apunta lo que le hace el taller: km, precio y observaciones'
+              : `${carRepairs.length === 1 ? '1 reparación' : `${carRepairs.length} reparaciones`} · última: ${formatDate(carRepairs[0].date)}`
+          }
+        />
       </nav>
-
-      
     </div>
   )
 }
