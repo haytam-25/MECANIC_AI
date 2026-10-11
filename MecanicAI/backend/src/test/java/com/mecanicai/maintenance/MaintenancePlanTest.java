@@ -142,19 +142,22 @@ class MaintenancePlanTest {
 
 	@Test
 	void theCacheKeyIgnoresCaseAndSpaces() {
-		VehicleSpec a = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6  TDI", Fuel.DIESEL, 115);
-		VehicleSpec b = new VehicleSpec("seat", "Seat", "leon", "Leon", 2016, "1.6 tdi", Fuel.DIESEL, 115);
-		VehicleSpec other = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "2.0 TDI", Fuel.DIESEL, 150);
+		VehicleSpec a = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6  TDI", Fuel.DIESEL, 115, null);
+		VehicleSpec b = new VehicleSpec("seat", "Seat", "leon", "Leon", 2016, "1.6 tdi", Fuel.DIESEL, 115, null);
+		VehicleSpec other = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "2.0 TDI", Fuel.DIESEL, 150, null);
 
 		assertThat(MaintenancePlanService.cacheKey(a)).isEqualTo(MaintenancePlanService.cacheKey(b))
 			.isEqualTo("v1|seat|leon|2016|1.6 tdi|DIESEL|115")
 			.isNotEqualTo(MaintenancePlanService.cacheKey(other));
+		// La matrícula no cambia el plan ni llega a la IA
+		assertThat(MaintenancePlanService.cacheKey(a.withPlate("1234BCD"))).isEqualTo(MaintenancePlanService.cacheKey(a));
+		assertThat(MaintenancePlanService.prompt(a.withPlate("1234BCD"))).doesNotContain("1234BCD");
 	}
 
 	@Test
 	void thePromptDescribesTheCarAndEveryItem() {
 		String prompt = MaintenancePlanService
-			.prompt(new VehicleSpec(null, "Peugeot", null, "208", 2019, "1.2 PureTech", Fuel.GASOLINA, 100));
+			.prompt(new VehicleSpec(null, "Peugeot", null, "208", 2019, "1.2 PureTech", Fuel.GASOLINA, 100, null));
 		assertThat(prompt).contains("Peugeot 208", "2019", "1.2 PureTech", "Gasolina", "100 CV", "CORREA_EN_ACEITE")
 			.doesNotContain("%");
 		for (MaintenanceItem item : MaintenanceItem.values()) {

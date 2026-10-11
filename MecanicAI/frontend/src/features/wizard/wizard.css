@@ -415,6 +415,20 @@
   background: rgba(0, 0, 0, 0.22);
 }
 
+/* Matrícula: se escribe como se quiera y se ve en mayúsculas, que es como se guarda */
+.field input.plate-input {
+  max-width: 14rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.field input.plate-input::placeholder {
+  color: var(--steel-500);
+}
+
 .step-alt {
   display: flex;
   flex-direction: column;

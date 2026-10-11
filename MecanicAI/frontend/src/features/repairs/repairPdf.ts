@@ -6,7 +6,7 @@ import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 
 import type { MaintenancePlan, Repair, VehicleSpec } from '../../api/types.ts'
-import { engineLabel, normalizeText } from '../../lib/vehicle.ts'
+import { engineLabel, formatPlate, normalizeText } from '../../lib/vehicle.ts'
 import { formatKm } from '../report/health.ts'
 import { formatDate, formatPrice, isoDate, typeLabel } from './diary.ts'
 
@@ -22,7 +22,11 @@ export function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: Ma
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   const width = doc.internal.pageSize.getWidth()
   const right = width - MARGIN
-  doc.setProperties({ title: `Historial de reparaciones · ${vehicle.brand} ${vehicle.model} (${vehicle.year})`, creator: 'MecanicAI' })
+  const plate = vehicle.plate ? formatPlate(vehicle.plate) : null
+  doc.setProperties({
+    title: `Historial de reparaciones · ${vehicle.brand} ${vehicle.model} (${vehicle.year})${plate ? ` · ${plate}` : ''}`,
+    creator: 'MecanicAI',
+  })
 
   // Cabecera: logotipo (tapacubos con la M) y fecha
   doc.setFillColor(BLACK, BLACK, BLACK)
@@ -50,14 +54,31 @@ export function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: Ma
   doc.setLineWidth(0.6)
   doc.line(MARGIN, 32, right, 32)
 
-  // El coche
+  // El coche y, a la derecha, su matrícula (si se indicó al añadirlo al garaje)
   doc.setTextColor(GREY)
   doc.setFontSize(8)
   doc.text('VEHÍCULO', MARGIN, 40)
-  doc.setTextColor(BLACK)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
-  doc.text(`${vehicle.brand} ${vehicle.model}`, MARGIN, 47)
+  let nameWidth = right - MARGIN
+  if (plate) {
+    const plateWidth = doc.getTextWidth(plate) + 8
+    nameWidth -= plateWidth + 6
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text('MATRÍCULA', right, 40, { align: 'right' })
+    doc.setDrawColor(BLACK)
+    doc.setLineWidth(0.5)
+    doc.roundedRect(right - plateWidth, 42.5, plateWidth, 9, 1.2, 1.2, 'S')
+    doc.setTextColor(BLACK)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.text(plate, right - plateWidth / 2, 47, { align: 'center', baseline: 'middle' })
+  }
+  doc.setTextColor(BLACK)
+  // Un nombre muy largo se corta para no pisar la matrícula
+  const name = doc.splitTextToSize(`${vehicle.brand} ${vehicle.model}`, nameWidth) as string[]
+  doc.text(name.length > 1 ? `${name[0]}…` : name[0], MARGIN, 47)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.setTextColor(DARK)
@@ -142,9 +163,9 @@ export function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: Ma
   return doc
 }
 
-/** "historial-reparaciones-seat-leon-2015.pdf" */
+/** "historial-reparaciones-seat-leon-2015.pdf", o "…-seat-leon-2015-1234bcd.pdf" si el coche tiene matrícula. */
 export function pdfFileName(vehicle: VehicleSpec): string {
-  const slug = normalizeText(`${vehicle.brand} ${vehicle.model} ${vehicle.year}`)
+  const slug = normalizeText(`${vehicle.brand} ${vehicle.model} ${vehicle.year} ${vehicle.plate ?? ''}`)
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
   return `historial-reparaciones-${slug}.pdf`

@@ -1,4 +1,4 @@
-import { toSpec, vehicleKey } from '../lib/vehicle.ts'
+import { toAiSpec, vehicleKey } from '../lib/vehicle.ts'
 import { api } from './http.ts'
 import { postStream, type OnDelta } from './sse.ts'
 import type {
@@ -75,7 +75,7 @@ export async function fetchMaintenancePlan(vehicle: VehicleSpec): Promise<Mainte
   const key = vehicleKey(vehicle)
   const known = planCache.get(key)
   if (known) return known
-  const plan = await api<MaintenancePlan>('/api/maintenance/plan', { method: 'POST', body: toSpec(vehicle) })
+  const plan = await api<MaintenancePlan>('/api/maintenance/plan', { method: 'POST', body: toAiSpec(vehicle) })
   if (plan.source === 'ai' || plan.source === 'cache') planCache.set(key, plan)
   return plan
 }
@@ -121,4 +121,5 @@ export const streamGuest = (
   message: string,
   onDelta: OnDelta,
   signal: AbortSignal,
-): Promise<StreamDone> => postStream('/api/guest/chat', { vehicle, history: toTurns(history), message }, onDelta, signal)
+): Promise<StreamDone> =>
+  postStream('/api/guest/chat', { vehicle: toAiSpec(vehicle), history: toTurns(history), message }, onDelta, signal)

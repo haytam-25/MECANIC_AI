@@ -14,7 +14,9 @@ concreto.
 
 - **Asistente del coche** en 4 pasos con buscador. Catálogo de ~57 marcas y ~900 modelos del mercado español con sus
   años de venta. Las **motorizaciones las sugiere la IA** para ese modelo y año y se guardan en caché (cada combinación
-  se consulta una sola vez). Si el coche no está, se puede escribir a mano o elegir "no sé el motor".
+  se consulta una sola vez). Si el coche no está, se puede escribir a mano o elegir "no sé el motor". Al final se
+  puede indicar la **matrícula** (opcional): distingue el coche en el garaje y sale en el PDF del historial de
+  reparaciones; nunca se envía a la IA.
 - **Chat con IA en tiempo real** (streaming, como ChatGPT/Gemini): respuestas en Markdown, botón de detener, reintentar
   si falla, copiar la respuesta y sugerencias rápidas. El "mecánico" conoce el coche, avisa de los riesgos de seguridad y
   dice cuándo ir al taller.

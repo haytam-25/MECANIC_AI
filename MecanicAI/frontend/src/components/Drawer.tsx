@@ -7,7 +7,7 @@ import { useToast } from '../context/toast.ts'
 import { GuestSaveCard } from '../features/garage/GuestSaveCard.tsx'
 import { carPath } from '../features/garage/paths.ts'
 import { useInstallPrompt } from '../lib/useInstallPrompt.ts'
-import { brandAbbr } from '../lib/vehicle.ts'
+import { brandAbbr, formatPlate } from '../lib/vehicle.ts'
 import { Avatar } from './Avatar.tsx'
 import { ConfirmRow } from './ConfirmRow.tsx'
 import { Hubcap } from './Hubcap.tsx'
@@ -97,7 +97,11 @@ export function Drawer({ open, onClose }: DrawerProps) {
                           <Hubcap label={brandAbbr(v.brand)} size="sm" />
                           <span>
                             <span className="drawer__title">{v.displayName}</span>
-                            {v.engineLabel && <span className="drawer__meta">{v.engineLabel}</span>}
+                            {(v.plate || v.engineLabel) && (
+                              <span className="drawer__meta">
+                                {[v.plate && formatPlate(v.plate), v.engineLabel].filter(Boolean).join(' · ')}
+                              </span>
+                            )}
                           </span>
                         </button>
                         <button

@@ -46,6 +46,8 @@ public class Vehicle {
 	@Column(name = "power_cv")
 	private Integer powerCv;
 
+	private String plate;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -62,11 +64,20 @@ public class Vehicle {
 		this.engine = spec.engine();
 		this.fuel = spec.fuel();
 		this.powerCv = spec.powerCv();
+		this.plate = spec.plate();
 		this.createdAt = Instant.now();
 	}
 
 	public VehicleSpec toSpec() {
-		return new VehicleSpec(brandId, brand, modelId, model, year, engine, fuel, powerCv);
+		return new VehicleSpec(brandId, brand, modelId, model, year, engine, fuel, powerCv, plate);
+	}
+
+	public String getPlate() {
+		return plate;
+	}
+
+	public void setPlate(String plate) {
+		this.plate = plate;
 	}
 
 	public UUID getId() {

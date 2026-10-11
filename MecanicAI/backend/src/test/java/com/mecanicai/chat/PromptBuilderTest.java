@@ -14,14 +14,21 @@ class PromptBuilderTest {
 
 	@Test
 	void systemPromptDescribesTheVehicle() {
-		VehicleSpec leon = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6 TDI", Fuel.DIESEL, 115);
+		VehicleSpec leon = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6 TDI", Fuel.DIESEL, 115, null);
 		assertThat(PromptBuilder.systemPrompt(leon))
 			.contains("VEHÍCULO: SEAT León (2016) · 1.6 TDI · 115 CV · Diésel")
 			.contains("motorización 1.6 TDI · 115 CV · Diésel");
 
-		VehicleSpec unknownEngine = new VehicleSpec(null, "Dacia", null, "Sandero", 2012, null, null, null);
+		VehicleSpec unknownEngine = new VehicleSpec(null, "Dacia", null, "Sandero", 2012, null, null, null, null);
 		assertThat(PromptBuilder.systemPrompt(unknownEngine)).contains("VEHÍCULO: Dacia Sandero (2012)\n")
 			.contains("motorización desconocida");
+	}
+
+	@Test
+	void thePlateIsNeverSentToTheAi() {
+		VehicleSpec leon = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6 TDI", Fuel.DIESEL, 115,
+				"1234BCD");
+		assertThat(PromptBuilder.systemPrompt(leon)).doesNotContain("1234BCD");
 	}
 
 	@Test

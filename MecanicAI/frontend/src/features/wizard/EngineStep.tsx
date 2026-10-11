@@ -14,7 +14,6 @@ interface EngineStepProps {
   brand: PickedBrand
   model: PickedModel
   year: number
-  saving: boolean
   onPick(choice: EngineChoice): void
   onBack(): void
 }
@@ -39,7 +38,7 @@ function engineName(engine: EngineOption): string {
   return engine.name.includes('(') ? `${engine.name} · ${engine.code}` : `${engine.name} (${engine.code})`
 }
 
-export function EngineStep({ brand, model, year, saving, onPick, onBack }: EngineStepProps) {
+export function EngineStep({ brand, model, year, onPick, onBack }: EngineStepProps) {
   // Solo se pueden sugerir motorizaciones de coches del catálogo y de un año de venta conocido
   const canSuggest = Boolean(brand.id && model.id && model.years.includes(year))
   const [mode, setMode] = useState<Mode>(canSuggest ? 'list' : 'manual')
@@ -60,14 +59,7 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
     <div className="step">
       <StepHead title="¿Qué motor lleva?" subtitle={`${brand.name} ${model.name} de ${year}`} onBack={onBack} />
 
-      {saving && (
-        <div className="loading-row" aria-busy="true">
-          <Wheel size={32} spinning />
-          <span className="muted">Guardando en tu garaje…</span>
-        </div>
-      )}
-
-      {!saving && mode === 'list' && (
+      {mode === 'list' && (
         <>
           {suggestions === null ? (
             <EngineLoading
@@ -117,11 +109,11 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
         </>
       )}
 
-      {!saving && mode === 'manual' && (
+      {mode === 'manual' && (
         <ManualEngineForm placeholder={(brand.id && MANUAL_PLACEHOLDERS[brand.id]) || undefined} onSubmit={onPick} />
       )}
 
-      {!saving && mode === 'unknown' && (
+      {mode === 'unknown' && (
         <div className="fuel-picker">
           <p>¿Sabes al menos qué combustible usa?</p>
           <div className="chip-row">
@@ -137,25 +129,23 @@ export function EngineStep({ brand, model, year, saving, onPick, onBack }: Engin
         </div>
       )}
 
-      {!saving && (
-        <div className="step-alt">
-          {mode !== 'unknown' && (
-            <button type="button" className="btn btn--ghost btn--block" onClick={() => setMode('unknown')}>
-              No sé qué motor tiene
-            </button>
-          )}
-          {mode !== 'manual' && (
-            <button type="button" className="link-btn" onClick={() => setMode('manual')}>
-              <Icon name="edit" size={16} /> Escribir la motorización
-            </button>
-          )}
-          {mode !== 'list' && canSuggest && (
-            <button type="button" className="link-btn" onClick={() => setMode('list')}>
-              Ver la lista de motores
-            </button>
-          )}
-        </div>
-      )}
+      <div className="step-alt">
+        {mode !== 'unknown' && (
+          <button type="button" className="btn btn--ghost btn--block" onClick={() => setMode('unknown')}>
+            No sé qué motor tiene
+          </button>
+        )}
+        {mode !== 'manual' && (
+          <button type="button" className="link-btn" onClick={() => setMode('manual')}>
+            <Icon name="edit" size={16} /> Escribir la motorización
+          </button>
+        )}
+        {mode !== 'list' && canSuggest && (
+          <button type="button" className="link-btn" onClick={() => setMode('list')}>
+            Ver la lista de motores
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -257,7 +247,7 @@ function ManualEngineForm({
         />
       </label>
       <button type="submit" className="btn btn--primary btn--block" disabled={!valid}>
-        Abrir el chat
+        Continuar
       </button>
     </form>
   )

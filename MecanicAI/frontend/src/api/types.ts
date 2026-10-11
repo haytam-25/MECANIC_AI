@@ -79,6 +79,8 @@ export interface VehicleSpec {
   engine: string | null
   fuel: Fuel | null
   powerCv: number | null
+  /** Matrícula (opcional), en mayúsculas y sin espacios: "1234BCD". No se envía a la IA. */
+  plate: string | null
 }
 
 export interface Vehicle extends VehicleSpec {

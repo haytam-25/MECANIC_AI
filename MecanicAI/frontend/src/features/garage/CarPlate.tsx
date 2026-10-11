@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { VehicleSpec } from '../../api/types.ts'
 import { Hubcap } from '../../components/Hubcap.tsx'
-import { brandAbbr, displayName, engineLabel } from '../../lib/vehicle.ts'
+import { brandAbbr, displayName, engineLabel, formatPlate } from '../../lib/vehicle.ts'
 import './garage.css'
 
 interface CarPlateProps {
@@ -12,7 +12,7 @@ interface CarPlateProps {
   size?: 'sm' | 'lg'
 }
 
-/** Placa con el coche elegido: tapacubos, nombre y motorización. */
+/** Placa con el coche elegido: tapacubos, nombre y motorización (y, en la grande, su matrícula si la tiene). */
 export function CarPlate({ vehicle, action, size = 'sm' }: CarPlateProps) {
   const engine = engineLabel(vehicle)
   return (
@@ -27,6 +27,11 @@ export function CarPlate({ vehicle, action, size = 'sm' }: CarPlateProps) {
           </span>
         ) : (
           engine && <span>{engine}</span>
+        )}
+        {size === 'lg' && vehicle.plate && (
+          <span className="car-plate__reg" title="Matrícula">
+            {formatPlate(vehicle.plate)}
+          </span>
         )}
       </span>
       {action}

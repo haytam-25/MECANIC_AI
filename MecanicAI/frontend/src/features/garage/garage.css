@@ -46,6 +46,21 @@
   color: var(--text-2);
 }
 
+/* La matrícula, como la placa del coche: fondo claro y letras oscuras */
+.car-plate--lg .car-plate__text .car-plate__reg {
+  align-self: flex-start;
+  margin-top: 0.45rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--steel-400);
+  border-radius: var(--radius-xs);
+  background: var(--steel-100);
+  color: #15181b;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
 /* ---------- Página del coche: chat e informe médico ---------- */
 
 .hub {

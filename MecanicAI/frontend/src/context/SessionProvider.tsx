@@ -179,8 +179,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await refreshLists()
         return vehicle
       }
-      const known = guestGarage.vehicles.find((v) => vehicleKey(v) === vehicleKey(spec))
+      // Como en el servidor: la matrícula solo distingue dos coches iguales si los dos la tienen y es distinta
+      const plate = spec.plate ?? null
+      const sameCar = guestGarage.vehicles.filter((v) => vehicleKey(v) === vehicleKey(spec))
+      const known = sameCar.find((v) => (v.plate ?? null) === plate) ?? (plate === null ? sameCar[0] : undefined)
       if (known) return known
+      const unplated = sameCar.find((v) => !v.plate)
+      if (unplated) {
+        const vehicle = { ...unplated, plate }
+        setGuestGarage((g) => ({ ...g, vehicles: g.vehicles.map((v) => (v.id === vehicle.id ? vehicle : v)) }))
+        return vehicle
+      }
       const max = me?.features.maxVehicles ?? 0
       if (max > 0 && guestGarage.vehicles.length >= max) throw garageFull(max)
       const vehicle = newGuestVehicle(spec)
