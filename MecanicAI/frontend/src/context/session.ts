@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import type { ConversationSummary, Me, Repair, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
+import type { BasketItem, ConversationSummary, Me, Repair, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
 import type { GuestConversation } from '../lib/guestGarage.ts'
 
 export interface SessionValue {
@@ -16,7 +16,7 @@ export interface SessionValue {
   refreshLists(): Promise<void>
   /** Guarda el coche en el garaje (si ya estaba, devuelve el mismo). */
   addVehicle(spec: VehicleSpec): Promise<Vehicle>
-  /** Borra el coche, sus consultas y sus reparaciones. */
+  /** Borra el coche, sus consultas, sus reparaciones y su cesta. */
   removeVehicle(id: string): Promise<void>
   removeConversation(id: string): Promise<void>
   /** Consulta de invitado con sus mensajes. */
@@ -28,6 +28,10 @@ export interface SessionValue {
   /** Crea o corrige una reparación de invitado. */
   saveGuestRepair(repair: Repair): void
   removeGuestRepair(id: string): void
+  /** Cesta de la compra del invitado (la de la cuenta se carga con useBasket). */
+  guestBasket: BasketItem[]
+  addGuestBasketItem(item: BasketItem): void
+  removeGuestBasketItems(ids: string[]): void
   setUsage(usage: Usage): void
   /** Informes médicos de esta semana. */
   setReportUsage(usage: Usage): void
@@ -36,10 +40,10 @@ export interface SessionValue {
   enterGuestMode(): void
   loginWithGoogle(): void
   /**
-   * Tras iniciar sesión: guarda en la cuenta el garaje del invitado. Devuelve a dónde ir y cuántos coches y
-   * reparaciones no cabían en la cuenta.
+   * Tras iniciar sesión: guarda en la cuenta el garaje del invitado. Devuelve a dónde ir y cuántos coches,
+   * reparaciones y artículos de la cesta no cabían en la cuenta.
    */
-  completeLogin(): Promise<{ path: string | null; skipped: number; skippedRepairs: number }>
+  completeLogin(): Promise<{ path: string | null; skipped: number; skippedRepairs: number; skippedBasket: number }>
   logout(): Promise<void>
   removeAccount(): Promise<void>
 }

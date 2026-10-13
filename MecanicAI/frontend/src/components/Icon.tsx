@@ -23,6 +23,7 @@ const PATHS = {
   user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0',
   pulse: 'M3 12h4l2.5-6 5 12 2.5-6h4',
   clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
+  basket: 'M3 10h18l-1.7 9H4.7L3 10zM8 10l3-6M16 10l-3-6M9.5 13.5v2.5M14.5 13.5v2.5',
 } as const
 
 export type IconName = keyof typeof PATHS

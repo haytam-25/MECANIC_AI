@@ -27,6 +27,8 @@ import com.mecanicai.auth.CsrfHeaderFilter;
 import com.mecanicai.auth.JwtService;
 import com.mecanicai.auth.OAuth2LoginSuccessHandler;
 import com.mecanicai.auth.SessionCookies;
+import com.mecanicai.basket.BasketController;
+import com.mecanicai.basket.BasketService;
 import com.mecanicai.maintenance.HealthReportController;
 import com.mecanicai.maintenance.HealthReportService;
 import com.mecanicai.maintenance.HealthReportService.ReportResult;
@@ -42,7 +44,7 @@ import com.mecanicai.vehicle.VehicleService;
  */
 // Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
 @WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class,
-		RepairController.class },
+		RepairController.class, BasketController.class },
 		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
 				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
@@ -73,6 +75,9 @@ class SecurityRulesTest {
 	@MockitoBean
 	RepairService repairs;
 
+	@MockitoBean
+	BasketService basket;
+
 	@Test
 	void guestsCanAskWhoTheyAreAndGetAGuestCookie() throws Exception {
 		mvc.perform(get("/api/auth/me"))
@@ -84,6 +89,7 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.features.guestWeeklyReports").value(2))
 			.andExpect(jsonPath("$.features.freeWeeklyReports").value(5))
 			.andExpect(jsonPath("$.features.maxRepairs").value(30))
+			.andExpect(jsonPath("$.features.maxBasketItems").value(50))
 			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
 			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_guest=")));
 	}
@@ -158,6 +164,34 @@ class SecurityRulesTest {
 			.header(CsrfHeaderFilter.HEADER, "1")
 			.contentType("application/json")
 			.content(body)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void theBasketIsOnlyForAccounts() throws Exception {
+		mvc.perform(get("/api/basket")).andExpect(status().isUnauthorized());
+		mvc.perform(post("/api/basket").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
+		mvc.perform(post("/api/basket/bought").header(CsrfHeaderFilter.HEADER, "1"))
+			.andExpect(status().isUnauthorized());
+
+		given(basket.list(any())).willReturn(List.of());
+		mvc.perform(get("/api/basket").cookie(session(UUID.randomUUID()))).andExpect(status().isOk());
+	}
+
+	@Test
+	void anEmptyOrTooLongBasketItemIsRejected() throws Exception {
+		Cookie session = session(UUID.randomUUID());
+		for (String text : List.of("   ", "x".repeat(121))) {
+			String body = """
+					{"vehicleId": "%s", "text": "%s"}""".formatted(UUID.randomUUID(), text);
+			mvc.perform(post("/api/basket").cookie(session)
+				.header(CsrfHeaderFilter.HEADER, "1")
+				.contentType("application/json")
+				.content(body)).andExpect(status().isBadRequest());
+		}
+		mvc.perform(post("/api/basket/bought").cookie(session)
+			.header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content("{\"ids\": []}")).andExpect(status().isBadRequest());
 	}
 
 	private Cookie session(UUID userId) {

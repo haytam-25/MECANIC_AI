@@ -30,6 +30,8 @@ export interface Features {
   maxConversations: number
   /** Reparaciones como mucho en el diario (entre todos los coches). */
   maxRepairs: number
+  /** Artículos como mucho en la cesta (entre todos los coches). */
+  maxBasketItems: number
 }
 
 export interface Me {
@@ -201,5 +203,13 @@ export interface RepairInput {
 /** Una reparación del diario (con cuenta, guardada en el servidor; como invitado, en esta pestaña). */
 export interface Repair extends RepairInput {
   id: string
+  createdAt: string
+}
+
+/** Algo que hay que comprar para un coche (con cuenta, guardado en el servidor; como invitado, en esta pestaña). */
+export interface BasketItem {
+  id: string
+  vehicleId: string
+  text: string
   createdAt: string
 }

@@ -45,6 +45,10 @@
 
   --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  /* Cesta: letra a mano del bloc de notas, rotulador de la etiqueta y máquina de escribir del ticket */
+  --font-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --font-marker: 'Permanent Marker', 'Barlow Condensed', 'Barlow', sans-serif;
+  --font-ticket: 'Courier Prime', ui-monospace, 'Courier New', monospace;
 
   /* Metal */
   --metal-plate: linear-gradient(180deg, #2b3036 0%, #1f2328 100%);

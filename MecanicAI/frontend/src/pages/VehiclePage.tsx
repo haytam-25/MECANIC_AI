@@ -2,8 +2,9 @@ import { Link, Navigate } from 'react-router'
 
 import { Icon, type IconName } from '../components/Icon.tsx'
 import { useSession } from '../context/session.ts'
+import { useBasket } from '../features/basket/useBasket.ts'
 import { CarPlate } from '../features/garage/CarPlate.tsx'
-import { chatsPath, repairsPath, reportPath } from '../features/garage/paths.ts'
+import { basketPath, chatsPath, repairsPath, reportPath } from '../features/garage/paths.ts'
 import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import { formatDate } from '../features/repairs/diary.ts'
 import { useRepairs } from '../features/repairs/useRepairs.ts'
@@ -12,14 +13,15 @@ import { relativeDay } from '../lib/format.ts'
 import './pages.css'
 
 /**
- * Un coche del garaje: desde aquí se abre el chat con el mecánico (sus consultas), el informe médico o el diario de
- * reparaciones.
+ * Un coche del garaje: desde aquí se abre el chat con el mecánico (sus consultas), el informe médico, el diario de
+ * reparaciones o la cesta de la compra.
  */
 export function VehiclePage() {
   const { me, conversations } = useSession()
   const vehicle = useGarageVehicle()
   const { reports } = useSavedReports()
   const { repairs } = useRepairs()
+  const { items } = useBasket()
 
   if (!me) return null
   if (!vehicle) return <Navigate to="/" replace />
@@ -27,6 +29,7 @@ export function VehiclePage() {
   const chats = conversations.filter((c) => c.vehicle.id === vehicle.id)
   const report = reports?.find((r) => r.vehicleId === vehicle.id)
   const carRepairs = repairs?.filter((r) => r.vehicleId === vehicle.id) ?? []
+  const inBasket = items?.filter((i) => i.vehicleId === vehicle.id).length ?? 0
 
   return (
     <div className="page">
@@ -66,6 +69,16 @@ export function VehiclePage() {
             carRepairs.length === 0
               ? 'Apunta lo que le hace el taller: km, precio y observaciones'
               : `${carRepairs.length === 1 ? '1 reparación' : `${carRepairs.length} reparaciones`} · última: ${formatDate(carRepairs[0].date)}`
+          }
+        />
+        <HubCard
+          to={basketPath(vehicle.id)}
+          icon="basket"
+          title="Cesta"
+          text={
+            inBasket === 0
+              ? 'Apunta lo que tienes que comprarle: recambios, aceite, herramientas…'
+              : `${inBasket === 1 ? '1 artículo' : `${inBasket} artículos`} por comprar`
           }
         />
       </nav>

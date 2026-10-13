@@ -22,6 +22,11 @@ concreto.
   dice cuándo ir al taller.
 - **Página de cada coche**: al elegir un coche (con el asistente o desde el garaje) se abre su página con dos
   opciones: **Chat con el mecánico** (sus consultas anteriores y el botón para empezar una nueva) e **Informe médico**.
+- **Cesta**: la lista de la compra de cada coche (recambios, aceite, herramientas…). Se escribe en un bloc de notas,
+  el papel cae dentro de una cesta que marca cuántos artículos lleva y, al tocarla, sale un ticket para ir marcando
+  lo comprado: al cerrarlo, lo marcado sale de la cesta. **Con cuenta de Google** se guarda en la base de datos
+  (`basket_item`, hasta 50 artículos entre todos los coches: `app.limits.max-basket-items`); **como invitado** vive
+  en la pestaña y pasa a la cuenta al iniciar sesión.
 - **Informe médico**: indicas sus kilómetros y hace cuántos km o cuánto tiempo se
   le cambió cada cosa (aceite, filtros, bujías, correa o cadena de distribución, correa de accesorios, frenos,
   neumáticos, refrigerante, batería, amortiguadores…). Devuelve un informe por colores: **rojo** (toca cambiarlo),

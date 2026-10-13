@@ -2,6 +2,7 @@ import { toAiSpec, vehicleKey } from '../lib/vehicle.ts'
 import { api } from './http.ts'
 import { postStream, type OnDelta } from './sse.ts'
 import type {
+  BasketItem,
   Brand,
   CarModel,
   ChatMessage,
@@ -92,6 +93,13 @@ export const createRepair = (input: RepairInput) => api<Repair>('/api/repairs', 
 export const updateRepair = (id: string, input: RepairInput) =>
   api<Repair>(`/api/repairs/${id}`, { method: 'PUT', body: input })
 export const deleteRepair = (id: string) => api<void>(`/api/repairs/${id}`, { method: 'DELETE' })
+
+// Cesta de la compra (solo con cuenta: la de invitado no sale del navegador)
+export const fetchBasket = () => api<BasketItem[]>('/api/basket')
+export const addBasketItem = (vehicleId: string, text: string) =>
+  api<BasketItem>('/api/basket', { method: 'POST', body: { vehicleId, text } })
+/** Lo comprado sale de la cesta. */
+export const removeBoughtItems = (ids: string[]) => api<void>('/api/basket/bought', { method: 'POST', body: { ids } })
 
 // Garaje
 export const fetchVehicles = () => api<Vehicle[]>('/api/vehicles')

@@ -1,0 +1,850 @@
+/* ---------- Cesta: bloc de notas, cesta y ticket ---------- */
+
+.basket-stage {
+  --paper: #f6efd9;
+  --ink: #1c2740;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  padding: 1.5rem 1rem 1.1rem;
+  /* Foco de taller sobre la cesta */
+  background:
+    radial-gradient(62% 42% at 50% 76%, rgba(255, 122, 26, 0.17), transparent 72%),
+    var(--brushed),
+    var(--metal-plate);
+}
+
+.basket-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Bloc de notas ---------- */
+
+.basket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(100%, 26rem);
+}
+
+.pad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 0.9rem 0.5rem 2.75rem;
+  border-radius: 4px 4px 12px 5px;
+  /* Margen rojo y renglones azules de cuaderno */
+  background:
+    linear-gradient(90deg, transparent 2.1rem, rgba(214, 69, 65, 0.55) 2.1rem calc(2.1rem + 1.5px), transparent 0),
+    repeating-linear-gradient(180deg, transparent 0 calc(2rem - 1px), rgba(60, 110, 180, 0.24) calc(2rem - 1px) 2rem)
+      0 1.2rem,
+    var(--paper);
+  color: var(--ink);
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.5),
+    inset 0 -20px 26px -20px rgba(120, 90, 30, 0.4);
+  transform: rotate(-1.2deg);
+  animation: pad-in 0.55s cubic-bezier(0.2, 1.1, 0.4, 1) both;
+}
+
+/* Agujeros de la espiral */
+.pad__rings {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.15rem;
+  border-bottom: 1px dashed rgba(28, 39, 64, 0.28);
+  border-radius: 4px 4px 0 0;
+  background:
+    radial-gradient(circle at 50% 52%, #14171a 0 4px, rgba(0, 0, 0, 0.25) 4.4px, transparent 5px) 0 0 / 1.45rem 100%
+      repeat-x,
+    #e9dfc1;
+}
+
+.pad__title {
+  align-self: flex-start;
+  font-family: var(--font-marker);
+  font-size: 1.22rem;
+  line-height: 2rem;
+  color: #c2410c;
+  transform: rotate(-2deg);
+}
+
+.pad__input {
+  width: 100%;
+  height: 2rem;
+  padding: 0 0.1rem;
+  border: 0;
+  border-bottom: 2px dashed rgba(28, 39, 64, 0.38);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--accent-lo);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.65rem;
+  line-height: 2rem;
+}
+
+.pad__input::placeholder {
+  color: rgba(28, 39, 64, 0.38);
+  font-weight: 600;
+}
+
+.pad__input:focus {
+  border-bottom: 2px solid var(--accent-lo);
+}
+
+.pad__count {
+  align-self: flex-end;
+  font-family: var(--font-ticket);
+  font-size: 0.72rem;
+  line-height: 1.6rem;
+  color: rgba(28, 39, 64, 0.55);
+}
+
+.basket-form__add:active svg {
+  transform: translateY(-3px) rotate(-12deg);
+}
+
+/* ---------- Cesta ---------- */
+
+.basket {
+  position: relative;
+  width: min(100%, 21.5rem);
+  aspect-ratio: 320 / 250;
+  animation: basket-in 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) 0.1s both;
+}
+
+/* Fondo y frente, uno encima del otro; lo que vuela pasa entre los dos */
+.basket__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 94%;
+  transition: translate 0.2s ease;
+}
+
+.basket__back {
+  z-index: 1;
+}
+
+.basket__front {
+  z-index: 3;
+}
+
+/* Lo que asoma: se recoloca al sacar algo y aparece subiendo desde dentro */
+.basket__product {
+  transition: transform 0.45s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+.basket__product-in {
+  animation: product-in 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.basket__shine {
+  animation: basket-shine 6s ease-in-out infinite;
+}
+
+.basket__flyers,
+.basket__sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.basket__flyers {
+  z-index: 2;
+}
+
+.basket__sparks {
+  z-index: 4;
+}
+
+/* Papel del bloc: avanza (flyer), cae (flyer__fall) y gira (flyer__slip) a la vez, y por eso dibuja un arco */
+.flyer,
+.flyer__fall {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.flyer {
+  animation: flyer-x 0.95s linear both;
+}
+
+.flyer__fall {
+  top: 0;
+  left: 0;
+  animation: flyer-y 0.95s both;
+}
+
+.flyer__slip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 11.5rem;
+  padding: 0.1rem 0.75rem 0.15rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+  translate: -50% -50%;
+  animation: flyer-spin 0.95s linear both;
+}
+
+.sparks {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+}
+
+.sparks i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  animation: spark 0.6s ease-out both;
+}
+
+.sparks i:nth-child(odd) {
+  width: 5px;
+  height: 5px;
+  background: var(--paper);
+}
+
+/* Etiqueta colgada del borde con el número de artículos */
+.basket__tag {
+  position: absolute;
+  top: 44%;
+  left: 73.75%;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.5));
+  transform-origin: 0 0;
+  transition: translate 0.2s ease;
+  animation: tag-swing 3.4s ease-in-out infinite alternate;
+}
+
+.basket__tag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 2px;
+  height: 1.35rem;
+  background: #ded7c4;
+}
+
+.basket__label {
+  position: absolute;
+  top: 0.95rem;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.9rem;
+  padding: 1.05rem 0.5rem 0.4rem;
+  background:
+    radial-gradient(circle at 50% 0.5rem, #2a1002 0 3px, transparent 3.6px),
+    var(--paper);
+  color: var(--ink);
+  clip-path: polygon(24% 0, 76% 0, 100% 22%, 100% 100%, 0 100%, 0 22%);
+  translate: -50% 0;
+}
+
+.basket__count {
+  font-family: var(--font-marker);
+  font-size: 1.9rem;
+  line-height: 1;
+  animation: count-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.basket__unit {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Toda la cesta es el botón que saca el ticket */
+.basket__open {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: none;
+}
+
+.basket__open:focus-visible {
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .basket:has(.basket__open:hover) > .basket__svg,
+  .basket:has(.basket__open:hover) > .basket__tag {
+    translate: 0 -5px;
+  }
+}
+
+.basket:has(.basket__open:active) > .basket__svg,
+.basket:has(.basket__open:active) > .basket__tag {
+  translate: 0 2px;
+}
+
+.basket-hint {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.basket-hint--ready {
+  color: var(--text);
+}
+
+.basket-hint svg {
+  flex: none;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: hint-nudge 1.1s ease-in-out infinite alternate;
+}
+
+/* ---------- Ticket ---------- */
+
+.ticket-dialog {
+  --paper: #f7f3e8;
+  --ink: #22252a;
+  --ink-soft: #77726a;
+  --stamp: #b3261e;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.ticket-dialog::backdrop {
+  background: rgba(5, 6, 7, 0.82);
+  backdrop-filter: blur(4px);
+  animation: ticket-fade 0.25s ease both;
+}
+
+.ticket-dialog--closing::backdrop {
+  animation: ticket-fade-out 0.32s ease both;
+}
+
+.ticket-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 100%;
+  padding: calc(1.1rem + var(--safe-top)) 1.4rem 0;
+}
+
+.ticket {
+  width: min(100%, 22.5rem);
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
+}
+
+.ticket-dialog--closing .ticket {
+  animation: ticket-out 0.32s ease-in both;
+}
+
+/* Ranura de la impresora: el papel sale por debajo */
+.ticket__slot {
+  position: relative;
+  z-index: 1;
+  height: 20px;
+  margin: 0 -0.7rem;
+  border-radius: 10px;
+  background:
+    linear-gradient(#050607, #050607) 50% 72% / calc(100% - 1.1rem) 3px no-repeat,
+    linear-gradient(180deg, #454c54, #1b1e22);
+  box-shadow: var(--edge-light), var(--shadow-1);
+}
+
+.ticket__feed {
+  margin-top: -7px;
+  overflow: hidden;
+}
+
+.ticket__paper {
+  --tooth: 8px;
+  padding: 1.6rem 1.15rem 2rem;
+  background:
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.018) 0 1px, transparent 1px 4px),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ticket);
+  font-size: 1rem;
+  line-height: 1.35;
+  /* Borde de abajo cortado en dientes de sierra */
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--tooth))
+    100%;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--tooth)) 100%;
+  animation: ticket-print 0.75s steps(16, end) both;
+}
+
+.ticket__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.8rem;
+  text-align: center;
+}
+
+.ticket__brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ticket__brand span {
+  color: var(--accent-lo);
+}
+
+.ticket__title {
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.ticket__title::before {
+  content: '*** ';
+}
+
+.ticket__title::after {
+  content: ' ***';
+}
+
+.ticket__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+}
+
+.ticket__body {
+  position: relative;
+}
+
+.ticket__lines {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0.4rem 0;
+  border-block: 1.5px dashed #9a9488;
+  list-style: none;
+}
+
+.ticket__lines li {
+  animation: ticket-line 0.3s ease both;
+}
+
+.ticket__line {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: start;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.6rem 0.1rem 0.4rem;
+  cursor: pointer;
+}
+
+.ticket__line input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.ticket__box {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  color: var(--paper);
+  transition: background 0.15s ease;
+}
+
+.ticket__line input:focus-visible + .ticket__box {
+  outline: 2px solid var(--accent-lo);
+  outline-offset: 2px;
+}
+
+/* La marca se dibuja al completar */
+.ticket__box path {
+  stroke-width: 3;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 0.25s ease 0.05s;
+}
+
+.ticket__line--bought .ticket__box {
+  background: var(--ink);
+}
+
+.ticket__line--bought .ticket__box path {
+  stroke-dashoffset: 0;
+}
+
+.ticket__num {
+  color: var(--ink-soft);
+}
+
+.ticket__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tachado a boli, renglón a renglón */
+.ticket__text > span {
+  background: linear-gradient(var(--stamp), var(--stamp)) 0 55% / 0% 2px no-repeat;
+  transition:
+    background-size 0.35s ease,
+    color 0.35s ease;
+}
+
+.ticket__line--bought .ticket__text > span {
+  background-size: 100% 2px;
+  color: var(--ink-soft);
+}
+
+.ticket__stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 0.15rem 0.8rem;
+  border: 3px solid var(--stamp);
+  border-radius: 8px;
+  color: var(--stamp);
+  font-family: var(--font-marker);
+  font-size: 1.55rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-transform: uppercase;
+  opacity: 0.86;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-11deg);
+  animation: stamp-in 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.ticket__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.3rem 0;
+  border-block: 1.5px dashed #9a9488;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ticket__empty span,
+.ticket__note {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.15;
+  text-transform: none;
+  color: #24418f;
+}
+
+.ticket__totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0.7rem 0 0;
+}
+
+.ticket__totals > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.ticket__totals dt {
+  text-transform: uppercase;
+}
+
+/* Puntos entre el nombre y la cifra */
+.ticket__totals dd {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.ticket__totals dd::before {
+  content: '';
+  flex: 1;
+  border-bottom: 2px dotted #9a9488;
+}
+
+.ticket__total {
+  margin-top: 0.25rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.ticket__note {
+  margin-top: 0.9rem;
+  text-align: center;
+  transform: rotate(-1.5deg);
+}
+
+.ticket__foot {
+  margin-top: 1.1rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ticket__barcode {
+  height: 44px;
+  margin: 0 12% 0.5rem;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0 2px,
+    transparent 2px 4px,
+    var(--ink) 4px 7px,
+    transparent 7px 8px,
+    var(--ink) 8px 9px,
+    transparent 9px 13px,
+    var(--ink) 13px 16px,
+    transparent 16px 18px
+  );
+}
+
+/* Botón de cerrar: siempre a mano aunque el ticket sea largo */
+.ticket-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: min(100%, 22.5rem);
+  margin-top: auto;
+  padding: 1.4rem 0 calc(1rem + var(--safe-bottom));
+  background: linear-gradient(180deg, transparent, rgba(5, 6, 7, 0.92) 42%);
+  animation: ticket-fade 0.3s ease 0.3s both;
+}
+
+.ticket-dialog--closing .ticket-actions {
+  animation: ticket-fade-out 0.2s ease both;
+}
+
+.ticket-actions__status {
+  min-height: 1.5rem;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.5rem;
+  text-align: center;
+}
+
+/* ---------- Animaciones ---------- */
+
+@keyframes pad-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) rotate(-6deg);
+  }
+}
+
+@keyframes basket-in {
+  from {
+    opacity: 0;
+    transform: translateY(42px) scale(0.9);
+  }
+}
+
+@keyframes product-in {
+  from {
+    transform: translateY(48px);
+  }
+}
+
+/* El brillo cruza la pared delantera de vez en cuando */
+@keyframes basket-shine {
+  0%,
+  72% {
+    transform: translateX(0) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(470px) skewX(-18deg);
+  }
+}
+
+@keyframes tag-swing {
+  from {
+    transform: rotate(6deg);
+  }
+  to {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes count-pop {
+  from {
+    transform: scale(0.3) rotate(-18deg);
+  }
+}
+
+@keyframes hint-nudge {
+  to {
+    transform: translate(-3px, -5px);
+  }
+}
+
+/* El papel se arranca del bloc (hasta el 24 %) y después vuela hasta la boca de la cesta */
+@keyframes flyer-x {
+  0%,
+  24% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--dx));
+  }
+}
+
+@keyframes flyer-y {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  24% {
+    transform: translateY(-22px);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  50% {
+    transform: translateY(-66px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
+  }
+  100% {
+    transform: translateY(var(--dy));
+  }
+}
+
+@keyframes flyer-spin {
+  0% {
+    opacity: 0;
+    transform: rotate(-1.2deg) scale(0.7);
+  }
+  8% {
+    opacity: 1;
+  }
+  24% {
+    transform: rotate(calc(var(--spin) * -8deg)) scale(1.08);
+  }
+  50% {
+    transform: rotate(calc(var(--spin) * 7deg)) scale(1);
+  }
+  100% {
+    transform: rotate(calc(var(--spin) * 26deg)) scale(0.55);
+  }
+}
+
+@keyframes spark {
+  from {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(-6px) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(calc(-1 * var(--reach))) scale(0.2);
+  }
+}
+
+@keyframes ticket-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ticket-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* A golpes, como una impresora de tickets */
+@keyframes ticket-print {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes ticket-out {
+  to {
+    opacity: 0;
+    transform: translateY(70px) rotate(4deg);
+  }
+}
+
+@keyframes ticket-line {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-11deg) scale(2.6);
+  }
+}

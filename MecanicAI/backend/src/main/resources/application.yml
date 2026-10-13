@@ -101,6 +101,8 @@ app:
     max-conversations: 20
     # Reparaciones del diario por cuenta (entre todos sus coches)
     max-repairs: 30
+    # Artículos de la cesta por cuenta (entre todos sus coches)
+    max-basket-items: 30
     # Conversaciones de invitado que se pueden guardar en la cuenta al día
     daily-imports: 20
     chat-per-minute: 6

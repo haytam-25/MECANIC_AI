@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AppShell } from './components/AppShell.tsx'
 import { SessionProvider } from './context/SessionProvider.tsx'
 import { ToastProvider } from './context/ToastProvider.tsx'
+import { BasketPage } from './pages/BasketPage.tsx'
 import { ChatRoute } from './pages/ChatRoute.tsx'
 import { ConversationsPage } from './pages/ConversationsPage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
@@ -20,7 +21,7 @@ export default function App() {
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
-              {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico y su diario */}
+              {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico, su diario y su cesta */}
               <Route path="coche/:vehicleId">
                 <Route index element={<VehiclePage />} />
                 <Route path="consultas" element={<ConversationsPage />} />
@@ -30,6 +31,7 @@ export default function App() {
                 <Route path="reparaciones" element={<RepairsPage />} />
                 {/* …/reparaciones/nueva o …/reparaciones/<id> (para corregirla) */}
                 <Route path="reparaciones/:repairId" element={<RepairFormPage />} />
+                <Route path="cesta" element={<BasketPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>

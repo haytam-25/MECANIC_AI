@@ -63,11 +63,12 @@ public class AuthController {
 	}
 
 	/**
-	 * Qué opciones debe mostrar el frontend. {@code maxVehicles}, {@code maxConversations} y {@code maxRepairs}: topes
-	 * por usuario.
+	 * Qué opciones debe mostrar el frontend. {@code maxVehicles}, {@code maxConversations}, {@code maxRepairs} y
+	 * {@code maxBasketItems}: topes por usuario.
 	 */
 	public record Features(boolean googleLogin, boolean aiDemo, int guestDailyMessages, int freeDailyMessages,
-			int guestWeeklyReports, int freeWeeklyReports, int maxVehicles, int maxConversations, int maxRepairs) {
+			int guestWeeklyReports, int freeWeeklyReports, int maxVehicles, int maxConversations, int maxRepairs,
+			int maxBasketItems) {
 	}
 
 	/** {@code usage}: mensajes de hoy. {@code reports}: informes médicos de esta semana. */
@@ -80,7 +81,7 @@ public class AuthController {
 		Features features = new Features(props.auth().google().configured(), aiClient.isDemo(),
 				props.guest().dailyMessages(), props.plans().free().dailyMessages(), props.guest().weeklyReports(),
 				props.plans().free().weeklyReports(), props.limits().maxVehicles(), props.limits().maxConversations(),
-				props.limits().maxRepairs());
+				props.limits().maxRepairs(), props.limits().maxBasketItems());
 
 		if (principal != null) {
 			Optional<User> user = users.find(principal.id());

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import {
+  addBasketItem,
   createRepair,
   createVehicle,
   deleteAccount,
@@ -13,7 +14,7 @@ import {
   logout as apiLogout,
 } from '../api/endpoints.ts'
 import { ApiError } from '../api/http.ts'
-import type { ConversationSummary, Me, Repair, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
+import type { BasketItem, ConversationSummary, Me, Repair, Usage, Vehicle, VehicleSpec } from '../api/types.ts'
 import { sortRepairs } from '../features/repairs/diary.ts'
 import {
   EMPTY_GUEST_GARAGE,
@@ -56,10 +57,12 @@ interface ImportResult {
   skipped: number
   /** Reparaciones que no cabían en el diario de la cuenta (o las de un coche que no cabía). */
   skippedRepairs: number
+  /** Artículos que no cabían en la cesta de la cuenta (o los de un coche que no cabía). */
+  skippedBasket: number
 }
 
 /**
- * Guarda en la cuenta el garaje del invitado: cada coche con sus consultas y sus reparaciones. Devuelve el id en la
+ * Guarda en la cuenta el garaje del invitado: cada coche con sus consultas, sus reparaciones y su cesta. Devuelve el id en la
  * cuenta del coche más reciente y lo que no cabía en la cuenta. Lo ya procesado se va quitando del garaje de
  * invitado para no duplicarlo si algo falla a mitad.
  */
@@ -69,10 +72,13 @@ async function importGuestGarage(garage: GuestGarage): Promise<ImportResult> {
   let skipped = 0
   let skippedRepairs = 0
   let repairsFull = false
+  let skippedBasket = 0
+  let basketFull = false
   // Del más antiguo al más reciente, para que en la cuenta queden en el mismo orden
   for (const vehicle of [...garage.vehicles].reverse()) {
     const chats = garage.conversations.filter((c) => c.vehicleId === vehicle.id && c.messages.length > 0).reverse()
     const repairs = sortRepairs(garage.repairs.filter((r) => r.vehicleId === vehicle.id)).reverse()
+    const basket = garage.basket.filter((b) => b.vehicleId === vehicle.id)
     let accountId: string | null = null
     try {
       if (chats.length === 0) {
@@ -102,14 +108,28 @@ async function importGuestGarage(garage: GuestGarage): Promise<ImportResult> {
         skippedRepairs++
       }
     }
+    for (const item of basket) {
+      if (!accountId || basketFull) {
+        skippedBasket++
+        continue
+      }
+      try {
+        await addBasketItem(accountId, item.text)
+      } catch (error) {
+        if (!(error instanceof ApiError && (error.code === 'BASKET_LIMIT' || error.code === 'VALIDATION'))) throw error
+        basketFull ||= error.code === 'BASKET_LIMIT'
+        skippedBasket++
+      }
+    }
     pending = {
       vehicles: pending.vehicles.filter((v) => v.id !== vehicle.id),
       conversations: pending.conversations.filter((c) => c.vehicleId !== vehicle.id),
       repairs: pending.repairs.filter((r) => r.vehicleId !== vehicle.id),
+      basket: pending.basket.filter((b) => b.vehicleId !== vehicle.id),
     }
     saveGuestGarage(pending)
   }
-  return { newest, skipped, skippedRepairs }
+  return { newest, skipped, skippedRepairs, skippedBasket }
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -210,6 +230,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         vehicles: g.vehicles.filter((v) => v.id !== id),
         conversations: g.conversations.filter((c) => c.vehicleId !== id),
         repairs: g.repairs.filter((r) => r.vehicleId !== id),
+        basket: g.basket.filter((b) => b.vehicleId !== id),
       }))
     },
     [authenticated, refreshLists],
@@ -253,6 +274,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setGuestGarage((g) => ({ ...g, repairs: g.repairs.filter((r) => r.id !== id) }))
   }, [])
 
+  const addGuestBasketItem = useCallback((item: BasketItem) => {
+    setGuestGarage((g) => ({ ...g, basket: [...g.basket, item] }))
+  }, [])
+
+  const removeGuestBasketItems = useCallback((ids: string[]) => {
+    setGuestGarage((g) => ({ ...g, basket: g.basket.filter((b) => !ids.includes(b.id)) }))
+  }, [])
+
   const setUsage = useCallback((usage: Usage) => {
     setMe((current) => (current ? { ...current, usage } : current))
   }, [])
@@ -283,18 +312,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     let path: string | null = null
     let skipped = 0
     let skippedRepairs = 0
+    let skippedBasket = 0
     try {
       const imported = await importGuestGarage(garage)
       if (imported.newest) path = `/coche/${imported.newest}`
       skipped = imported.skipped
       skippedRepairs = imported.skippedRepairs
+      skippedBasket = imported.skippedBasket
     } finally {
       setGuestGarage(loadGuestGarage())
       const [convs, cars] = await Promise.all([fetchConversations(), fetchVehicles()])
       setAccountConversations(convs)
       setAccountVehicles(cars)
     }
-    return { path, skipped, skippedRepairs }
+    return { path, skipped, skippedRepairs, skippedBasket }
   }, [])
 
   const logout = useCallback(async () => {
@@ -325,6 +356,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       guestRepairs: guestGarage.repairs,
       saveGuestRepair,
       removeGuestRepair,
+      guestBasket: guestGarage.basket,
+      addGuestBasketItem,
+      removeGuestBasketItems,
       setUsage,
       setReportUsage,
       guestMode,
@@ -349,6 +383,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       guestGarage.repairs,
       saveGuestRepair,
       removeGuestRepair,
+      guestGarage.basket,
+      addGuestBasketItem,
+      removeGuestBasketItems,
       setUsage,
       setReportUsage,
       guestMode,

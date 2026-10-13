@@ -39,8 +39,8 @@ export function AppShell() {
       return
     }
     completeLogin()
-      .then(({ path, skipped, skippedRepairs }) => {
-        toast(`¡Hola${me.user?.name ? `, ${firstName(me.user.name)}` : ''}! Tus coches, consultas y reparaciones se guardarán en tu cuenta.`, 'success')
+      .then(({ path, skipped, skippedRepairs, skippedBasket }) => {
+        toast(`¡Hola${me.user?.name ? `, ${firstName(me.user.name)}` : ''}! Tus coches, consultas, reparaciones y cesta se guardarán en tu cuenta.`, 'success')
         if (skipped > 0) {
           toast(
             `Tu garaje ya tenía ${me.features.maxVehicles} coches: ${skipped === 1 ? '1 coche' : `${skipped} coches`} del modo invitado no se ${skipped === 1 ? 'ha' : 'han'} guardado.`,
@@ -50,6 +50,12 @@ export function AppShell() {
         if (skippedRepairs > 0) {
           toast(
             `${skippedRepairs === 1 ? '1 reparación' : `${skippedRepairs} reparaciones`} del modo invitado no se ${skippedRepairs === 1 ? 'ha' : 'han'} podido guardar en tu cuenta (el diario admite ${me.features.maxRepairs} como mucho).`,
+            'error',
+          )
+        }
+        if (skippedBasket > 0) {
+          toast(
+            `${skippedBasket === 1 ? '1 artículo' : `${skippedBasket} artículos`} de la cesta del modo invitado no se ${skippedBasket === 1 ? 'ha' : 'han'} podido guardar en tu cuenta (la cesta admite ${me.features.maxBasketItems} como mucho).`,
             'error',
           )
         }

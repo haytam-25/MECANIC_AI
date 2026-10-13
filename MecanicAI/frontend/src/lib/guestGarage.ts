@@ -1,9 +1,17 @@
-import type { ChatMessage, ConversationSummary, Repair, RepairInput, Vehicle, VehicleSpec } from '../api/types.ts'
+import type {
+  BasketItem,
+  ChatMessage,
+  ConversationSummary,
+  Repair,
+  RepairInput,
+  Vehicle,
+  VehicleSpec,
+} from '../api/types.ts'
 import { displayName, engineLabel, toSpec } from './vehicle.ts'
 
 /**
- * Garaje del modo invitado: sus coches, sus consultas y su diario de reparaciones. Vive en sessionStorage, así que dura mientras la pestaña
- * esté abierta (también al recargar o al volver del inicio de sesión con Google, que es cuando se guarda en la
+ * Garaje del modo invitado: sus coches, sus consultas, su diario de reparaciones y su cesta. Vive en sessionStorage,
+ * así que dura mientras la pestaña esté abierta (también al recargar o al volver del inicio de sesión con Google, que es cuando se guarda en la
  * cuenta) y se pierde al cerrarla.
  */
 export interface GuestConversation {
@@ -20,9 +28,11 @@ export interface GuestGarage {
   conversations: GuestConversation[]
   /** Diario de reparaciones, de la más reciente a la más antigua. */
   repairs: Repair[]
+  /** Cesta de la compra, en el orden en que se añadió cada artículo. */
+  basket: BasketItem[]
 }
 
-export const EMPTY_GUEST_GARAGE: GuestGarage = { vehicles: [], conversations: [], repairs: [] }
+export const EMPTY_GUEST_GARAGE: GuestGarage = { vehicles: [], conversations: [], repairs: [], basket: [] }
 
 const KEY = 'mecanicai.garaje-invitado'
 
@@ -46,7 +56,10 @@ export function loadGuestGarage(): GuestGarage {
           (r) => r?.id && ids.has(r.vehicleId) && typeof r.date === 'string' && Number.isFinite(r.km) && Array.isArray(r.types),
         )
       : []
-    return { vehicles, conversations, repairs }
+    const basket = Array.isArray(data.basket)
+      ? data.basket.filter((b) => b?.id && ids.has(b.vehicleId) && typeof b.text === 'string')
+      : []
+    return { vehicles, conversations, repairs, basket }
   } catch {
     return EMPTY_GUEST_GARAGE
   }
@@ -81,6 +94,11 @@ export function newGuestConversation(vehicleId: string, firstQuestion: string): 
 /** Reparación nueva de invitado, con la misma forma que una de la cuenta. */
 export function newGuestRepair(input: RepairInput): Repair {
   return { ...input, id: localId(), createdAt: new Date().toISOString() }
+}
+
+/** Artículo nuevo de la cesta de invitado, con la misma forma que uno de la cuenta. */
+export function newGuestBasketItem(vehicleId: string, text: string): BasketItem {
+  return { id: localId(), vehicleId, text, createdAt: new Date().toISOString() }
 }
 
 export function guestSummary(conversation: GuestConversation, vehicle: Vehicle): ConversationSummary {

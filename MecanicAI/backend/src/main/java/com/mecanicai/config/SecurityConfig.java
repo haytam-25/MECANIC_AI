@@ -51,7 +51,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
 				.requestMatchers("/api/vehicles/**", "/api/conversations/**", "/api/reports/**", "/api/repairs/**",
-						"/api/auth/logout",
+						"/api/basket/**", "/api/auth/logout",
 						"/api/auth/account")
 				.authenticated()
 				.anyRequest().permitAll())
