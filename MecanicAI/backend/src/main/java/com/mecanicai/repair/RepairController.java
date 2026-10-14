@@ -20,7 +20,7 @@ import com.mecanicai.auth.AuthUser;
 import com.mecanicai.repair.RepairService.Repair;
 import com.mecanicai.repair.RepairService.RepairRequest;
 
-/** Diario de reparaciones: solo con cuenta (el de los invitados no sale del navegador). */
+/** Historial de reparaciones: solo con cuenta (el de los invitados no sale del navegador). */
 @RestController
 @RequestMapping("/api/repairs")
 public class RepairController {

@@ -29,7 +29,7 @@ import com.mecanicai.vehicle.VehicleService;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Diario de reparaciones de las cuentas de Google: lo que se le ha hecho a cada coche del garaje (con sus km, precio y
+ * Historial de reparaciones de las cuentas de Google: lo que se le ha hecho a cada coche del garaje (con sus km, precio y
  * observaciones). Como mucho {@code app.limits.max-repairs} entre todos los coches del usuario.
  * <p>
  * Los invitados no guardan nada aquí: su diario vive en el navegador y pasa a la cuenta al iniciar sesión.

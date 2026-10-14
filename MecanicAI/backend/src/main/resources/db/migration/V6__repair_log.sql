@@ -1,4 +1,4 @@
--- "Diario de reparaciones" de las cuentas de Google (las de invitado viven en el navegador y no se guardan aquí).
+-- "Historial de reparaciones" de las cuentas de Google (las de invitado viven en el navegador y no se guardan aquí).
 -- types_json: ids de lo que se hizo (MaintenanceItem o RepairCategory). price_cents: precio en céntimos de euro.
 CREATE TABLE repair (
     id           UUID PRIMARY KEY,

@@ -32,7 +32,7 @@ export function VehiclePage() {
   const inBasket = items?.filter((i) => i.vehicleId === vehicle.id).length ?? 0
 
   return (
-    <div className="page">
+    <div className="page page--enter">
       <header className="page-head">
         <p className="eyebrow">Mi garaje</p>
         <h1 className="page-title">¿Qué necesitas?</h1>
@@ -44,6 +44,8 @@ export function VehiclePage() {
         <HubCard
           to={chatsPath(vehicle.id)}
           icon="chat"
+          tone="chat"
+          count={chats.length}
           title="Chat con el mecánico"
           text={
             chats.length === 0
@@ -54,6 +56,7 @@ export function VehiclePage() {
         <HubCard
           to={reportPath(vehicle.id)}
           icon="pulse"
+          tone="report"
           title="Informe médico"
           text={
             report
@@ -64,7 +67,9 @@ export function VehiclePage() {
         <HubCard
           to={repairsPath(vehicle.id)}
           icon="wrench"
-          title="Diario de reparaciones"
+          tone="repairs"
+          count={carRepairs.length}
+          title="Historial de reparaciones"
           text={
             carRepairs.length === 0
               ? 'Apunta lo que le hace el taller: km, precio y observaciones'
@@ -74,6 +79,8 @@ export function VehiclePage() {
         <HubCard
           to={basketPath(vehicle.id)}
           icon="basket"
+          tone="basket"
+          count={inBasket}
           title="Cesta"
           text={
             inBasket === 0
@@ -86,11 +93,27 @@ export function VehiclePage() {
   )
 }
 
-function HubCard({ to, icon, title, text }: { to: string; icon: IconName; title: string; text: string }) {
+interface HubCardProps {
+  to: string
+  icon: IconName
+  /** Color de la sección: cada una tiene el suyo para encontrarla de un vistazo. */
+  tone: 'chat' | 'report' | 'repairs' | 'basket'
+  /** Cuántas cosas hay dentro (se muestra en el icono si hay alguna). */
+  count?: number
+  title: string
+  text: string
+}
+
+function HubCard({ to, icon, tone, count = 0, title, text }: HubCardProps) {
   return (
-    <Link to={to} className="hub-card plate">
+    <Link to={to} className={`hub-card hub-card--${tone} plate`}>
       <span className="hub-card__icon">
         <Icon name={icon} size={28} />
+        {count > 0 && (
+          <span className="hub-card__badge" aria-hidden="true">
+            {count > 99 ? '99+' : count}
+          </span>
+        )}
       </span>
       <span className="hub-card__text">
         <span className="hub-card__title">{title}</span>

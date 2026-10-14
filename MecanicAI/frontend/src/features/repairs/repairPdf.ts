@@ -1,5 +1,5 @@
 /**
- * PDF del diario de reparaciones de un coche, en blanco y negro (se imprime bien y sirve para enseñarlo al venderlo).
+ * PDF del Historial de reparaciones de un coche, en blanco y negro (se imprime bien y sirve para enseñarlo al venderlo).
  * Se genera en el navegador: las reparaciones no salen del dispositivo, tampoco las del modo invitado.
  */
 import { jsPDF } from 'jspdf'

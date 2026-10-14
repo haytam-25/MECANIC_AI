@@ -10,7 +10,7 @@ import type {
 import { displayName, engineLabel, toSpec } from './vehicle.ts'
 
 /**
- * Garaje del modo invitado: sus coches, sus consultas, su diario de reparaciones y su cesta. Vive en sessionStorage,
+ * Garaje del modo invitado: sus coches, sus consultas, su Historial de reparaciones y su cesta. Vive en sessionStorage,
  * así que dura mientras la pestaña esté abierta (también al recargar o al volver del inicio de sesión con Google, que es cuando se guarda en la
  * cuenta) y se pierde al cerrarla.
  */
@@ -26,7 +26,7 @@ export interface GuestGarage {
   /** El más reciente primero, como el garaje de la cuenta. */
   vehicles: Vehicle[]
   conversations: GuestConversation[]
-  /** Diario de reparaciones, de la más reciente a la más antigua. */
+  /** Historial de reparaciones, de la más reciente a la más antigua. */
   repairs: Repair[]
   /** Cesta de la compra, en el orden en que se añadió cada artículo. */
   basket: BasketItem[]

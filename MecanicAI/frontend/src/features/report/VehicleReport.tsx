@@ -169,7 +169,7 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: Ve
               {blocked ? (
                 <ReportLimitCard guest={guest} features={me.features} usage={me.reports} />
               ) : (
-                guest && <GuestReportHint features={me.features} />
+                guest && <GuestReportHint/>
               )}
               {!fallback && (
                 <p className="muted small">

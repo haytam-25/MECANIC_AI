@@ -254,6 +254,14 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.5rem;
+  animation: confirm-in 0.25s var(--ease-out) both;
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
 }
 
 .confirm-row .small {

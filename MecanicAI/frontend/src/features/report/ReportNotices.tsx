@@ -4,14 +4,13 @@ import { LoginOptions } from '../../components/LoginOptions.tsx'
 import { useLogin } from '../../context/useLogin.ts'
 
 /** Aviso al rellenar el formulario como invitado: el informe no se guarda y hay menos a la semana. */
-export function GuestReportHint({ features }: { features: Features }) {
+export function GuestReportHint() {
   const { google, loginWithGoogle } = useLogin()
   return (
     <div className="notice notice--demo">
-      <Icon name="user" size={20} />
+      <Icon name="user" size={15} />
       <span>
-        Como invitado el informe <strong>no se guarda</strong> y puedes hacer {features.guestWeeklyReports} a la semana.
-        Con tu cuenta de Google se guarda en tu garaje y puedes hacer {features.freeWeeklyReports}.
+        En modo invitado el informe <strong>no se guarda</strong> .
       </span>
       {google && (
         <button type="button" className="link-btn" onClick={loginWithGoogle}>

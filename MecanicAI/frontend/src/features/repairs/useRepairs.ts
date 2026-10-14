@@ -17,7 +17,7 @@ function diaryFull(max: number): ApiError {
 }
 
 /**
- * Diario de reparaciones de todos los coches (null mientras se carga). Con cuenta se guarda en el servidor; como
+ * Historial de reparaciones de todos los coches (null mientras se carga). Con cuenta se guarda en el servidor; como
  * invitado, en el garaje de esta pestaña.
  */
 export function useRepairs() {

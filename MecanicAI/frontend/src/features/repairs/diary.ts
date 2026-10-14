@@ -1,5 +1,5 @@
 /**
- * Diario de reparaciones: tipos de trabajo que se pueden apuntar en cada coche, y cómo se leen y se escriben los
+ * Historial de reparaciones: tipos de trabajo que se pueden apuntar en cada coche, y cómo se leen y se escriben los
  * datos del formulario (fecha, km, precio).
  */
 import type { Fuel, MaintenancePlan, PlanItem, Repair } from '../../api/types.ts'

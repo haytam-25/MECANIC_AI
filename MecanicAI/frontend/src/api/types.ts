@@ -187,7 +187,7 @@ export interface ReportResult {
   usage: Usage
 }
 
-/** Lo que se apunta en el diario de reparaciones. `types`: ids de elementos del plan de mantenimiento o de averías. */
+/** Lo que se apunta en el Historial de reparaciones. `types`: ids de elementos del plan de mantenimiento o de averías. */
 export interface RepairInput {
   vehicleId: string
   /** "2026-10-09" */

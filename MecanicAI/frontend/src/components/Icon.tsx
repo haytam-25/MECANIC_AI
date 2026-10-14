@@ -24,6 +24,12 @@ const PATHS = {
   pulse: 'M3 12h4l2.5-6 5 12 2.5-6h4',
   clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
   basket: 'M3 10h18l-1.7 9H4.7L3 10zM8 10l3-6M16 10l-3-6M9.5 13.5v2.5M14.5 13.5v2.5',
+  calendar: 'M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM4 10h16M8 3v4M16 3v4',
+  gauge: 'M5 18a8.5 8.5 0 1 1 14 0M12 14l3.5-4.5M13.4 14a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0z',
+  euro: 'M17 6.5a6.5 6.5 0 1 0 0 11M4 10.5h9M4 13.5h9',
+  file: 'M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7l-4-4zM14 3v4h4M12 10.5v6M9.5 14 12 16.5l2.5-2.5',
+  pin: 'M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11zM12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  sparkle: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8z',
 } as const
 
 export type IconName = keyof typeof PATHS
@@ -48,6 +54,7 @@ export function Icon({ name, size = 22, className }: IconProps) {
       strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
+      data-icon={name}
     >
       {name === 'stop' ? (
         <rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" stroke="none" />

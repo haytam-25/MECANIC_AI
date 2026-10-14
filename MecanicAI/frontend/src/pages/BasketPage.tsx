@@ -6,12 +6,10 @@ import { Icon } from '../components/Icon.tsx'
 import { Wheel } from '../components/Wheel.tsx'
 import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
-import { useLogin } from '../context/useLogin.ts'
 import { BasketBack, BasketFront } from '../features/basket/BasketArt.tsx'
 import { Ticket } from '../features/basket/Ticket.tsx'
 import { cleanBasketText, MAX_BASKET_TEXT, useBasket } from '../features/basket/useBasket.ts'
 import { CarPlate } from '../features/garage/CarPlate.tsx'
-import { GuestSaveCard } from '../features/garage/GuestSaveCard.tsx'
 import { carPath } from '../features/garage/paths.ts'
 import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import '../features/basket/basket.css'
@@ -267,9 +265,6 @@ export function BasketPage() {
         <p className={`basket-hint ${count > 0 ? 'basket-hint--ready' : ''}`}>
           {count > 0 ? (
             <>
-              <svg viewBox="0 0 40 34" width="34" height="29" aria-hidden="true" focusable="false">
-                <path d="M33 31C30 18 22 10 9 7M9 7l9 7M9 7l10-4" />
-              </svg>
               Toca la cesta para sacar el ticket
             </>
           ) : (
@@ -284,10 +279,7 @@ export function BasketPage() {
       <p className="muted small">
         Puedes tener hasta {max} artículos en la cesta entre todos tus coches
         {items.length > 0 ? ` (llevas ${items.length})` : ''}.
-        {!me.authenticated && count > 0 && ' Como invitado, se borran al cerrar la página.'}
       </p>
-
-      {!me.authenticated && count > 0 && <GuestSaveCard />}
 
       {ticketOpen && <Ticket vehicle={vehicle} items={inBasket} onClose={(ids) => void closeTicket(ids)} />}
     </div>

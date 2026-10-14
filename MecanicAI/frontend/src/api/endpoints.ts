@@ -87,7 +87,7 @@ export const saveReport = (vehicleId: string, input: ReportInput) =>
   api<ReportResult>('/api/reports', { method: 'POST', body: { vehicleId, input } })
 export const countGuestReport = () => api<ReportResult>('/api/guest/reports', { method: 'POST' })
 
-// Diario de reparaciones (solo con cuenta: el de invitado no sale del navegador)
+// Historial de reparaciones (solo con cuenta: el de invitado no sale del navegador)
 export const fetchRepairs = () => api<Repair[]>('/api/repairs')
 export const createRepair = (input: RepairInput) => api<Repair>('/api/repairs', { method: 'POST', body: input })
 export const updateRepair = (id: string, input: RepairInput) =>

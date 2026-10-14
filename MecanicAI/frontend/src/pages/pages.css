@@ -156,6 +156,88 @@
 
 /* ---------- Consultas de un coche ---------- */
 
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ask__ideas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ask__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.15rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.ask__label svg {
+  color: var(--accent);
+}
+
+/* En el móvil las ideas se deslizan en una fila; en pantallas anchas caben todas */
+.ask__chips {
+  display: flex;
+  gap: 0.45rem;
+  margin: 0 -1rem;
+  padding: 0.1rem 1rem 0.3rem;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+  mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+}
+
+.ask__chips::-webkit-scrollbar {
+  display: none;
+}
+
+.ask__chips li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.ask__chips .chip {
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.2s var(--ease-out);
+}
+
+.ask__chips .chip:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) {
+  .ask__chips .chip:hover {
+    background: var(--accent-soft);
+    color: var(--accent-hi);
+    transform: translateY(-1px);
+  }
+}
+
+@media (min-width: 600px) {
+  .ask__chips {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    mask-image: none;
+  }
+}
+
 .recent {
   display: flex;
   flex-direction: column;
@@ -165,7 +247,7 @@
 .recent__list {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.45rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -174,42 +256,145 @@
 .recent__item {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-s);
-  background: rgba(255, 255, 255, 0.03);
+  gap: 0.75rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-m);
+  background: var(--brushed), var(--metal-plate);
+  box-shadow: var(--edge-light), var(--shadow-1);
   color: var(--text);
   text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s ease;
+}
+
+.recent__item:active {
+  transform: scale(0.985);
+  transition-duration: 0.08s;
 }
 
 @media (hover: hover) {
   .recent__item:hover {
-    border-color: rgba(255, 122, 26, 0.4);
+    border-color: rgba(255, 122, 26, 0.45);
+    transform: translateX(3px);
+    box-shadow: var(--edge-light), 0 8px 20px rgba(0, 0, 0, 0.4);
   }
 }
 
-.recent__item > svg {
+.recent__icon {
+  display: grid;
   flex: none;
-  color: var(--text-3);
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 122, 26, 0.3);
+  border-radius: var(--radius-s);
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+  transition: transform 0.3s var(--ease-spring);
 }
 
-.recent__item > span {
+.recent__item:hover .recent__icon {
+  transform: rotate(-8deg) scale(1.06);
+}
+
+.recent__text {
+  flex: 1;
   min-width: 0;
 }
 
 .recent__title {
-  display: block;
+  display: -webkit-box;
   overflow: hidden;
   font-weight: 600;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .recent__meta {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.8rem;
   color: var(--text-3);
+}
+
+.recent__arrow {
+  flex: none;
+  color: var(--text-3);
+  transition:
+    transform 0.25s var(--ease-spring),
+    color 0.2s ease;
+}
+
+/* En móviles pequeños el título necesita ese hueco más que la flecha */
+@media (max-width: 400px) {
+  .recent__arrow {
+    display: none;
+  }
+}
+
+.recent__item:hover .recent__arrow,
+.recent__item:focus-visible .recent__arrow {
+  color: var(--accent-hi);
+  transform: translateX(3px);
+}
+
+/* Sin consultas: bocadillo con los puntos de "escribiendo…" */
+.chats-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1.5rem 1.1rem 1.3rem;
+  border-radius: var(--radius-m);
+  text-align: center;
+}
+
+.chats-empty__bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 122, 26, 0.35);
+  border-radius: 1.1rem 1.1rem 1.1rem 0.3rem;
+  background: var(--accent-soft);
+}
+
+.chats-empty__bubble i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  animation: typing 1.3s ease-in-out infinite;
+}
+
+.chats-empty__bubble i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chats-empty__bubble i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
 }
 
 .save-card {

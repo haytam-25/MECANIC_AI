@@ -5,8 +5,12 @@ import { createRoot } from 'react-dom/client'
 import '@fontsource/barlow/400.css'
 import '@fontsource/barlow/500.css'
 import '@fontsource/barlow/600.css'
+import '@fontsource/barlow/700.css'
 import '@fontsource/barlow-condensed/600.css'
 import '@fontsource/barlow-condensed/700.css'
+// Cifras de cuadro de instrumentos (km, precios, contadores)
+import '@fontsource/chakra-petch/latin-500.css'
+import '@fontsource/chakra-petch/latin-700.css'
 // Las de la cesta (letra a mano, rotulador y ticket): solo el alfabeto latino, que es el que usa el español
 import '@fontsource/caveat/latin-600.css'
 import '@fontsource/caveat/latin-700.css'

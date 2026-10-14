@@ -56,7 +56,13 @@ export function WelcomePage() {
             <Icon name="chat" size={20} /> Pregunta por averías, ruidos, testigos o mantenimiento
           </li>
           <li>
-            <Icon name="wrench" size={20} /> Te responde un mecánico con IA pensando en tu coche, con explicaciones y pasos a seguir.
+            <Icon name="pulse" size={20} /> Revisa tu coche como esta de sano.
+          </li>
+          <li>
+            <Icon name="wrench" size={20} /> Guarda tu historial de reparaciones e impremelo en pdf para venta.
+          </li>
+          <li>
+            <Icon name="basket" size={20} /> ¿Se te olvida que tenias que comprar? Apuntalo en la lista de compra.
           </li>
         </ul>
       </main>

@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.mecanicai.maintenance.MaintenanceItem;
 
 /**
- * Lo que se puede apuntar en el diario de reparaciones además de los elementos de mantenimiento
+ * Lo que se puede apuntar en el Historial de reparaciones además de los elementos de mantenimiento
  * ({@link MaintenanceItem}): averías y otros trabajos del taller. Los nombres que ve el usuario están en el frontend.
  */
 public enum RepairCategory {

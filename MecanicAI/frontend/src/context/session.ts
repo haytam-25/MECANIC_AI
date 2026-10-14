@@ -23,7 +23,7 @@ export interface SessionValue {
   guestConversation(id: string): GuestConversation | undefined
   /** Crea o actualiza una consulta de invitado. */
   saveGuestConversation(conversation: GuestConversation): void
-  /** Diario de reparaciones del invitado (el de la cuenta se carga con useRepairs). */
+  /** Historial de reparaciones del invitado (el de la cuenta se carga con useRepairs). */
   guestRepairs: Repair[]
   /** Crea o corrige una reparación de invitado. */
   saveGuestRepair(repair: Repair): void
