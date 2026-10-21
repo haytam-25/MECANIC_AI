@@ -42,6 +42,11 @@ public record VehicleSpec(
 		return new VehicleSpec(brandId, brand, modelId, model, year, engine, fuel, powerCv, newPlate);
 	}
 
+	/** Mismo coche con otra marca y modelo (ids del catálogo, o null si se escribieron a mano). */
+	public VehicleSpec withCatalogNames(String newBrandId, String newBrand, String newModelId, String newModel) {
+		return new VehicleSpec(newBrandId, newBrand, newModelId, newModel, year, engine, fuel, powerCv, plate);
+	}
+
 	public void validateYear(ZoneId zone) {
 		int maxYear = Year.now(zone).getValue() + 1;
 		if (year > maxYear) {

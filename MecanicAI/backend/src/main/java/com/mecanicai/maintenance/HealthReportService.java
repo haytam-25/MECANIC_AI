@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
 import com.mecanicai.config.AppProperties.PlanSettings;
+import com.mecanicai.usage.RateLimiter;
 import com.mecanicai.usage.Usage;
 import com.mecanicai.usage.UsageService;
 import com.mecanicai.usage.UsageService.Reservation;
@@ -68,15 +69,18 @@ public class HealthReportService {
 
 	private final VehicleService vehicles;
 
+	private final RateLimiter rateLimiter;
+
 	private final AppProperties props;
 
 	public HealthReportService(JdbcClient jdbc, JsonMapper jsonMapper, UsageService usage, UserService users,
-			VehicleService vehicles, AppProperties props) {
+			VehicleService vehicles, RateLimiter rateLimiter, AppProperties props) {
 		this.jdbc = jdbc;
 		this.jsonMapper = jsonMapper;
 		this.usage = usage;
 		this.users = users;
 		this.vehicles = vehicles;
+		this.rateLimiter = rateLimiter;
 		this.props = props;
 	}
 
@@ -128,21 +132,27 @@ public class HealthReportService {
 		return new ReportResult(new SavedReport(request.vehicleId(), request.input(), now), reservation.usage());
 	}
 
-	/** Invitado: solo cuenta el informe (por su cookie y por su conexión); no se guarda nada. */
+	/**
+	 * Invitado: solo cuenta el informe (por su conexión y por su cookie); no se guarda nada. La conexión va primero:
+	 * la cookie la elige el cliente (sin ella, cada petición es un invitado nuevo), así que, agotado el cupo de la
+	 * conexión, no se crea ningún contador más.
+	 */
 	public ReportResult guest(String guestId, String remoteAddr) {
 		AppProperties.Guest guest = props.guest();
-		Reservation byGuest = usage.consumeWeekly(guestSubject(guestId), guest.weeklyReports(),
-				"Ya has hecho tus %d informes médicos gratis de esta semana como invitado. Inicia sesión con Google para hacer hasta %d a la semana y tenerlos guardados."
-					.formatted(guest.weeklyReports(), props.plans().free().weeklyReports()));
+		String network = "reports:" + UsageService.ipSubject(remoteAddr);
+		rateLimiter.check(network, props.limits().guestReportsPerMinute());
+		Reservation byIp = usage.consumeWeekly(network, guest.weeklyReportsPerIp(),
+				"Se ha alcanzado el límite de informes médicos de esta semana desde tu conexión. Inicia sesión con Google para seguir.");
 		try {
-			usage.consumeWeekly("reports:" + UsageService.ipSubject(remoteAddr), guest.weeklyReportsPerIp(),
-					"Se ha alcanzado el límite de informes médicos de esta semana desde tu conexión. Inicia sesión con Google para seguir.");
+			Reservation byGuest = usage.consumeWeekly(guestSubject(guestId), guest.weeklyReports(),
+					"Ya has hecho tus %d informes médicos gratis de esta semana como invitado. Inicia sesión con Google para hacer hasta %d a la semana y tenerlos guardados."
+						.formatted(guest.weeklyReports(), props.plans().free().weeklyReports()));
+			return new ReportResult(null, byGuest.usage());
 		}
 		catch (AppException ex) {
-			usage.refund(byGuest);
+			usage.refund(byIp);
 			throw ex;
 		}
-		return new ReportResult(null, byGuest.usage());
 	}
 
 	private static void validateItems(ReportInput input) {

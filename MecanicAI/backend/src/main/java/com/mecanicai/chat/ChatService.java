@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Limit;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.mecanicai.chat.ChatDtos.MessageDto;
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
 import com.mecanicai.usage.UsageService;
+import com.mecanicai.user.UserService;
 import com.mecanicai.vehicle.Vehicle;
 import com.mecanicai.vehicle.VehicleDto;
 import com.mecanicai.vehicle.VehicleService;
@@ -40,21 +42,27 @@ public class ChatService {
 
 	private final UsageService usage;
 
+	private final UserService users;
+
 	private final int historyMessages;
 
 	private final int maxConversations;
 
+	private final int maxMessages;
+
 	private final int dailyImports;
 
 	public ChatService(ConversationRepository conversations, MessageRepository messages, VehicleService vehicles,
-			UsageService usage, AppProperties props) {
+			UsageService usage, UserService users, AppProperties props) {
 		this.conversations = conversations;
 		this.messages = messages;
 		this.vehicles = vehicles;
 		this.usage = usage;
+		this.users = users;
 		this.dailyImports = props.limits().dailyImports();
 		this.historyMessages = props.ai().chat().historyMessages();
 		this.maxConversations = props.limits().maxConversations();
+		this.maxMessages = props.limits().maxMessagesPerConversation();
 	}
 
 	/** Lo necesario para pedir la siguiente respuesta a la IA. */
@@ -71,6 +79,8 @@ public class ChatService {
 
 	@Transactional
 	public ConversationSummary create(UUID userId, UUID vehicleId) {
+		// Uno a uno por usuario: si no, varias a la vez dejan más de maxConversations
+		users.lock(userId);
 		Vehicle vehicle = vehicles.require(userId, vehicleId);
 		Conversation conversation = conversations.save(new Conversation(userId, vehicle));
 		keepNewest(userId);
@@ -94,11 +104,13 @@ public class ChatService {
 	}
 
 	/**
-	 * Guarda en la cuenta la conversación que el usuario tuvo como invitado. Con límite diario: no es una forma de
-	 * subir conversaciones sin pasar por la IA.
+	 * Guarda en la cuenta la conversación que el usuario tuvo como invitado (como mucho sus últimos
+	 * {@code app.limits.max-messages-per-conversation} mensajes). Con límite diario: no es una forma de subir
+	 * conversaciones sin pasar por la IA.
 	 */
 	@Transactional
 	public ConversationSummary importGuest(UUID userId, ImportRequest request) {
+		users.lock(userId);
 		// El contador va en la misma transacción: si la importación falla, no cuenta
 		usage.consume("imports:" + UsageService.userSubject(userId), dailyImports,
 				"Ya has guardado muchas conversaciones de invitado hoy. Inténtalo mañana.");
@@ -113,7 +125,8 @@ public class ChatService {
 			.filter(ChatTurn::isUser)
 			.findFirst()
 			.ifPresent(first -> conversation.titleFrom(first.content()));
-		for (ChatTurn turn : request.messages()) {
+		List<ChatTurn> turns = request.messages();
+		for (ChatTurn turn : turns.subList(Math.max(turns.size() - maxMessages, 0), turns.size())) {
 			Message.Role role = turn.isUser() ? Message.Role.USER : Message.Role.ASSISTANT;
 			messages.save(new Message(conversation.getId(), role, turn.content()));
 		}
@@ -126,9 +139,14 @@ public class ChatService {
 		require(userId, conversationId);
 	}
 
+	/** Guarda la pregunta. La consulta debe tener sitio para ella y para la respuesta. */
 	@Transactional
 	public TurnContext appendUserMessage(UUID userId, UUID conversationId, String content) {
 		Conversation conversation = require(userId, conversationId);
+		if (messages.countByConversationId(conversationId) + 2 > maxMessages) {
+			throw new AppException(HttpStatus.CONFLICT, "CONVERSATION_FULL",
+					"Esta consulta ya es muy larga. Empieza una nueva para seguir preguntando por este coche.");
+		}
 		if (messages.findFirstByConversationIdOrderByIdDesc(conversationId).isEmpty()) {
 			conversation.titleFrom(content);
 		}

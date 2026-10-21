@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.mecanicai.ai.AiClient;
 import com.mecanicai.ai.AiException;
 import com.mecanicai.ai.AiJsonRequest;
+import com.mecanicai.catalog.CatalogService;
 import com.mecanicai.config.AppProperties;
 import com.mecanicai.maintenance.MaintenanceItem.Interval;
 import com.mecanicai.usage.LookupQuota;
@@ -43,8 +44,11 @@ public class MaintenancePlanService {
 
 	private static final Logger log = LoggerFactory.getLogger(MaintenancePlanService.class);
 
-	/** Cambiarlo invalida la caché (p. ej. si cambia el prompt o la lista de elementos). */
-	static final String CACHE_VERSION = "v1";
+	/**
+	 * Cambiarlo invalida la caché (p. ej. si cambia el prompt o la lista de elementos). v2: la marca y el modelo del
+	 * catálogo se comprueban antes de preguntar (ver {@link CatalogService#canonical}); las de v1 se borraron.
+	 */
+	static final String CACHE_VERSION = "v2";
 
 	/** Con menos elementos que estos se considera que la IA no conoce bien el coche y se usa la lista habitual. */
 	static final int MIN_AI_ITEMS = 5;
@@ -100,6 +104,8 @@ public class MaintenancePlanService {
 
 	private final AiClient ai;
 
+	private final CatalogService catalog;
+
 	private final LookupQuota quota;
 
 	private final JdbcClient jdbc;
@@ -110,9 +116,10 @@ public class MaintenancePlanService {
 
 	private final ZoneId zone;
 
-	public MaintenancePlanService(AiClient ai, LookupQuota quota, JdbcClient jdbc, JsonMapper jsonMapper,
-			AppProperties props) {
+	public MaintenancePlanService(AiClient ai, CatalogService catalog, LookupQuota quota, JdbcClient jdbc,
+			JsonMapper jsonMapper, AppProperties props) {
 		this.ai = ai;
+		this.catalog = catalog;
 		this.quota = quota;
 		this.jdbc = jdbc;
 		this.jsonMapper = jsonMapper;
@@ -122,7 +129,8 @@ public class MaintenancePlanService {
 	}
 
 	public MaintenancePlan plan(VehicleSpec rawSpec, String clientKey) {
-		VehicleSpec spec = rawSpec.normalized();
+		// La IA y la caché ven el mismo coche: si los ids son del catálogo, también sus nombres
+		VehicleSpec spec = catalog.canonical(rawSpec.normalized());
 		spec.validateYear(zone);
 		Fuel fuel = spec.fuel();
 		String key = cacheKey(spec);
@@ -270,12 +278,20 @@ public class MaintenancePlanService {
 		return timing == Timing.NINGUNA && fuel != null ? Timing.DESCONOCIDA : timing;
 	}
 
-	/** Misma versión de coche = mismo plan. Los coches escritos a mano también se guardan (por su texto). */
+	/**
+	 * Misma versión de coche = mismo plan. La marca y el modelo van en dos campos: el id del catálogo o el texto
+	 * escrito a mano (el otro vacío), para que un coche escrito a mano nunca comparta clave con uno del catálogo.
+	 * {@code spec} debe venir de {@link CatalogService#canonical}.
+	 */
 	static String cacheKey(VehicleSpec spec) {
-		return String.join("|", CACHE_VERSION, keyPart(spec.brandId() != null ? spec.brandId() : spec.brand()),
-				keyPart(spec.modelId() != null ? spec.modelId() : spec.model()), String.valueOf(spec.year()),
-				keyPart(spec.engine()), spec.fuel() != null ? spec.fuel().name() : "",
-				spec.powerCv() != null ? spec.powerCv().toString() : "");
+		return String.join("|", CACHE_VERSION, idOrText(spec.brandId(), spec.brand()),
+				idOrText(spec.modelId(), spec.model()), String.valueOf(spec.year()), keyPart(spec.engine()),
+				spec.fuel() != null ? spec.fuel().name() : "", spec.powerCv() != null ? spec.powerCv().toString() : "");
+	}
+
+	/** "seat" → "seat|"; escrito a mano "Seat" → "|seat". */
+	private static String idOrText(String catalogId, String text) {
+		return catalogId != null ? catalogId + "|" : "|" + keyPart(text);
 	}
 
 	private static String keyPart(String value) {

@@ -11,16 +11,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.user.UserService;
 
 @Service
 public class VehicleService {
 
 	private final VehicleRepository vehicles;
 
+	private final UserService users;
+
 	private final AppProperties props;
 
-	public VehicleService(VehicleRepository vehicles, AppProperties props) {
+	public VehicleService(VehicleRepository vehicles, UserService users, AppProperties props) {
 		this.vehicles = vehicles;
+		this.users = users;
 		this.props = props;
 	}
 
@@ -40,6 +44,7 @@ public class VehicleService {
 	public Vehicle create(UUID userId, VehicleSpec rawSpec) {
 		VehicleSpec spec = rawSpec.normalized();
 		spec.validateYear(props.timezone());
+		users.lock(userId);
 		List<Vehicle> garage = vehicles.findByUserIdOrderByCreatedAtDesc(userId);
 		List<Vehicle> sameCar = garage.stream().filter(existing -> existing.toSpec().sameCar(spec)).toList();
 		Optional<Vehicle> known = sameCar.stream()

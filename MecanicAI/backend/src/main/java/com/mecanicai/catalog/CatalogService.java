@@ -22,6 +22,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.vehicle.VehicleSpec;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
@@ -133,6 +134,21 @@ public class CatalogService {
 
 	public Optional<Model> model(String brandId, String modelId) {
 		return brand(brandId).map(brand -> brand.modelsById().get(modelId));
+	}
+
+	/**
+	 * El coche con los nombres del catálogo. Los ids los envía el navegador: si no existen en el catálogo se quitan y
+	 * el coche se trata como escrito a mano (por su texto). Así nadie puede usar los ids de un coche conocido con otro
+	 * nombre (por ejemplo, para que la respuesta de la IA a otro coche se guarde en caché como la de este).
+	 */
+	public VehicleSpec canonical(VehicleSpec spec) {
+		Brand brand = spec.brandId() != null ? brandsById.get(spec.brandId()) : null;
+		if (brand == null) {
+			return spec.withCatalogNames(null, spec.brand(), null, spec.model());
+		}
+		Model model = spec.modelId() != null ? brand.modelsById().get(spec.modelId()) : null;
+		return model == null ? spec.withCatalogNames(brand.id(), brand.name(), null, spec.model())
+				: spec.withCatalogNames(brand.id(), brand.name(), model.id(), model.name());
 	}
 
 	public int currentYear() {

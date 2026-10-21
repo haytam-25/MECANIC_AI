@@ -6,8 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.mecanicai.common.AppException;
 
 /**
  * Límite de peticiones por minuto (contra las ráfagas), en memoria: basta con una sola instancia del backend.
@@ -41,6 +44,14 @@ public class RateLimiter {
 		Window window = windows.compute(key,
 				(k, old) -> old == null || old.minute() != minute ? new Window(minute, new AtomicInteger()) : old);
 		return window.count().incrementAndGet() <= perMinute;
+	}
+
+	/** Como {@link #tryAcquire}, pero lanza 429 si ya lleva {@code perMinute} en este minuto. */
+	public void check(String key, int perMinute) {
+		if (!tryAcquire(key, perMinute)) {
+			throw new AppException(HttpStatus.TOO_MANY_REQUESTS, "TOO_FAST",
+					"Vas demasiado rápido. Espera un minuto y vuelve a intentarlo.");
+		}
 	}
 
 	/** Olvida los minutos ya pasados para que el mapa no crezca. */

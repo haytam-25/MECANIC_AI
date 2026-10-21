@@ -1,11 +1,15 @@
 package com.mecanicai.usage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+import com.mecanicai.common.AppException;
 
 class RateLimiterTest {
 
@@ -29,6 +33,15 @@ class RateLimiterTest {
 		assertThat(limiter.tryAcquire("chat:a", 1)).isFalse();
 		now.set(now.get().plusSeconds(60));
 		assertThat(limiter.tryAcquire("chat:a", 1)).isTrue();
+	}
+
+	@Test
+	void checkThrowsTooManyRequestsOverTheLimit() {
+		limiter.check("reports:a", 1);
+		assertThatThrownBy(() -> limiter.check("reports:a", 1)).isInstanceOfSatisfying(AppException.class, ex -> {
+			assertThat(ex.status()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+			assertThat(ex.code()).isEqualTo("TOO_FAST");
+		});
 	}
 
 	@Test

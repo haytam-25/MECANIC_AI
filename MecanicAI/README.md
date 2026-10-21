@@ -25,7 +25,7 @@ concreto.
 - **Cesta**: la lista de la compra de cada coche (recambios, aceite, herramientas…). Se escribe en un bloc de notas,
   el papel cae dentro de una cesta que marca cuántos artículos lleva y, al tocarla, sale un ticket para ir marcando
   lo comprado: al cerrarlo, lo marcado sale de la cesta. **Con cuenta de Google** se guarda en la base de datos
-  (`basket_item`, hasta 50 artículos entre todos los coches: `app.limits.max-basket-items`); **como invitado** vive
+  (`basket_item`, hasta 30 artículos entre todos los coches: `app.limits.max-basket-items`); **como invitado** vive
   en la pestaña y pasa a la cuenta al iniciar sesión.
 - **Informe médico**: indicas sus kilómetros y hace cuántos km o cuánto tiempo se
   le cambió cada cosa (aceite, filtros, bujías, correa o cadena de distribución, correa de accesorios, frenos,
@@ -42,12 +42,15 @@ concreto.
   (`sessionStorage`); al iniciar sesión se guardan automáticamente en la cuenta.
 - **Garaje** en el menú lateral (hasta 5 coches por usuario), con la recomendación de iniciar sesión para los
   invitados. Historial de consultas por coche (se guardan las 20 más recientes: al empezar la 21ª se borra la más
-  antigua), borrar consultas/coches y **eliminar la cuenta** (RGPD).
+  antigua; cada una admite hasta 100 mensajes, `app.limits.max-messages-per-conversation`), borrar consultas/coches y
+  **eliminar la cuenta** (RGPD).
 - **Límites**: invitado 5 mensajes/día y 2 informes médicos/semana; cuenta gratuita 20 mensajes/día y 5
   informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
   Contra abusos: 6 mensajes y 10 consultas de motores o mantenimiento por minuto, y un cupo diario entre todos los
   invitados (`GUEST_DAILY_MESSAGES_TOTAL` y `GUEST_DAILY_LOOKUPS_TOTAL`, 300 por defecto) para que nadie pueda
   agotar la cuota de Gemini que comparten con las cuentas. Los topes están en `app.limits` (`application.yml`).
+  Delante de todo, nginx limita la API a 10 peticiones por segundo (ráfagas de 40) y 20 conexiones a la vez por IP
+  (`frontend/nginx.conf`).
 - **Dictado por voz** (botón de micrófono, Web Speech API del navegador, sin coste).
 - **Instalable como app** (PWA): pantalla completa y vertical, icono propio.
 - Diseño mecánico: grafito y acero cepillado, logotipo circular con la M, llanta como indicador de carga, tapacubos
@@ -208,16 +211,25 @@ flowchart LR
 ```
 
 - **Sesión**: tras el login de Google, el backend crea una cookie `HttpOnly` con un JWT propio (7 días, se renueva
-  sola mientras se use la app). Protección CSRF: cookie `SameSite=Lax` + cabecera obligatoria `X-MecanicAI` en las peticiones que modifican
-  datos.
+  sola mientras se use la app). Cada inicio de sesión lleva su id (`sid`, se mantiene al renovar): al **cerrar sesión**
+  se guarda en `revoked_session` y esa cookie (y las anteriores de la misma sesión) deja de valer aunque no haya
+  caducado; en cada petición se comprueba también que la cuenta existe. Protección CSRF: cookie `SameSite=Lax` +
+  cabecera obligatoria `X-MecanicAI` en las peticiones que modifican datos.
+- **Topes por cuenta** (coches, consultas, reparaciones, cesta): cada alta bloquea la fila del usuario
+  (`SELECT … FOR UPDATE`) mientras cuenta, para que varias peticiones a la vez no se pasen del tope.
 - **Invitados**: sus coches y consultas se guardan solo en la pestaña del navegador (`sessionStorage`). El límite va
   por cookie anónima (5 al día) y por conexión (20 al día entre todos los invitados de una misma IPv4 o del mismo
   bloque /64 de IPv6, porque cada cliente IPv6 tiene millones de direcciones): otro navegador o una ventana de
   incógnito es un invitado nuevo, pero desde la misma conexión no pasa de 20. Además hay un cupo diario entre todos
   los invitados.
 - **Límites**: contadores atómicos en PostgreSQL (`usage_counter`): por día para los mensajes y por semana (con el
-  lunes como fecha) para los informes médicos. Si la IA falla, el mensaje no se descuenta. El límite por minuto va
-  en memoria (`RateLimiter`), así que vale para una sola instancia del backend.
+  lunes como fecha) para los informes médicos. Si la IA falla, el mensaje no se descuenta (y un contador que vuelve a
+  0 se borra). Para los invitados se cuenta primero la conexión y después la cookie, que la elige el cliente: agotado
+  el cupo de la conexión no se crean más contadores. El límite por minuto va en memoria (`RateLimiter`), así que vale
+  para una sola instancia del backend.
+- **Caché de mantenimiento**: los ids de marca y modelo que envía el navegador se comprueban contra el catálogo y a la
+  IA le llegan los nombres del catálogo (`CatalogService.canonical`), para que nadie pueda guardar la respuesta de
+  otro coche como la de uno conocido.
 - **Prompt del mecánico**: `backend/src/main/java/com/mecanicai/chat/PromptBuilder.java`.
 - **Catálogo**: `backend/src/main/resources/catalog/vehicles.json` (formato `"Modelo": "1991-2004,2024-"`); se puede
   ampliar sin tocar código.

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.user.UserService;
 import com.mecanicai.vehicle.VehicleService;
 
 import tools.jackson.databind.json.JsonMapper;
@@ -64,12 +65,16 @@ public class RepairService {
 
 	private final VehicleService vehicles;
 
+	private final UserService users;
+
 	private final AppProperties props;
 
-	public RepairService(JdbcClient jdbc, JsonMapper jsonMapper, VehicleService vehicles, AppProperties props) {
+	public RepairService(JdbcClient jdbc, JsonMapper jsonMapper, VehicleService vehicles, UserService users,
+			AppProperties props) {
 		this.jdbc = jdbc;
 		this.jsonMapper = jsonMapper;
 		this.vehicles = vehicles;
+		this.users = users;
 		this.props = props;
 	}
 
@@ -84,6 +89,8 @@ public class RepairService {
 	@Transactional
 	public Repair create(UUID userId, RepairRequest request) {
 		Clean clean = validate(request);
+		// Uno a uno por usuario: si no, varias peticiones a la vez cuentan lo mismo y se pasan del tope
+		users.lock(userId);
 		// Comprueba que el coche es suyo
 		vehicles.require(userId, request.vehicleId());
 		int max = props.limits().maxRepairs();

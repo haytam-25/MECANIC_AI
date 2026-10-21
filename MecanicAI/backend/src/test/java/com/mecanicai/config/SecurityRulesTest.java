@@ -2,6 +2,8 @@ package com.mecanicai.config;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -13,6 +15,7 @@ import java.util.UUID;
 
 import jakarta.servlet.http.Cookie;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,10 +26,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.mecanicai.ai.AiClient;
 import com.mecanicai.auth.AuthController;
+import com.mecanicai.auth.AuthUser;
 import com.mecanicai.auth.CsrfHeaderFilter;
 import com.mecanicai.auth.JwtService;
 import com.mecanicai.auth.OAuth2LoginSuccessHandler;
 import com.mecanicai.auth.SessionCookies;
+import com.mecanicai.auth.SessionService;
 import com.mecanicai.basket.BasketController;
 import com.mecanicai.basket.BasketService;
 import com.mecanicai.maintenance.HealthReportController;
@@ -78,6 +83,14 @@ class SecurityRulesTest {
 	@MockitoBean
 	BasketService basket;
 
+	@MockitoBean
+	SessionService sessions;
+
+	@BeforeEach
+	void sessionsAreActiveByDefault() {
+		given(sessions.isActive(any())).willReturn(true);
+	}
+
 	@Test
 	void guestsCanAskWhoTheyAreAndGetAGuestCookie() throws Exception {
 		mvc.perform(get("/api/auth/me"))
@@ -89,7 +102,7 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.features.guestWeeklyReports").value(2))
 			.andExpect(jsonPath("$.features.freeWeeklyReports").value(5))
 			.andExpect(jsonPath("$.features.maxRepairs").value(30))
-			.andExpect(jsonPath("$.features.maxBasketItems").value(50))
+			.andExpect(jsonPath("$.features.maxBasketItems").value(30))
 			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
 			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_guest=")));
 	}
@@ -113,6 +126,34 @@ class SecurityRulesTest {
 		String tampered = token.substring(0, token.length() - 4) + "AAAA";
 		mvc.perform(get("/api/vehicles").cookie(new Cookie(SessionCookies.SESSION_COOKIE, tampered)))
 			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void aClosedSessionOrADeletedAccountNoLongerAuthenticatesAndTheCookieIsCleared() throws Exception {
+		given(sessions.isActive(any())).willReturn(false);
+		mvc.perform(get("/api/vehicles").cookie(session(UUID.randomUUID())))
+			.andExpect(status().isUnauthorized())
+			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("mecanicai_session=;")))
+			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Max-Age=0")));
+	}
+
+	@Test
+	void logoutClosesTheSessionOnTheServer() throws Exception {
+		UUID userId = UUID.randomUUID();
+		mvc.perform(post("/api/auth/logout").cookie(session(userId)).header(CsrfHeaderFilter.HEADER, "1"))
+			.andExpect(status().isNoContent())
+			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Max-Age=0")));
+		then(sessions).should()
+			.revoke(org.mockito.ArgumentMatchers.argThat((AuthUser user) -> user.id().equals(userId)
+					&& user.sessionId() != null));
+	}
+
+	@Test
+	void logoutWorksEvenWithoutAValidSession() throws Exception {
+		mvc.perform(post("/api/auth/logout").header(CsrfHeaderFilter.HEADER, "1"))
+			.andExpect(status().isNoContent())
+			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Max-Age=0")));
+		then(sessions).should(never()).revoke(any());
 	}
 
 	@Test

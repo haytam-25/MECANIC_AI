@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mecanicai.common.AppException;
 import com.mecanicai.config.AppProperties;
+import com.mecanicai.user.UserService;
 import com.mecanicai.vehicle.VehicleService;
 
 /**
@@ -46,11 +47,14 @@ public class BasketService {
 
 	private final VehicleService vehicles;
 
+	private final UserService users;
+
 	private final AppProperties props;
 
-	public BasketService(JdbcClient jdbc, VehicleService vehicles, AppProperties props) {
+	public BasketService(JdbcClient jdbc, VehicleService vehicles, UserService users, AppProperties props) {
 		this.jdbc = jdbc;
 		this.vehicles = vehicles;
+		this.users = users;
 		this.props = props;
 	}
 
@@ -67,6 +71,8 @@ public class BasketService {
 	@Transactional
 	public BasketItem add(UUID userId, BasketItemRequest request) {
 		String text = clean(request.text());
+		// Uno a uno por usuario: si no, varias peticiones a la vez cuentan lo mismo y se pasan del tope
+		users.lock(userId);
 		// Comprueba que el coche es suyo
 		vehicles.require(userId, request.vehicleId());
 		int max = props.limits().maxBasketItems();

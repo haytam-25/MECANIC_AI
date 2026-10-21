@@ -31,6 +31,9 @@ public class JwtService {
 
 	private static final String ISSUER = "mecanicai";
 
+	/** Id del inicio de sesión (ver {@link SessionService}). */
+	private static final String SESSION_CLAIM = "sid";
+
 	private final NimbusJwtEncoder encoder;
 
 	private final NimbusJwtDecoder decoder;
@@ -50,11 +53,18 @@ public class JwtService {
 		this.ttl = Duration.ofDays(props.auth().sessionDays());
 	}
 
+	/** Token de un inicio de sesión nuevo. */
 	public String issue(UUID userId) {
+		return issue(userId, UUID.randomUUID());
+	}
+
+	/** Token del inicio de sesión {@code sessionId} (al renovarlo se mantiene, para poder revocarlo entero). */
+	public String issue(UUID userId, UUID sessionId) {
 		Instant now = Instant.now();
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 			.issuer(ISSUER)
 			.subject(userId.toString())
+			.claim(SESSION_CLAIM, sessionId.toString())
 			.issuedAt(now)
 			.expiresAt(now.plus(ttl))
 			.build();
@@ -65,7 +75,9 @@ public class JwtService {
 	public Optional<AuthUser> parse(String token) {
 		try {
 			Jwt jwt = decoder.decode(token);
-			return Optional.of(new AuthUser(UUID.fromString(jwt.getSubject()), jwt.getIssuedAt()));
+			String sessionId = jwt.getClaimAsString(SESSION_CLAIM);
+			return Optional.of(new AuthUser(UUID.fromString(jwt.getSubject()),
+					sessionId != null ? UUID.fromString(sessionId) : null, jwt.getIssuedAt()));
 		}
 		catch (JwtException | IllegalArgumentException ex) {
 			return Optional.empty();

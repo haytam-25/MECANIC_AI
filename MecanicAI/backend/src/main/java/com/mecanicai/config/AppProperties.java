@@ -94,18 +94,22 @@ public record AppProperties(
 
 	/**
 	 * Topes para que nadie llene la base de datos ni gaste la IA a ráfagas. {@code maxConversations}: al empezar una
-	 * más se borra la más antigua. {@code maxRepairs}: reparaciones del diario entre todos los coches.
-	 * {@code maxBasketItems}: artículos de la cesta entre todos los coches. {@code chatPerMinute} y {@code lookupsPerMinute}: mensajes y consultas a la IA
-	 * (motorizaciones, plan de mantenimiento) por usuario o conexión y minuto.
+	 * más se borra la más antigua. {@code maxMessagesPerConversation}: preguntas y respuestas de una consulta (llena,
+	 * hay que empezar otra). {@code maxRepairs}: reparaciones del diario entre todos los coches.
+	 * {@code maxBasketItems}: artículos de la cesta entre todos los coches. {@code chatPerMinute} y
+	 * {@code lookupsPerMinute}: mensajes y consultas a la IA (motorizaciones, plan de mantenimiento) por usuario o
+	 * conexión y minuto. {@code guestReportsPerMinute}: informes médicos de invitado por conexión y minuto.
 	 */
 	public record Limits(
 			@DefaultValue("5") int maxVehicles,
 			@DefaultValue("20") int maxConversations,
+			@DefaultValue("100") int maxMessagesPerConversation,
 			@DefaultValue("30") int maxRepairs,
 			@DefaultValue("30") int maxBasketItems,
 			@DefaultValue("20") int dailyImports,
 			@DefaultValue("6") int chatPerMinute,
-			@DefaultValue("10") int lookupsPerMinute) {
+			@DefaultValue("10") int lookupsPerMinute,
+			@DefaultValue("6") int guestReportsPerMinute) {
 	}
 
 }

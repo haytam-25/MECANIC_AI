@@ -147,11 +147,21 @@ class MaintenancePlanTest {
 		VehicleSpec other = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "2.0 TDI", Fuel.DIESEL, 150, null);
 
 		assertThat(MaintenancePlanService.cacheKey(a)).isEqualTo(MaintenancePlanService.cacheKey(b))
-			.isEqualTo("v1|seat|leon|2016|1.6 tdi|DIESEL|115")
+			.isEqualTo("v2|seat||leon||2016|1.6 tdi|DIESEL|115")
 			.isNotEqualTo(MaintenancePlanService.cacheKey(other));
 		// La matrícula no cambia el plan ni llega a la IA
 		assertThat(MaintenancePlanService.cacheKey(a.withPlate("1234BCD"))).isEqualTo(MaintenancePlanService.cacheKey(a));
 		assertThat(MaintenancePlanService.prompt(a.withPlate("1234BCD"))).doesNotContain("1234BCD");
+	}
+
+	@Test
+	void aHandTypedCarNeverSharesTheKeyOfACatalogCar() {
+		VehicleSpec catalogCar = new VehicleSpec("seat", "SEAT", "leon", "León", 2016, "1.6 TDI", Fuel.DIESEL, 115, null);
+		// Escrito a mano con el mismo texto que los ids del catálogo
+		VehicleSpec typed = new VehicleSpec(null, "seat", null, "leon", 2016, "1.6 TDI", Fuel.DIESEL, 115, null);
+
+		assertThat(MaintenancePlanService.cacheKey(typed)).isEqualTo("v2||seat||leon|2016|1.6 tdi|DIESEL|115")
+			.isNotEqualTo(MaintenancePlanService.cacheKey(catalogCar));
 	}
 
 	@Test

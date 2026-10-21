@@ -39,17 +39,20 @@ public class AuthController {
 
 	private final SessionCookies cookies;
 
+	private final SessionService sessions;
+
 	private final UsageService usage;
 
 	private final AppProperties props;
 
 	private final AiClient aiClient;
 
-	public AuthController(UserService users, JwtService jwtService, SessionCookies cookies, UsageService usage,
-			AppProperties props, AiClient aiClient) {
+	public AuthController(UserService users, JwtService jwtService, SessionCookies cookies, SessionService sessions,
+			UsageService usage, AppProperties props, AiClient aiClient) {
 		this.users = users;
 		this.jwtService = jwtService;
 		this.cookies = cookies;
+		this.sessions = sessions;
 		this.usage = usage;
 		this.props = props;
 		this.aiClient = aiClient;
@@ -87,8 +90,13 @@ public class AuthController {
 			Optional<User> user = users.find(principal.id());
 			if (user.isPresent()) {
 				User u = user.get();
-				if (principal.issuedAt() == null || principal.issuedAt().isBefore(Instant.now().minus(RENEW_AFTER))) {
+				// Se renueva dentro del mismo inicio de sesión (el que se revoca al cerrar sesión). Los tokens de antes de
+				// las sesiones revocables no tienen: reciben uno nuevo
+				if (principal.sessionId() == null) {
 					cookies.writeSession(response, jwtService.issue(u.getId()));
+				}
+				else if (principal.issuedAt() == null || principal.issuedAt().isBefore(Instant.now().minus(RENEW_AFTER))) {
+					cookies.writeSession(response, jwtService.issue(u.getId(), principal.sessionId()));
 				}
 				PlanSettings plan = props.plans().of(u.getPlan());
 				return new MeResponse(true, UserDto.from(u),
@@ -104,8 +112,12 @@ public class AuthController {
 		return new MeResponse(false, null, guestUsage, guestReports, features);
 	}
 
+	/** Cierra el inicio de sesión: esta cookie (y las anteriores de la misma sesión) dejan de valer en el servidor. */
 	@PostMapping("/logout")
-	public ResponseEntity<Void> logout(HttpServletResponse response) {
+	public ResponseEntity<Void> logout(@AuthenticationPrincipal AuthUser principal, HttpServletResponse response) {
+		if (principal != null) {
+			sessions.revoke(principal);
+		}
 		cookies.clearSession(response);
 		return ResponseEntity.noContent().build();
 	}

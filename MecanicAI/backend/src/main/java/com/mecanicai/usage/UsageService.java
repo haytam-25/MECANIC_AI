@@ -89,9 +89,17 @@ public class UsageService {
 		return new Reservation(subject, day, Usage.of(count.get(), limit, resetsAt));
 	}
 
-	/** Devuelve la unidad consumida (por ejemplo, si la IA no llegó a responder). */
+	/**
+	 * Devuelve la unidad consumida (por ejemplo, si la IA no llegó a responder). Si el contador vuelve a 0 se borra:
+	 * así las peticiones rechazadas no dejan filas vacías (p. ej. una por cada cookie de invitado nueva).
+	 */
 	public void refund(Reservation reservation) {
 		jdbc.sql("UPDATE usage_counter SET count = count - 1 WHERE subject = :subject AND day = :day AND count > 0")
+			.param("subject", reservation.subject())
+			.param("day", reservation.day())
+			.update();
+		// Aparte y comprobando de nuevo el valor: si entretanto otra petición lo ha subido, la fila se queda
+		jdbc.sql("DELETE FROM usage_counter WHERE subject = :subject AND day = :day AND count <= 0")
 			.param("subject", reservation.subject())
 			.param("day", reservation.day())
 			.update();
@@ -134,10 +142,13 @@ public class UsageService {
 		return weekStart().plusWeeks(1).atStartOfDay(zone).toOffsetDateTime();
 	}
 
-	/** Limpieza diaria de contadores antiguos (los semanales llevan el lunes de esta semana: nunca más de 6 días). */
+	/**
+	 * Limpieza diaria de contadores antiguos (los semanales llevan el lunes de esta semana: nunca más de 6 días) y de
+	 * los que se quedaron a 0.
+	 */
 	@Scheduled(cron = "0 30 4 * * *", zone = "${app.timezone:Europe/Madrid}")
 	public void purgeOldCounters() {
-		int deleted = jdbc.sql("DELETE FROM usage_counter WHERE day < :limitDay")
+		int deleted = jdbc.sql("DELETE FROM usage_counter WHERE day < :limitDay OR count <= 0")
 			.param("limitDay", today().minusDays(7))
 			.update();
 		log.info("Contadores de uso antiguos eliminados: {}", deleted);

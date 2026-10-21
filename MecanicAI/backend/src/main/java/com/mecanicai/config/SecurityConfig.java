@@ -27,6 +27,7 @@ import com.mecanicai.auth.JwtCookieAuthenticationFilter;
 import com.mecanicai.auth.JwtService;
 import com.mecanicai.auth.OAuth2LoginSuccessHandler;
 import com.mecanicai.auth.SessionCookies;
+import com.mecanicai.auth.SessionService;
 import com.mecanicai.common.ApiError;
 
 import tools.jackson.databind.json.JsonMapper;
@@ -38,7 +39,8 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http, AppProperties props, JwtService jwtService,
-			SessionCookies cookies, OAuth2LoginSuccessHandler loginSuccessHandler, JsonMapper jsonMapper) {
+			SessionService sessions, SessionCookies cookies, OAuth2LoginSuccessHandler loginSuccessHandler,
+			JsonMapper jsonMapper) {
 		http
 			// CSRF: cookie SameSite=Lax + cabecera obligatoria X-MecanicAI (ver CsrfHeaderFilter)
 			.csrf(AbstractHttpConfigurer::disable)
@@ -50,16 +52,16 @@ public class SecurityConfig {
 			.securityContext(context -> context.securityContextRepository(new RequestAttributeSecurityContextRepository()))
 			.authorizeHttpRequests(auth -> auth
 				.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
+				// Cerrar sesión no la exige: así borra la cookie aunque la sesión ya no valga
 				.requestMatchers("/api/vehicles/**", "/api/conversations/**", "/api/reports/**", "/api/repairs/**",
-						"/api/basket/**", "/api/auth/logout",
-						"/api/auth/account")
+						"/api/basket/**", "/api/auth/account")
 				.authenticated()
 				.anyRequest().permitAll())
 			.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> writeError(
 					response, jsonMapper, HttpServletResponse.SC_UNAUTHORIZED,
 					new ApiError("UNAUTHORIZED", "Inicia sesión para continuar"))))
 			.addFilterBefore(new CsrfHeaderFilter(jsonMapper), UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(new JwtCookieAuthenticationFilter(jwtService, cookies),
+			.addFilterBefore(new JwtCookieAuthenticationFilter(jwtService, sessions, cookies),
 					UsernamePasswordAuthenticationFilter.class);
 
 		AppProperties.Google google = props.auth().google();

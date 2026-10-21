@@ -99,6 +99,8 @@ app:
     max-vehicles: 5
     # Al empezar la consulta número 21 se borra la más antigua
     max-conversations: 20
+    # Preguntas y respuestas de una consulta: llena, hay que empezar otra (así una cuenta no crece sin fin)
+    max-messages-per-conversation: 100
     # Reparaciones del diario por cuenta (entre todos sus coches)
     max-repairs: 30
     # Artículos de la cesta por cuenta (entre todos sus coches)
@@ -107,3 +109,5 @@ app:
     daily-imports: 20
     chat-per-minute: 6
     lookups-per-minute: 10
+    # Informes médicos de invitado por conexión y minuto (cada uno solo se cuenta, pero escribe en la base de datos)
+    guest-reports-per-minute: 6

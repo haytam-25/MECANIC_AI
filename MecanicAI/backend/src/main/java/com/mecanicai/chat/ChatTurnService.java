@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -89,26 +88,28 @@ public class ChatTurnService {
 		String network = UsageService.ipSubject(remoteAddr);
 		checkRate(network);
 
+		// La conexión primero: la cookie la elige el cliente (sin ella, cada petición es un invitado nuevo), así que,
+		// agotado el cupo de la conexión, no se crea ningún contador más
 		AppProperties.Guest guest = props.guest();
-		Reservation byGuest = usage.consume(UsageService.guestSubject(guestId), guest.dailyMessages(),
-				"Has usado tus %d mensajes gratis de hoy como invitado. Inicia sesión con Google para seguir (%d al día) y guardar tus conversaciones."
-					.formatted(guest.dailyMessages(), props.plans().free().dailyMessages()));
-		Reservation byIp;
+		Reservation byIp = usage.consume(network, guest.dailyMessagesPerIp(),
+				"Se ha alcanzado el límite de mensajes gratis de hoy desde tu conexión. Inicia sesión con Google para seguir.");
+		Reservation byGuest;
 		Reservation byAllGuests;
 		try {
-			byIp = usage.consume(network, guest.dailyMessagesPerIp(),
-					"Se ha alcanzado el límite de mensajes gratis de hoy desde tu conexión. Inicia sesión con Google para seguir.");
+			byGuest = usage.consume(UsageService.guestSubject(guestId), guest.dailyMessages(),
+					"Has usado tus %d mensajes gratis de hoy como invitado. Inicia sesión con Google para seguir (%d al día) y guardar tus conversaciones."
+						.formatted(guest.dailyMessages(), props.plans().free().dailyMessages()));
 			try {
 				byAllGuests = usage.consume(UsageService.ALL_GUESTS, guest.dailyMessagesTotal(),
 						"Hoy hay muchísimos invitados usando MecanicAI y se ha agotado el cupo gratuito. Inicia sesión con Google para seguir.");
 			}
 			catch (AppException ex) {
-				usage.refund(byIp);
+				usage.refund(byGuest);
 				throw ex;
 			}
 		}
 		catch (AppException ex) {
-			usage.refund(byGuest);
+			usage.refund(byIp);
 			throw ex;
 		}
 
@@ -167,10 +168,7 @@ public class ChatTurnService {
 
 	/** Freno contra las ráfagas: como mucho {@code app.limits.chat-per-minute} mensajes por minuto. */
 	private void checkRate(String subject) {
-		if (!rateLimiter.tryAcquire("chat:" + subject, props.limits().chatPerMinute())) {
-			throw new AppException(HttpStatus.TOO_MANY_REQUESTS, "TOO_FAST",
-					"Vas demasiado rápido. Espera un minuto y vuelve a intentarlo.");
-		}
+		rateLimiter.check("chat:" + subject, props.limits().chatPerMinute());
 	}
 
 	private PlanSettings planOf(UUID userId) {
