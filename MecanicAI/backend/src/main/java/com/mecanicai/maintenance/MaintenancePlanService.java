@@ -256,7 +256,8 @@ public class MaintenancePlanService {
 			else if (item.minor()) {
 				interval = standard;
 			}
-			else if (fromAi != null && (fromAi.km() != null || fromAi.months() != null)) {
+			else if (fromAi != null && (fromAi.km() != null || fromAi.months() != null)
+					&& plausible(fromAi.km(), standard.km()) && plausible(fromAi.months(), standard.months())) {
 				interval = new Interval(fromAi.km(), fromAi.months());
 			}
 			else {
@@ -300,6 +301,14 @@ public class MaintenancePlanService {
 
 	private static Integer range(int value, int min, int max) {
 		return value >= min && value <= max ? value : null;
+	}
+
+	/**
+	 * Un intervalo de la IA muy lejos del habitual de ese elemento es una errata (p. ej. aceite cada 300.000 km en vez
+	 * de 30.000): entre un tercio y el triple del habitual se acepta; si no, se usa el habitual.
+	 */
+	private static boolean plausible(Integer fromAi, Integer standard) {
+		return fromAi == null || standard == null || (fromAi >= standard / 3 && fromAi <= standard * 3);
 	}
 
 	private static String note(String raw) {

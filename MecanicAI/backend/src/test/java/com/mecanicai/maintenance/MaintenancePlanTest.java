@@ -95,6 +95,23 @@ class MaintenancePlanTest {
 	}
 
 	@Test
+	void anIntervalFarFromTheUsualOneIsATypo() {
+		// Respuesta real de la IA para un SEAT León 1.6 TDI: quería decir 30.000 km (LongLife de VW)
+		String json = """
+				{"timing": "CORREA", "items": [
+				  {"id": "ACEITE", "intervalKm": 300000, "intervalMonths": 24},
+				  {"id": "DISTRIBUCION", "intervalKm": 210000, "intervalMonths": 120}
+				]}""";
+		Map<String, PlanItem> items = byId(
+				MaintenancePlanService.build(Fuel.DIESEL, MaintenancePlanService.parse(jsonMapper, json), "ai"));
+
+		assertThat(items.get("ACEITE")).extracting(PlanItem::intervalKm, PlanItem::intervalMonths)
+			.containsExactly(15_000, 12);
+		assertThat(items.get("DISTRIBUCION")).extracting(PlanItem::intervalKm, PlanItem::intervalMonths)
+			.containsExactly(210_000, 120);
+	}
+
+	@Test
 	void minorItemsAreChangedEveryFourYearsWhateverTheAiSays() {
 		String json = """
 				{"timing": "CADENA", "items": [

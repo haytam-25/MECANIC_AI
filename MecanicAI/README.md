@@ -308,11 +308,15 @@ paso 5**: Caddy lo necesita para conseguir el certificado HTTPS.
 Lo más cómodo es un repositorio privado de GitHub (el `.gitignore` ya excluye los `.env` con las claves):
 
 ```bash
-git clone https://github.com/TU-USUARIO/mecanicai.git /opt/mecanicai && cd /opt/mecanicai
+git clone https://github.com/haytam-25/MECANIC_AI.git /opt/mecanicai && cd /opt/mecanicai/MecanicAI
 ```
 
+El repositorio tiene la app dentro de la carpeta `MecanicAI/`: todos los comandos de los pasos siguientes se ejecutan
+en `/opt/mecanicai/MecanicAI` (ahí están `compose.yaml`, `.env` y `backups/`). Si el repositorio es privado, GitHub
+pedirá usuario y un *token* de acceso personal (no la contraseña) o una *deploy key* SSH.
+
 O cópialo desde tu PC:
-`rsync -av --exclude node_modules --exclude target --exclude .env --exclude backups MecanicAI/ root@IP-DEL-SERVIDOR:/opt/mecanicai/`
+`rsync -av --exclude node_modules --exclude target --exclude .env --exclude backups MecanicAI/ root@IP-DEL-SERVIDOR:/opt/mecanicai/MecanicAI/`
 
 ### Paso 4 · Configurar las claves
 
@@ -382,7 +386,7 @@ Las copias están en el mismo servidor: si se pierde el disco, se pierden con é
 cuando** (por ejemplo, una vez a la semana):
 
 ```bash
-rsync -av root@IP-DEL-SERVIDOR:/opt/mecanicai/backups/ ~/copias-mecanicai/
+rsync -av root@IP-DEL-SERVIDOR:/opt/mecanicai/MecanicAI/backups/ ~/copias-mecanicai/
 ```
 
 Al restaurar una copia se sustituye todo lo que haya en la base de datos (`--clean`): para recuperar una cuenta

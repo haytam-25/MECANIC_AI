@@ -46,24 +46,43 @@ interface RequestOptions {
   signal?: AbortSignal
 }
 
+/** Reintentos cuando nginx frena una ráfaga (p. ej. al pasar a la cuenta el garaje de invitado, petición a petición). */
+const FLOOD_RETRIES = 3
+
+function wait(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms)
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer)
+      reject(new DOMException('Aborted', 'AbortError'))
+    })
+  })
+}
+
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const hasBody = options.body !== undefined
   let res: Response
-  try {
-    res = await fetch(path, {
-      method: options.method ?? 'GET',
-      headers: {
-        ...CSRF_HEADER,
-        Accept: 'application/json',
-        ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-      },
-      body: hasBody ? JSON.stringify(options.body) : undefined,
-      credentials: 'same-origin',
-      signal: options.signal,
-    })
-  } catch (error) {
-    if (isAbort(error)) throw error
-    throw networkError()
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(path, {
+        method: options.method ?? 'GET',
+        headers: {
+          ...CSRF_HEADER,
+          Accept: 'application/json',
+          ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+        },
+        body: hasBody ? JSON.stringify(options.body) : undefined,
+        credentials: 'same-origin',
+        signal: options.signal,
+      })
+    } catch (error) {
+      if (isAbort(error)) throw error
+      throw networkError()
+    }
+    // Solo el 429 de nginx lleva Retry-After (los del backend son cupos de verdad): esa petición no llegó al backend,
+    // así que repetirla no duplica nada. nginx deja pasar 10 por segundo, basta con esperar un poco
+    if (res.status !== 429 || !res.headers.has('Retry-After') || attempt >= FLOOD_RETRIES) break
+    await wait(1000 * (attempt + 1), options.signal)
   }
   if (!res.ok) throw await toApiError(res)
   if (res.status === 204) return undefined as T
