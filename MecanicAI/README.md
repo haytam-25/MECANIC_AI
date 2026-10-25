@@ -300,6 +300,10 @@ backend vería las IPs de Cloudflare en lugar de las de los visitantes. Borra lo
 dominio y **no crees registros AAAA** (IPv6) salvo que configures IPv6 en Docker: sin eso, las visitas por IPv6
 llegarían al backend todas con la misma IP interna y compartirían el límite diario de invitados.
 
+¿Tienes más dominios (p. ej. `mecanicai.es`)? Crea en ellos los mismos registros A (`@` y `www`) y ponlos en
+`REDIRECT_DOMAINS` del `.env` (paso 4): Caddy saca su certificado y los redirige a `mecanicai.org`. No toques sus
+registros MX si usas el correo de ese dominio.
+
 Comprueba con `dig +short mecanicai.org` (o `ping mecanicai.org`) que ya devuelve la IP del servidor **antes del
 paso 5**: Caddy lo necesita para conseguir el certificado HTTPS.
 

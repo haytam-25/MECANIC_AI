@@ -78,6 +78,7 @@ services:
       - "${HTTPS_PORT:-443}:443"
     environment:
       DOMAIN: ${DOMAIN:?Define DOMAIN en .env (tu dominio, p. ej. mecanicai.es)}
+      REDIRECT_DOMAINS: ${REDIRECT_DOMAINS:-}
     volumes:
       # "z": deja leer el fichero con SELinux activo (Fedora, RHEL...); en Ubuntu no hace nada
       - ./Caddyfile:/etc/caddy/Caddyfile:ro,z
