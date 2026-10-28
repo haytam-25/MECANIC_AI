@@ -99,8 +99,8 @@ class SecurityRulesTest {
 			.andExpect(jsonPath("$.features.googleLogin").value(false))
 			.andExpect(jsonPath("$.features.guestDailyMessages").value(5))
 			.andExpect(jsonPath("$.features.freeDailyMessages").value(20))
-			.andExpect(jsonPath("$.features.guestWeeklyReports").value(2))
-			.andExpect(jsonPath("$.features.freeWeeklyReports").value(5))
+			.andExpect(jsonPath("$.features.guestDailyReports").value(3))
+			.andExpect(jsonPath("$.features.freeWeeklyReports").value(20))
 			.andExpect(jsonPath("$.features.maxRepairs").value(30))
 			.andExpect(jsonPath("$.features.maxBasketItems").value(30))
 			.andExpect(jsonPath("$.features.devLogin").doesNotExist())
@@ -171,8 +171,14 @@ class SecurityRulesTest {
 		mvc.perform(get("/api/reports")).andExpect(status().isUnauthorized());
 		mvc.perform(post("/api/reports").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
 
-		given(reports.guest(any(), any())).willReturn(new ReportResult(null, null));
+		given(reports.guest(any(), any(), any())).willReturn(new ReportResult(null, null));
 		mvc.perform(post("/api/guest/reports").header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isOk());
+		mvc.perform(post("/api/guest/reports").header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content("{\"vehicleId\":\"local-abc123\"}")).andExpect(status().isOk());
+		mvc.perform(post("/api/guest/reports").header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content("{\"vehicleId\":\"../no vale\"}")).andExpect(status().isBadRequest());
 	}
 
 	@Test

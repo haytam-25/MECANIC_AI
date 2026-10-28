@@ -22,7 +22,8 @@ export interface Features {
   aiDemo: boolean
   guestDailyMessages: number
   freeDailyMessages: number
-  guestWeeklyReports: number
+  /** Informes médicos al día como invitado (con cuenta son por semana). */
+  guestDailyReports: number
   freeWeeklyReports: number
   /** Coches como mucho en el garaje. */
   maxVehicles: number

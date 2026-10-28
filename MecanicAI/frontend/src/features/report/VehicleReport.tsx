@@ -87,7 +87,7 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: Ve
           onSaved(report)
         }
       } else {
-        const { usage } = await countGuestReport()
+        const { usage } = await countGuestReport(vehicleId)
         setReportUsage(usage)
         setShown({ input, savedAt: new Date().toISOString() })
       }
@@ -109,7 +109,9 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: Ve
 
   const engine = engineLabel(vehicle)
   const fallback = plan && plan.source !== 'ai' && plan.source !== 'cache'
-  const blocked = me.reports.remaining <= 0
+  // Solo cuenta el primer informe de cada coche: actualizar uno que ya tiene informe siempre se puede
+  const updating = shown !== null
+  const blocked = !updating && me.reports.remaining <= 0
 
   return (
     <div className="page" ref={topRef}>
@@ -180,7 +182,8 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: Ve
               <ReportForm
                 plan={plan}
                 initial={shown?.input ?? EMPTY_INPUT}
-                quota={me.reports}
+                quota={updating ? null : me.reports}
+                guest={guest}
                 submitting={submitting}
                 onSubmit={(input) => void submit(input)}
               />
@@ -206,7 +209,7 @@ export function VehicleReport({ vehicle, vehicleId, saved, onSaved, backTo }: Ve
                 savedAt={shown.savedAt}
                 now={now}
               />
-              {guest && <SaveReportCard features={me.features} />}
+              {guest && <SaveReportCard />}
               <div className="report-actions">
                 <button type="button" className="btn btn--primary btn--block" onClick={askMechanic}>
                   <Icon name="chat" size={20} /> Preguntar al mecánico IA

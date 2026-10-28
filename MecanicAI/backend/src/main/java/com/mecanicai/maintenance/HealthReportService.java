@@ -27,9 +27,11 @@ import com.mecanicai.vehicle.VehicleService;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Informes médicos: límite semanal (invitados y cuentas) y, solo con cuenta, el último informe de cada coche.
+ * Informes médicos: límite semanal (cuentas) o diario (invitados) y, solo con cuenta, el último informe de cada coche.
  * <p>
- * Los invitados no guardan nada: el servidor solo cuenta cuántos informes han hecho esta semana.
+ * Solo cuenta el primer informe de cada coche: actualizar sus datos después es gratis (no gasta IA: el plan de
+ * mantenimiento ya está en caché y el informe se calcula en el navegador). Los invitados no guardan nada: el servidor
+ * solo cuenta los coches con informe de hoy.
  */
 @Service
 public class HealthReportService {
@@ -52,10 +54,14 @@ public class HealthReportService {
 	public record SaveReportRequest(@NotNull UUID vehicleId, @NotNull @Valid ReportInput input) {
 	}
 
+	/** {@code vehicleId}: id del coche en el garaje del invitado (lo genera su navegador; cabe en usage_counter.subject). */
+	public record GuestReportRequest(@NotNull @Pattern(regexp = "[A-Za-z0-9-]{1,48}") String vehicleId) {
+	}
+
 	public record SavedReport(UUID vehicleId, ReportInput input, Instant savedAt) {
 	}
 
-	/** {@code report} es null para los invitados. {@code usage}: informes de esta semana. */
+	/** {@code report} es null para los invitados. {@code usage}: informes de esta semana (invitados: de hoy). */
 	public record ReportResult(SavedReport report, Usage usage) {
 	}
 
@@ -92,6 +98,11 @@ public class HealthReportService {
 		return "reports:guest:" + guestId;
 	}
 
+	/** Marca de que ese coche del invitado ya tiene informe hoy (vale 1). */
+	static String guestVehicleSubject(String guestId, String vehicleId) {
+		return "reports:guest-car:" + guestId + ":" + vehicleId;
+	}
+
 	/** Último informe de cada coche del usuario, del más reciente al más antiguo. */
 	public List<SavedReport> list(UUID userId) {
 		return jdbc.sql("""
@@ -104,13 +115,21 @@ public class HealthReportService {
 			.list();
 	}
 
-	/** Cuenta un informe de la semana y lo guarda como el último de ese coche. */
+	/**
+	 * Guarda el informe como el último de ese coche. Solo cuenta para el límite semanal si el coche aún no tenía
+	 * informe: actualizar los datos de uno que ya lo tiene es gratis.
+	 */
 	public ReportResult save(UUID userId, SaveReportRequest request) {
 		validateItems(request.input());
 		// Comprueba que el coche es suyo antes de gastar un informe
 		vehicles.require(userId, request.vehicleId());
 		int limit = planOf(userId).weeklyReports();
-		Reservation reservation = usage.consumeWeekly(userSubject(userId), limit,
+		boolean update = jdbc.sql("SELECT 1 FROM health_report WHERE vehicle_id = :vehicle")
+			.param("vehicle", request.vehicleId())
+			.query(Integer.class)
+			.optional()
+			.isPresent();
+		Reservation reservation = update ? null : usage.consumeWeekly(userSubject(userId), limit,
 				"Ya has hecho tus %d informes médicos de esta semana. Se renuevan el lunes.".formatted(limit));
 
 		Instant now = Instant.now();
@@ -126,27 +145,39 @@ public class HealthReportService {
 				.update();
 		}
 		catch (RuntimeException ex) {
-			usage.refund(reservation);
+			if (reservation != null) {
+				usage.refund(reservation);
+			}
 			throw ex;
 		}
-		return new ReportResult(new SavedReport(request.vehicleId(), request.input(), now), reservation.usage());
+		Usage current = reservation != null ? reservation.usage() : usage.peekWeekly(userSubject(userId), limit);
+		return new ReportResult(new SavedReport(request.vehicleId(), request.input(), now), current);
 	}
 
 	/**
 	 * Invitado: solo cuenta el informe (por su conexión y por su cookie); no se guarda nada. La conexión va primero:
 	 * la cookie la elige el cliente (sin ella, cada petición es un invitado nuevo), así que, agotado el cupo de la
-	 * conexión, no se crea ningún contador más.
+	 * conexión, no se crea ningún contador más. Si ese coche ya tiene informe hoy, no cuenta.
+	 *
+	 * @param vehicleId coche del garaje del invitado; null (versiones antiguas de la app) cuenta siempre
 	 */
-	public ReportResult guest(String guestId, String remoteAddr) {
+	public ReportResult guest(String guestId, String remoteAddr, String vehicleId) {
 		AppProperties.Guest guest = props.guest();
 		String network = "reports:" + UsageService.ipSubject(remoteAddr);
 		rateLimiter.check(network, props.limits().guestReportsPerMinute());
-		Reservation byIp = usage.consumeWeekly(network, guest.weeklyReportsPerIp(),
-				"Se ha alcanzado el límite de informes médicos de esta semana desde tu conexión. Inicia sesión con Google para seguir.");
+		String vehicleSubject = vehicleId != null ? guestVehicleSubject(guestId, vehicleId) : null;
+		if (vehicleSubject != null && usage.peek(vehicleSubject, 1).remaining() == 0) {
+			return new ReportResult(null, usage.peek(guestSubject(guestId), guest.dailyReports()));
+		}
+		Reservation byIp = usage.consume(network, guest.dailyReportsPerIp(),
+				"Se ha alcanzado el límite de informes médicos de hoy desde tu conexión. Inicia sesión con Google para seguir.");
 		try {
-			Reservation byGuest = usage.consumeWeekly(guestSubject(guestId), guest.weeklyReports(),
-					"Ya has hecho tus %d informes médicos gratis de esta semana como invitado. Inicia sesión con Google para hacer hasta %d a la semana y tenerlos guardados."
-						.formatted(guest.weeklyReports(), props.plans().free().weeklyReports()));
+			Reservation byGuest = usage.consume(guestSubject(guestId), guest.dailyReports(),
+					"Ya has hecho tus %d informes médicos gratis de hoy como invitado. Inicia sesión con Google para seguir haciendo informes y tenerlos guardados."
+						.formatted(guest.dailyReports()));
+			if (vehicleSubject != null) {
+				usage.consume(vehicleSubject, 1, "Ese coche ya tiene informe hoy");
+			}
 			return new ReportResult(null, byGuest.usage());
 		}
 		catch (AppException ex) {

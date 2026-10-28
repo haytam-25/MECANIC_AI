@@ -76,19 +76,19 @@ public record AppProperties(
 			@DefaultValue("gemini-3.6-flash") List<String> models,
 			String thinkingLevel,
 			@DefaultValue("20") int dailyMessages,
-			@DefaultValue("5") int weeklyReports) {
+			@DefaultValue("20") int weeklyReports) {
 	}
 
 	/**
-	 * Límites del modo invitado. {@code dailyMessagesPerIp} y {@code weeklyReportsPerIp}: freno extra por si alguien
+	 * Límites del modo invitado. {@code dailyMessagesPerIp} y {@code dailyReportsPerIp}: freno extra por si alguien
 	 * borra la cookie de invitado para saltarse el límite. {@code dailyMessagesTotal}: entre todos los invitados, para
 	 * que nadie pueda gastar la cuota de Gemini que comparten también los usuarios con cuenta.
 	 */
 	public record Guest(
 			@DefaultValue("5") int dailyMessages,
 			@DefaultValue("20") int dailyMessagesPerIp,
-			@DefaultValue("2") int weeklyReports,
-			@DefaultValue("6") int weeklyReportsPerIp,
+			@DefaultValue("3") int dailyReports,
+			@DefaultValue("10") int dailyReportsPerIp,
 			@DefaultValue("300") int dailyMessagesTotal) {
 	}
 

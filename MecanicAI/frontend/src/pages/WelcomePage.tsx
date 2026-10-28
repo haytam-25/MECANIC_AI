@@ -69,7 +69,7 @@ export function WelcomePage() {
 
       {/* Más información, bajo la portada: es lo que lee Google y lo que convence a quien llega desde una búsqueda */}
       <section className="welcome__more" aria-labelledby="welcome-more-title">
-        <h2 id="welcome-more-title">Un mecánico online con inteligencia artificial, gratis</h2>
+        <h2 id="welcome-more-title">Mecánico online gratis</h2>
         <p>
           MecanicAI responde a tus dudas de mecánica teniendo en cuenta <strong>tu coche concreto</strong>: marca, modelo,
           año y motorización. Cuéntale qué le pasa con tus palabras (un ruido raro, un testigo encendido, que tira humo o

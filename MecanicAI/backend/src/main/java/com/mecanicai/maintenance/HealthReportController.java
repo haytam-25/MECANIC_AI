@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mecanicai.auth.AuthUser;
 import com.mecanicai.auth.SessionCookies;
+import com.mecanicai.maintenance.HealthReportService.GuestReportRequest;
 import com.mecanicai.maintenance.HealthReportService.ReportResult;
 import com.mecanicai.maintenance.HealthReportService.SaveReportRequest;
 import com.mecanicai.maintenance.HealthReportService.SavedReport;
@@ -44,9 +45,12 @@ public class HealthReportController {
 		return reports.save(user.id(), body);
 	}
 
+	/** Sin cuerpo (versiones antiguas de la app) el informe cuenta siempre. */
 	@PostMapping("/api/guest/reports")
-	public ReportResult guest(HttpServletRequest request, HttpServletResponse response) {
-		return reports.guest(cookies.guestId(request, response), request.getRemoteAddr());
+	public ReportResult guest(@Valid @RequestBody(required = false) GuestReportRequest body, HttpServletRequest request,
+			HttpServletResponse response) {
+		return reports.guest(cookies.guestId(request, response), request.getRemoteAddr(),
+				body != null ? body.vehicleId() : null);
 	}
 
 }

@@ -34,9 +34,11 @@ concreto.
   pendiente. La IA indica si ese motor lleva correa (o correa bañada en aceite) o cadena y sus intervalos de
   mantenimiento; se guarda en caché (`maintenance_cache`) y, si la IA no responde, se usan intervalos habituales.
   Lo poco importante (filtro de habitáculo y escobillas) se revisa siempre cada 4 años.
-  **Con cuenta de Google** se guarda el último informe de cada coche (`health_report`) y se pueden hacer 5 informes a
-  la semana; **como invitado** no se guarda nada y solo se pueden hacer 2 (se le invita a iniciar sesión).
-  Configurable con `FREE_WEEKLY_REPORTS` y `GUEST_WEEKLY_REPORTS`.
+  **Con cuenta de Google** se guarda el último informe de cada coche (`health_report`) y se pueden hacer 20 informes a
+  la semana; **como invitado** no se guarda nada y se pueden hacer 3 al día (se le invita a iniciar sesión). Solo cuenta
+  el primer informe de cada coche: actualizar sus datos después es gratis. El límite no se muestra hasta que quedan
+  pocos (5 con cuenta, 1 como invitado). Hacer un informe no gasta IA: solo el plan de
+  cada versión de coche, una vez. Configurable con `FREE_WEEKLY_REPORTS` y `GUEST_DAILY_REPORTS`.
 - **Portada** con dos opciones: **Iniciar con Google** o **Modo Invitado** (pocos mensajes al día y nada guardado en
   el servidor). Como invitado, los coches y sus consultas solo duran mientras la pestaña esté abierta
   (`sessionStorage`); al iniciar sesión se guardan automáticamente en la cuenta.
@@ -44,7 +46,7 @@ concreto.
   invitados. Historial de consultas por coche (se guardan las 20 más recientes: al empezar la 21ª se borra la más
   antigua; cada una admite hasta 100 mensajes, `app.limits.max-messages-per-conversation`), borrar consultas/coches y
   **eliminar la cuenta** (RGPD).
-- **Límites**: invitado 5 mensajes/día y 2 informes médicos/semana; cuenta gratuita 20 mensajes/día y 5
+- **Límites**: invitado 5 mensajes/día y 3 informes médicos/día; cuenta gratuita 20 mensajes/día y 20
   informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
   Contra abusos: 6 mensajes y 10 consultas de motores o mantenimiento por minuto, y un cupo diario entre todos los
   invitados (`GUEST_DAILY_MESSAGES_TOTAL` y `GUEST_DAILY_LOOKUPS_TOTAL`, 300 por defecto) para que nadie pueda

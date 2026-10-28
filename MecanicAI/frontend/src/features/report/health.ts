@@ -236,7 +236,7 @@ export function diagnose(results: ItemResult[]): Diagnosis {
     const safety = results.some((r) => r.status === 'urgent' && r.item.critical)
     return {
       tone: 'urgent',
-      title: 'Necesita ser reparado',
+      title: 'Necesita mantenimiento',
       text:
         `${urgent} ${plural(urgent, 'elemento ya debería haberse cambiado', 'elementos ya deberían haberse cambiado')}` +
         (safety ? ', y alguno afecta a la seguridad o al motor.' : '.'),
@@ -296,10 +296,18 @@ export function chatQuestion(results: ItemResult[], currentKm: string): string {
   return lines.join(' ')
 }
 
-/** "Te quedan 3 de 5 informes esta semana" */
-export function quotaText(usage: Usage): string {
-  if (usage.remaining === 0) return 'No te quedan informes esta semana'
+/** A partir de cuántos informes restantes se avisa del límite: antes no se muestra, para no frenar a nadie. */
+const QUOTA_WARNING = { guest: 1, account: 5 }
+
+/**
+ * "Te quedan 3 informes esta semana", o null si aún le quedan muchos. Los invitados tienen un límite diario y las
+ * cuentas, semanal.
+ */
+export function quotaText(usage: Usage, guest: boolean): string | null {
+  const period = guest ? 'hoy' : 'esta semana'
+  if (usage.remaining === 0) return `No te quedan informes ${period}`
+  if (usage.remaining > (guest ? QUOTA_WARNING.guest : QUOTA_WARNING.account)) return null
   return usage.remaining === 1
-    ? `Te queda 1 informe de ${usage.limit} esta semana`
-    : `Te quedan ${usage.remaining} de ${usage.limit} informes esta semana`
+    ? `Te queda 1 informe ${period}`
+    : `Te quedan ${usage.remaining} informes ${period}`
 }

@@ -85,7 +85,9 @@ export async function fetchMaintenancePlan(vehicle: VehicleSpec): Promise<Mainte
 export const fetchReports = () => api<SavedReport[]>('/api/reports')
 export const saveReport = (vehicleId: string, input: ReportInput) =>
   api<ReportResult>('/api/reports', { method: 'POST', body: { vehicleId, input } })
-export const countGuestReport = () => api<ReportResult>('/api/guest/reports', { method: 'POST' })
+// Solo cuenta el primer informe de cada coche: actualizar sus datos es gratis
+export const countGuestReport = (vehicleId: string) =>
+  api<ReportResult>('/api/guest/reports', { method: 'POST', body: { vehicleId } })
 
 // Historial de reparaciones (solo con cuenta: el de invitado no sale del navegador)
 export const fetchRepairs = () => api<Repair[]>('/api/repairs')

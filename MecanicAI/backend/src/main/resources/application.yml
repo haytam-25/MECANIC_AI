@@ -80,8 +80,8 @@ app:
       models: ${GEMINI_CHAT_MODELS:gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3-flash-preview,gemini-3.1-flash-lite,gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
       thinking-level: minimal
       daily-messages: ${FREE_DAILY_MESSAGES:20}
-      # Informes médicos por semana (de lunes a domingo)
-      weekly-reports: ${FREE_WEEKLY_REPORTS:5}
+      # Informes médicos por semana (de lunes a domingo). No gastan IA: el plan de cada coche se pide una sola vez
+      weekly-reports: ${FREE_WEEKLY_REPORTS:20}
     pro:
       models: ${GEMINI_PRO_MODELS:gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash}
       thinking-level: medium
@@ -90,8 +90,9 @@ app:
   guest:
     daily-messages: ${GUEST_DAILY_MESSAGES:5}
     daily-messages-per-ip: 20
-    weekly-reports: ${GUEST_WEEKLY_REPORTS:2}
-    weekly-reports-per-ip: 6
+    # Informes médicos al día (como invitado, unos 3 coches)
+    daily-reports: ${GUEST_DAILY_REPORTS:3}
+    daily-reports-per-ip: 10
     # Entre todos los invitados: la cuota gratuita de Gemini es la misma para invitados y cuentas
     daily-messages-total: ${GUEST_DAILY_MESSAGES_TOTAL:300}
   # Los límites por conexión cuentan cada IPv4 y cada bloque /64 de IPv6 (ver ClientNetwork)

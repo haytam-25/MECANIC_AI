@@ -70,11 +70,11 @@ public class AuthController {
 	 * {@code maxBasketItems}: topes por usuario.
 	 */
 	public record Features(boolean googleLogin, boolean aiDemo, int guestDailyMessages, int freeDailyMessages,
-			int guestWeeklyReports, int freeWeeklyReports, int maxVehicles, int maxConversations, int maxRepairs,
+			int guestDailyReports, int freeWeeklyReports, int maxVehicles, int maxConversations, int maxRepairs,
 			int maxBasketItems) {
 	}
 
-	/** {@code usage}: mensajes de hoy. {@code reports}: informes médicos de esta semana. */
+	/** {@code usage}: mensajes de hoy. {@code reports}: informes médicos de esta semana (invitados: de hoy). */
 	public record MeResponse(boolean authenticated, UserDto user, Usage usage, Usage reports, Features features) {
 	}
 
@@ -82,7 +82,7 @@ public class AuthController {
 	public MeResponse me(@AuthenticationPrincipal AuthUser principal, HttpServletRequest request,
 			HttpServletResponse response) {
 		Features features = new Features(props.auth().google().configured(), aiClient.isDemo(),
-				props.guest().dailyMessages(), props.plans().free().dailyMessages(), props.guest().weeklyReports(),
+				props.guest().dailyMessages(), props.plans().free().dailyMessages(), props.guest().dailyReports(),
 				props.plans().free().weeklyReports(), props.limits().maxVehicles(), props.limits().maxConversations(),
 				props.limits().maxRepairs(), props.limits().maxBasketItems());
 
@@ -108,7 +108,7 @@ public class AuthController {
 
 		String guestId = cookies.guestId(request, response);
 		Usage guestUsage = usage.peek(UsageService.guestSubject(guestId), props.guest().dailyMessages());
-		Usage guestReports = usage.peekWeekly(HealthReportService.guestSubject(guestId), props.guest().weeklyReports());
+		Usage guestReports = usage.peek(HealthReportService.guestSubject(guestId), props.guest().dailyReports());
 		return new MeResponse(false, null, guestUsage, guestReports, features);
 	}
 

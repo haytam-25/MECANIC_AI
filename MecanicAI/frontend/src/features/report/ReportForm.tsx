@@ -23,8 +23,12 @@ import {
 interface ReportFormProps {
   plan: MaintenancePlan
   initial: ReportInput
-  /** Informes que le quedan esta semana (si no le queda ninguno no se puede enviar). */
-  quota: Usage
+  /**
+   * Informes que le quedan esta semana, o hoy si es invitado (si no le queda ninguno no se puede enviar). null al
+   * actualizar un informe que ya existe: no cuenta.
+   */
+  quota: Usage | null
+  guest: boolean
   submitting: boolean
   onSubmit(input: ReportInput): void
 }
@@ -44,9 +48,11 @@ const TIMING_OPTIONS: { value: TimingAnswer; label: string }[] = [
 ]
 
 /** Formulario: kilómetros actuales y, por cada elemento, hace cuántos km o cuánto tiempo se cambió. */
-export function ReportForm({ plan, initial, quota, submitting, onSubmit }: ReportFormProps) {
+export function ReportForm({ plan, initial, quota, guest, submitting, onSubmit }: ReportFormProps) {
   const [input, setInput] = useState<ReportInput>(initial)
   const [submitted, setSubmitted] = useState(false)
+  const quotaWarning = quota && quotaText(quota, guest)
+  const exhausted = quota !== null && quota.remaining === 0
   const errors = submitted ? validate(plan, input) : {}
 
   const askable = plan.items.filter((item) => asksTimingType(plan, item) || isAskable(plan, item, input))
@@ -69,7 +75,7 @@ export function ReportForm({ plan, initial, quota, submitting, onSubmit }: Repor
       document.getElementById(`campo-${first}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
-    if (!submitting && quota.remaining > 0) onSubmit(input)
+    if (!submitting && !exhausted) onSubmit(input)
   }
 
   return (
@@ -118,9 +124,10 @@ export function ReportForm({ plan, initial, quota, submitting, onSubmit }: Repor
 
       <div className="report-form__submit">
         <span className="small muted">
-          {answered} de {askable.length} respondidos · {quotaText(quota)}
+          {answered} de {askable.length} respondidos
+          {quotaWarning && ` · ${quotaWarning}`}
         </span>
-        <button type="submit" className="btn btn--primary btn--block" disabled={submitting || quota.remaining === 0}>
+        <button type="submit" className="btn btn--primary btn--block" disabled={submitting || exhausted}>
           <Icon name="pulse" size={20} /> {submitting ? 'Preparando el informe…' : 'Ver mi informe'}
         </button>
       </div>
