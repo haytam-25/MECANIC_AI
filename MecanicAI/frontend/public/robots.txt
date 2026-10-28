@@ -1,0 +1,10 @@
+# Todo el sitio público se puede rastrear. Fuera: la API, el login y las páginas de cada coche (son privadas de cada
+# usuario y sin sesión solo muestran la portada)
+User-agent: *
+Disallow: /api/
+Disallow: /oauth2/
+Disallow: /login/
+Disallow: /actuator/
+Disallow: /coche/
+
+Sitemap: https://mecanicai.org/sitemap.xml

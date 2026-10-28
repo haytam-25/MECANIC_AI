@@ -58,6 +58,11 @@ concreto.
 - **Páginas legales**: política de privacidad (`/privacidad`), términos y aviso legal (`/terminos`) y política de
   cookies (`/cookies`), enlazadas desde la portada y el menú. Son HTML estático en `frontend/public/*.html`:
   actualízalas si cambia qué datos se guardan o con quién se comparten.
+- **SEO**: `robots.txt`, `sitemap.xml`, etiquetas Open Graph (vista previa al compartir, con `og-image.png`) y datos
+  estructurados (schema.org) en `index.html`. La portada explica la app bajo el inicio de sesión para que Google tenga
+  texto que leer, y hay **guías de mecánica** en HTML estático (`/guias`, en `frontend/public/guias*`) pensadas para
+  atraer búsquedas. Para añadir una guía, copia una existente y enlázala en `guias.html` y en `sitemap.xml`. Las rutas
+  que no existen devuelven 404 (nginx) para que Google no las indexe.
 
 ## Tecnologías
 

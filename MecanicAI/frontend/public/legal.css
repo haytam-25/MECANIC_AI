@@ -1,4 +1,4 @@
-/* Páginas legales (privacidad, términos, cookies): HTML estático con los colores de la app */
+/* Páginas estáticas (legales y guías): HTML sin la app, con los colores de la app */
 :root {
   color-scheme: dark;
   --bg: #0c0e10;
@@ -201,4 +201,118 @@ footer a:hover,
 footer a[aria-current='page'] {
   color: var(--text);
   text-decoration: underline;
+}
+
+/* ---------- Guías ---------- */
+
+.crumbs {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-3);
+}
+
+.crumbs a {
+  color: var(--text-3);
+}
+
+.lead {
+  font-size: 1.08rem;
+  color: var(--text);
+}
+
+/* Aviso de seguridad */
+.alert {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.45);
+  border-radius: 10px;
+}
+
+/* Invitación a probar la app */
+.cta {
+  margin: 2rem 0;
+  padding: 1.1rem;
+  background: var(--plate);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+}
+
+.cta p {
+  margin-top: 0;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.6rem 1.1rem;
+  background: var(--accent);
+  border-radius: 999px;
+  color: #1b0e03;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--accent-hi);
+}
+
+/* Lista de guías */
+.cards {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cards li {
+  margin: 0;
+}
+
+.cards a {
+  display: block;
+  padding: 1rem 1.1rem;
+  background: var(--plate);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text-2);
+  text-decoration: none;
+}
+
+.cards a:hover {
+  border-color: var(--accent);
+}
+
+.cards strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.35em;
+  border-radius: 50%;
+  vertical-align: baseline;
+}
+
+.dot--red {
+  background: #ff5c5c;
+}
+
+.dot--amber {
+  background: #f2a93b;
+}
+
+.dot--green {
+  background: #45d18f;
+}
+
+.dot--blue {
+  background: #5aa6ff;
 }

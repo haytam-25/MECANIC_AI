@@ -82,9 +82,11 @@ export function ChatPage() {
 
   useEffect(() => {
     if (!chat) return
+    // Al salir vuelve el título de index.html (el que ve Google)
+    const previous = document.title
     document.title = `${chat.vehicle.brand} ${chat.vehicle.model} · MecanicAI`
     return () => {
-      document.title = 'MecanicAI · Tu mecánico con IA'
+      document.title = previous
     }
   }, [chat])
 

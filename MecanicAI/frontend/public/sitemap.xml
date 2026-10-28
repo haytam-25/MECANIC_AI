@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Páginas públicas. Al añadir una guía nueva (public/guias/*.html), añádela aquí y en guias.html -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://mecanicai.org/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/testigos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/ruidos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/mantenimiento-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/privacidad</loc><lastmod>2026-10-25</lastmod></url>
+  <url><loc>https://mecanicai.org/terminos</loc><lastmod>2026-10-08</lastmod></url>
+  <url><loc>https://mecanicai.org/cookies</loc><lastmod>2026-10-09</lastmod></url>
+</urlset>

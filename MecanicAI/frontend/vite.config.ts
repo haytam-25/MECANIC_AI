@@ -9,10 +9,10 @@ const backend = process.env.BACKEND_URL ?? 'http://localhost:8080'
 // la URL a la que vuelve Google tras el login: http://localhost:5173/login/oauth2/code/google (y no la del puerto 8080).
 const toBackend = { target: backend, changeOrigin: false }
 
-// Las páginas legales son HTML estático (public/privacidad.html...). En producción nginx sirve /privacidad con
-// privacidad.html; esto hace lo mismo con `npm run dev` y `npm run preview`.
+// Las páginas legales y las guías son HTML estático (public/privacidad.html, public/guias/*.html...). En producción
+// nginx sirve /privacidad con privacidad.html; esto hace lo mismo con `npm run dev` y `npm run preview`.
 const legalPage: Connect.NextHandleFunction = (req, _res, next) => {
-  if (req.url) req.url = req.url.replace(/^\/(privacidad|terminos|cookies)(?=\?|$)/, '/$1.html')
+  if (req.url) req.url = req.url.replace(/^\/(privacidad|terminos|cookies|guias(?:\/[a-z0-9-]+)?)(?=\?|$)/, '/$1.html')
   next()
 }
 const legalPages: Plugin = {
@@ -51,16 +51,26 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         // El PDF del diario (jsPDF, ~430 kB) solo se descarga si se usa. html2canvas, DOMPurify y canvg (index.es)
         // son extras de jsPDF para convertir HTML y SVG que la app no usa
-        globIgnores: ['**/repairPdf-*.js', '**/html2canvas-*.js', '**/purify.es-*.js', '**/index.es-*.js'],
+        // Las guías y la imagen para redes sociales son para buscadores y enlaces compartidos: no hacen falta en la app
+        globIgnores: [
+          '**/repairPdf-*.js',
+          '**/html2canvas-*.js',
+          '**/purify.es-*.js',
+          '**/index.es-*.js',
+          'guias.html',
+          'guias/**',
+          'og-image.png',
+        ],
         navigateFallback: '/index.html',
-        // Nunca servir la app desde caché en rutas del backend (API, login con Google) ni en las páginas legales,
-        // que son HTML estático
+        // Nunca servir la app desde caché en rutas del backend (API, login con Google) ni en las páginas legales, las
+        // guías, robots.txt y el sitemap, que son ficheros estáticos
         navigateFallbackDenylist: [
           /^\/api\//,
           /^\/oauth2\//,
           /^\/login\//,
           /^\/actuator\//,
-          /^\/(privacidad|terminos|cookies)(\.html)?$/,
+          /^\/(privacidad|terminos|cookies|guias(\/[a-z0-9-]+)?)(\.html)?$/,
+          /^\/(robots\.txt|sitemap\.xml)$/,
         ],
       },
     }),

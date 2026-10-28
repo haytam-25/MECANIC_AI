@@ -150,6 +150,86 @@
   color: var(--accent);
 }
 
+/* Más información bajo la portada (texto para quien llega desde un buscador) */
+.welcome__more {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+  border-top: 1px solid var(--steel-700);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.welcome__more h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.45rem, 6vw, 1.8rem);
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.welcome__more h3 {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.welcome__more p {
+  margin-top: 0.6rem;
+}
+
+.welcome__more ul,
+.welcome__more ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding-left: 1.25rem;
+}
+
+.welcome__more ul {
+  list-style: disc;
+}
+
+.welcome__more ol {
+  list-style: decimal;
+}
+
+.welcome__more li::marker {
+  color: var(--accent);
+}
+
+.welcome__more strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.welcome__more a {
+  color: var(--accent-hi);
+}
+
+.welcome__more details {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-2);
+  border: 1px solid var(--steel-700);
+  border-radius: var(--radius-s);
+}
+
+.welcome__more summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.welcome__more details p {
+  margin-top: 0.4rem;
+}
+
 .welcome__footer {
   padding: 0 1rem calc(1rem + var(--safe-bottom));
 }
