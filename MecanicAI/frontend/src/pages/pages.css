@@ -41,6 +41,8 @@
   display: flex;
   flex-direction: column;
   padding-top: var(--safe-top);
+  /* El coche entra y sale por los lados sin crear scroll horizontal */
+  overflow-x: clip;
 }
 
 .welcome__main {
@@ -64,16 +66,121 @@
   animation: roll-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/*
+ * Escena del coche: --drive es la posición del morro, de 0 (fuera por la izquierda) hasta que el coche y sus estelas
+ * salen por la derecha. El título se recorta con ese mismo valor, así que se va escribiendo justo detrás del coche.
+ */
+@property --drive {
+  syntax: '<length-percentage>';
+  inherits: true;
+  initial-value: 0%;
+}
+
+.welcome__drive {
+  --car-w: clamp(170px, 48vw, 250px);
+  position: relative;
+  flex: none;
+  width: 100vw;
+  padding-bottom: 8px;
+  animation: drive 1.5s cubic-bezier(0.45, 0.05, 0.45, 1) 0.3s both;
+}
+
 .welcome__title {
+  width: 100%;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(3rem, 15vw, 4.25rem);
   line-height: 0.95;
   letter-spacing: 0.01em;
-  background: var(--metal-chrome);
+  /* Destello que recorre el cromado cuando el coche ya ha pasado */
+  background:
+    linear-gradient(100deg, transparent 46%, rgba(255, 255, 255, 0.95) 50%, transparent 54%) 95% 0 / 250% 100% no-repeat,
+    var(--metal-chrome);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  clip-path: inset(-0.25em calc(100% - var(--drive) + var(--car-w) * 0.55) -0.25em 0);
+  animation: title-shine 0.9s ease-in-out 1.9s both;
+}
+
+.welcome__road {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--steel-600) 0 22px, transparent 22px 38px);
+  mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+  animation: road-in 0.6s var(--ease-out) both;
+}
+
+.car {
+  position: absolute;
+  bottom: 3px;
+  left: var(--drive);
+  z-index: 1;
+  width: var(--car-w);
+  aspect-ratio: 200 / 70;
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+/* Sombra en el asfalto */
+.car::after {
+  content: '';
+  position: absolute;
+  inset: auto 4% -4px 6%;
+  z-index: -1;
+  height: 8px;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.car__body {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: car-bob 0.18s ease-in-out 0.3s 8 alternate;
+}
+
+.car__wheel {
+  position: absolute;
+  top: 77.14%;
+  width: 16.5%;
+  height: auto;
+  translate: -50% -50%;
+  animation: spin 0.26s linear 0.3s 6;
+}
+
+.car__wheel--rear {
+  left: 22.5%;
+}
+
+.car__wheel--front {
+  left: 77.5%;
+}
+
+/* Luz de los faros barriendo el hueco donde aún no hay texto */
+.car__beam {
+  position: absolute;
+  top: 38%;
+  left: 96%;
+  width: 75%;
+  height: 46%;
+  background: linear-gradient(90deg, rgba(255, 222, 170, 0.4), transparent);
+  clip-path: polygon(0 38%, 100% 0, 100% 100%, 0 62%);
+}
+
+/* Estelas de velocidad */
+.car__lines {
+  --streak: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+  position: absolute;
+  top: 22%;
+  right: 98%;
+  width: 55%;
+  height: 50%;
+  background:
+    var(--streak) 40% 0 / 60% 2px no-repeat,
+    var(--streak) 0 50% / 100% 2px no-repeat,
+    var(--streak) 70% 100% / 45% 2px no-repeat;
 }
 
 .welcome__ai {
@@ -86,6 +193,7 @@
   font-size: 1.1rem;
   line-height: 1.45;
   color: var(--text-2);
+  animation: rise-in 0.6s var(--ease-out) 1s both;
 }
 
 .welcome__actions {
@@ -95,6 +203,23 @@
   gap: 0.6rem;
   margin-top: 0.9rem;
   padding: 1.25rem 1.1rem 1.1rem;
+  animation: plate-drop 0.75s var(--ease-spring) 1.2s both;
+}
+
+.welcome__actions > * {
+  animation: rise-in 0.45s var(--ease-out) both;
+}
+
+.welcome__actions > :nth-child(1) {
+  animation-delay: 1.45s;
+}
+
+.welcome__actions > :nth-child(2) {
+  animation-delay: 1.55s;
+}
+
+.welcome__actions > :nth-child(3) {
+  animation-delay: 1.65s;
 }
 
 /* Remaches en las esquinas, como la placa del asistente */
@@ -143,6 +268,27 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  animation: slide-in 0.5s var(--ease-out) both;
+}
+
+.welcome__features li:nth-child(1) {
+  animation-delay: 1.75s;
+}
+
+.welcome__features li:nth-child(2) {
+  animation-delay: 1.83s;
+}
+
+.welcome__features li:nth-child(3) {
+  animation-delay: 1.91s;
+}
+
+.welcome__features li:nth-child(4) {
+  animation-delay: 1.99s;
+}
+
+.welcome__features li:nth-child(5) {
+  animation-delay: 2.07s;
 }
 
 .welcome__features svg {
@@ -232,6 +378,63 @@
 
 .welcome__footer {
   padding: 0 1rem calc(1rem + var(--safe-bottom));
+}
+
+/* Sin animaciones: todo aparece colocado desde el principio y el coche no sale */
+@media (prefers-reduced-motion: reduce) {
+  .welcome *,
+  .welcome__drive {
+    animation-delay: 0s !important;
+  }
+
+  .car {
+    display: none;
+  }
+}
+
+@keyframes drive {
+  from {
+    --drive: 0%;
+  }
+  /* Hasta que salen también las estelas, que van por detrás del coche */
+  to {
+    --drive: calc(100% + var(--car-w) * 1.6);
+  }
+}
+
+@keyframes title-shine {
+  to {
+    background-position:
+      5% 0,
+      0 0;
+  }
+}
+
+@keyframes road-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.3);
+  }
+}
+
+@keyframes car-bob {
+  to {
+    transform: translateY(-1.5px) rotate(-0.4deg);
+  }
+}
+
+@keyframes plate-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.94) rotate(-1.5deg);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
 }
 
 /* ---------- Consultas de un coche ---------- */

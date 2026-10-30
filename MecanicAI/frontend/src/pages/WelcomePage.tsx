@@ -1,11 +1,55 @@
+import { useId } from 'react'
 import { useNavigate } from 'react-router'
 
 import { GoogleButton } from '../components/GoogleButton.tsx'
 import { Icon } from '../components/Icon.tsx'
 import { LegalLinks } from '../components/LegalLinks.tsx'
-import { BrandMark } from '../components/Wheel.tsx'
+import { BrandMark, Wheel } from '../components/Wheel.tsx'
 import { useSession } from '../context/session.ts'
 import './pages.css'
+
+/** Coupé naranja de la marca, visto de lado y mirando a la derecha. Las ruedas son la misma `Wheel` del resto de la app. */
+function Car() {
+  const id = useId()
+  const paint = `${id}-paint`
+  const glass = `${id}-glass`
+  return (
+    <div className="car" aria-hidden="true">
+      <span className="car__beam" />
+      <span className="car__lines" />
+      <svg className="car__body" viewBox="0 0 200 70">
+        <defs>
+          <linearGradient id={paint} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffb06e" />
+            <stop offset="0.45" stopColor="#ff7a1a" />
+            <stop offset="1" stopColor="#c45208" />
+          </linearGradient>
+          <linearGradient id={glass} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#3a434c" />
+            <stop offset="0.5" stopColor="#14181c" />
+            <stop offset="1" stopColor="#262c33" />
+          </linearGradient>
+        </defs>
+        {/* Carrocería con los pasos de rueda */}
+        <path
+          fill={`url(#${paint})`}
+          d="M12 56C7 56 5 53 5 49V40c0-5 3-8 9-9l34-4c12-11 22-16 36-17h32c12 0 20 5 32 15l30 4c12 2 18 7 18 15v7c0 3-2 5-5 5h-16a20 20 0 0 0-40 0H65a20 20 0 0 0-40 0z"
+        />
+        {/* Ventanillas */}
+        <path fill={`url(#${glass})`} d="M56 27c10-9 18-13 30-13h12v13zM103 14h11c10 0 18 4 27 13h-38z" />
+        <path fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2" d="M70 25l10-9M118 25l8-9" />
+        {/* Puerta, maneta, faros y bajos */}
+        <path fill="none" stroke="rgba(60,22,0,0.45)" strokeWidth="1" d="M100 28v24M64 52h72" />
+        <rect x="106" y="32" width="8" height="2" rx="1" fill="rgba(60,22,0,0.55)" />
+        <path fill="#fff4dc" d="M184 35l11 3v4l-12-2z" />
+        <rect x="5" y="37" width="4" height="7" rx="1" fill="#ff3b3b" />
+        <image href="/logo.svg" x="76" y="32" width="15" height="15" />
+      </svg>
+      <Wheel size={33} className="car__wheel car__wheel--rear" />
+      <Wheel size={33} className="car__wheel car__wheel--front" />
+    </div>
+  )
+}
 
 /**
  * Portada: lo primero que ve quien entra sin sesión. Elige entre iniciar sesión con Google o seguir como invitado.
@@ -26,9 +70,14 @@ export function WelcomePage() {
       <div className="tread" aria-hidden="true" />
       <main className="welcome__main">
         <BrandMark size={112} className="welcome__logo" />
-        <h1 className="welcome__title">
-          Mecanic<span className="welcome__ai">AI</span>
-        </h1>
+        {/* El coche cruza la portada y va dejando el nombre escrito tras de sí */}
+        <div className="welcome__drive">
+          <h1 className="welcome__title">
+            Mecanic<span className="welcome__ai">AI</span>
+          </h1>
+          <div className="welcome__road" aria-hidden="true" />
+          <Car />
+        </div>
         <p className="welcome__tagline">Tu asistente personal de mantenimiento y diagnóstico de tu coche</p>
 
         <div className="welcome__actions plate">

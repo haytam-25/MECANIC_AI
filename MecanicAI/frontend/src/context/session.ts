@@ -35,7 +35,7 @@ export interface SessionValue {
   setUsage(usage: Usage): void
   /** Informes médicos de esta semana. */
   setReportUsage(usage: Usage): void
-  /** Eligió "Modo Invitado" en la portada (se recuerda en este navegador hasta que cierra sesión). */
+  /** Eligió "Modo Invitado" en la portada (se recuerda hasta que cierra la pestaña o inicia sesión). */
   guestMode: boolean
   enterGuestMode(): void
   loginWithGoogle(): void
