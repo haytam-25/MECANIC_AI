@@ -1,6 +1,8 @@
 # Todo el sitio público se puede rastrear. Fuera: la API, el login y las páginas de cada coche (son privadas de cada
 # usuario y sin sesión solo muestran la portada)
 User-agent: *
+# Excepción: la portada necesita /api/auth/me para pintarse. Sin esto, Google la ve como "Sin conexión con el taller"
+Allow: /api/auth/me
 Disallow: /api/
 Disallow: /oauth2/
 Disallow: /login/
