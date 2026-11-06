@@ -54,7 +54,7 @@ public class SecurityConfig {
 				.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
 				// Cerrar sesión no la exige: así borra la cookie aunque la sesión ya no valga
 				.requestMatchers("/api/vehicles/**", "/api/conversations/**", "/api/reports/**", "/api/repairs/**",
-						"/api/basket/**", "/api/auth/account")
+						"/api/basket/**", "/api/documents/**", "/api/auth/account")
 				.authenticated()
 				.anyRequest().permitAll())
 			.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> writeError(

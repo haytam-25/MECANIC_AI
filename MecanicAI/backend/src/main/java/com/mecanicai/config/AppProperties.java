@@ -17,11 +17,29 @@ import com.mecanicai.user.Plan;
 public record AppProperties(
 		@DefaultValue("Europe/Madrid") ZoneId timezone,
 		@DefaultValue("/") String frontendUrl,
+		@DefaultValue("http://localhost:5173") String publicUrl,
+		@DefaultValue Mail mail,
 		@DefaultValue Auth auth,
 		@DefaultValue Ai ai,
 		@DefaultValue Plans plans,
 		@DefaultValue Guest guest,
 		@DefaultValue Limits limits) {
+
+	/**
+	 * Correo saliente por SMTP (avisos de caducidad de la documentación). Sin {@code host} no se envía nada y el aviso
+	 * se escribe en el log.
+	 */
+	public record Mail(
+			String host,
+			@DefaultValue("587") int port,
+			String username,
+			String password,
+			@DefaultValue("MecanicAI <avisos@mecanicai.org>") String from) {
+
+		public boolean configured() {
+			return StringUtils.hasText(host);
+		}
+	}
 
 	public record Auth(
 			String jwtSecret,
@@ -96,7 +114,8 @@ public record AppProperties(
 	 * Topes para que nadie llene la base de datos ni gaste la IA a ráfagas. {@code maxConversations}: al empezar una
 	 * más se borra la más antigua. {@code maxMessagesPerConversation}: preguntas y respuestas de una consulta (llena,
 	 * hay que empezar otra). {@code maxRepairs}: reparaciones del diario entre todos los coches.
-	 * {@code maxBasketItems}: artículos de la cesta entre todos los coches. {@code chatPerMinute} y
+	 * {@code maxBasketItems}: artículos de la cesta entre todos los coches. {@code maxDocuments}: fotos o PDF de la
+	 * documentación entre todos los coches (la app no muestra la cifra). {@code chatPerMinute} y
 	 * {@code lookupsPerMinute}: mensajes y consultas a la IA (motorizaciones, plan de mantenimiento) por usuario o
 	 * conexión y minuto. {@code guestReportsPerMinute}: informes médicos de invitado por conexión y minuto.
 	 */
@@ -109,7 +128,8 @@ public record AppProperties(
 			@DefaultValue("20") int dailyImports,
 			@DefaultValue("6") int chatPerMinute,
 			@DefaultValue("10") int lookupsPerMinute,
-			@DefaultValue("6") int guestReportsPerMinute) {
+			@DefaultValue("6") int guestReportsPerMinute,
+			@DefaultValue("10") int maxDocuments) {
 	}
 
 }

@@ -20,6 +20,11 @@ spring:
   mvc:
     async:
       request-timeout: 5m
+  servlet:
+    multipart:
+      # Fotos y PDF de la documentación (las fotos llegan ya reducidas desde el navegador). Ver DocumentService
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 server:
   port: ${PORT:8080}
@@ -43,6 +48,16 @@ app:
   timezone: Europe/Madrid
   # A dónde volver tras el login con Google ("/" = mismo dominio que el frontend)
   frontend-url: ${FRONTEND_URL:/}
+  # Dirección completa de la web, para los enlaces de los emails (en compose.yaml: https://DOMAIN)
+  public-url: ${PUBLIC_URL:http://localhost:5173}
+  # Correo saliente (avisos de caducidad de la ITV y el seguro). Sin MAIL_HOST no se envía nada: el aviso se escribe
+  # en el log (útil en desarrollo). Sirve cualquier SMTP: Brevo, Resend, Amazon SES, Gmail con contraseña de aplicación…
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    from: ${MAIL_FROM:MecanicAI <avisos@mecanicai.org>}
   auth:
     # Genera uno con: openssl rand -base64 48
     jwt-secret: ${JWT_SECRET:}
@@ -106,6 +121,8 @@ app:
     max-repairs: 30
     # Artículos de la cesta por cuenta (entre todos sus coches)
     max-basket-items: 30
+    # Fotos o PDF de la documentación por cuenta (entre todos sus coches). La app no muestra la cifra
+    max-documents: 10
     # Conversaciones de invitado que se pueden guardar en la cuenta al día
     daily-imports: 20
     chat-per-minute: 6

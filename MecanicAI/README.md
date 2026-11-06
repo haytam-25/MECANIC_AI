@@ -27,6 +27,14 @@ concreto.
   lo comprado: al cerrarlo, lo marcado sale de la cesta. **Con cuenta de Google** se guarda en la base de datos
   (`basket_item`, hasta 30 artículos entre todos los coches: `app.limits.max-basket-items`); **como invitado** vive
   en la pestaña y pasa a la cuenta al iniciar sesión.
+- **Documentación** (solo con cuenta de Google): los papeles de cada coche en tres carpetas fijas
+  (**permiso de circulación / cédula**, **ITV / VTV / RTO** y **seguro obligatorio**) y las que cree el usuario con el
+  nombre que quiera. En cada una se suben **fotos o PDF** (las fotos se reducen en el navegador antes de subirse y el
+  servidor comprueba el tipo real de cada archivo: solo JPEG, PNG, WebP o PDF de hasta 5 MB). Se guardan en la base de
+  datos (`document_section` y `document_file`), hasta 10 archivos por cuenta entre todos los coches
+  (`app.limits.max-documents`; la app no muestra la cifra). La ITV y el seguro llevan **fecha de caducidad** y un
+  **aviso por email**: desde dos meses antes se manda uno cada semana hasta el día en que caduca (ver
+  [Avisos por email](#avisos-por-email)). Los invitados ven la sección y la invitación a iniciar sesión.
 - **Informe médico**: indicas sus kilómetros y hace cuántos km o cuánto tiempo se
   le cambió cada cosa (aceite, filtros, bujías, correa o cadena de distribución, correa de accesorios, frenos,
   neumáticos, refrigerante, batería, amortiguadores…). Devuelve un informe por colores: **rojo** (toca cambiarlo),
@@ -205,6 +213,24 @@ Para pedirla, la web ya debe estar publicada en `https://mecanicai.org` (la port
 y el dominio verificado en [Search Console](https://search.google.com/search-console) (registro TXT en el DNS). Mientras
 tanto, cualquier cuenta de Google puede iniciar sesión igualmente si la app está publicada.
 
+## Avisos por email
+
+Los avisos de caducidad de la ITV y el seguro se envían por **SMTP**: sirve cualquier proveedor (Brevo, Resend,
+Amazon SES, Mailgun, Gmail con contraseña de aplicación…). Pon en `backend/.env` (local) o en el `.env` del servidor:
+
+```
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_USERNAME=…
+MAIL_PASSWORD=…
+MAIL_FROM=MecanicAI <avisos@mecanicai.org>
+```
+
+El puerto 587 usa STARTTLS y el 465, TLS directo. El remitente tiene que ser una dirección o un dominio verificado en
+tu proveedor (añade sus registros SPF y DKIM en el DNS para que los avisos no acaben en spam). Sin `MAIL_HOST` no se
+envía nada: el email se escribe en el log del backend, útil para probarlo en local. La revisión es diaria a las 10:00
+(hora de `app.timezone`); los enlaces del email usan `PUBLIC_URL` (en `compose.yaml`, `https://DOMAIN`).
+
 ## Cómo funciona
 
 ```mermaid
@@ -254,6 +280,10 @@ flowchart LR
 | POST | `/api/conversations/{id}/messages` · `/retry` | Pregunta / reintento (respuesta en streaming SSE) |
 | POST | `/api/conversations/import` | Guarda en la cuenta la consulta hecha como invitado |
 | POST | `/api/guest/chat` | Chat de invitado (streaming SSE) |
+| GET | `/api/documents` | Documentación de todos los coches (secciones y archivos, sin su contenido) |
+| POST · PUT · DELETE | `/api/documents/sections` · `/sections/{id}` | Crear, cambiar (nombre, caducidad y aviso) o borrar una sección |
+| POST | `/api/documents/sections/{id}/files` | Subir una foto o PDF (`multipart/form-data`, campo `file`) |
+| GET · DELETE | `/api/documents/files/{id}` | Ver o borrar un archivo |
 
 ## Tests
 
@@ -337,7 +367,8 @@ nano .env
 ```
 
 Rellena `DOMAIN` (`mecanicai.org`, sin `https://` ni `www`), `GEMINI_API_KEY`, `JWT_SECRET` (`openssl rand -base64 48`), `DB_PASSWORD`
-(`openssl rand -base64 24`) y, para el login, `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`.
+(`openssl rand -base64 24`) y, para el login, `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`. Para los avisos de la ITV y
+el seguro, rellena también las variables `MAIL_*` (ver [Avisos por email](#avisos-por-email)).
 
 ### Paso 5 · Arrancar
 

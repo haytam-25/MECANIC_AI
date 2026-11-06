@@ -1,0 +1,1209 @@
+/* ---------- Documentación: carpetas de papeles, sellos de caducidad y fotos tipo polaroid ----------
+   Letras: títulos en Barlow Condensed, notas a mano en Caveat, las secciones propias a rotulador (Permanent Marker)
+   sobre cinta de carrocero, los sellos y los PDF a máquina de escribir (Courier Prime) y las cifras en Chakra Petch */
+
+.docs-page {
+  --paper: #f6efd9;
+  --ink: #1c2740;
+}
+
+/* Lema escrito a mano que aparece de izquierda a derecha, como si se escribiera */
+.doc-tagline {
+  align-self: flex-start;
+  margin-top: 0.1rem;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  color: var(--accent-hi);
+  transform: rotate(-2deg);
+  transform-origin: left center;
+  clip-path: inset(-10% 100% -10% 0);
+  animation: write-in 1.2s cubic-bezier(0.45, 0.1, 0.3, 1) 0.45s forwards;
+}
+
+.doc-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Cuadro con los días que quedan ---------- */
+
+.doc-dials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.9rem 0.6rem 0.8rem;
+}
+
+.doc-dial {
+  --dial: var(--ok);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  animation: icon-pop 0.6s var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 0.2s);
+}
+
+.doc-dial--soon {
+  --dial: var(--warn);
+}
+
+.doc-dial--expired {
+  --dial: var(--danger);
+}
+
+.doc-dial--none {
+  --dial: var(--steel-500);
+}
+
+.doc-dial__gauge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+}
+
+.doc-dial__gauge svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* El aro empieza arriba */
+  transform: rotate(-90deg);
+}
+
+.doc-dial__track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 6;
+}
+
+.doc-dial__value {
+  fill: none;
+  stroke: var(--dial);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: var(--dash);
+  stroke-dashoffset: var(--offset);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--dial) 55%, transparent));
+  animation: dial-fill 1.3s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 0.35s);
+}
+
+.doc-dial__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.doc-dial__center strong {
+  font-family: var(--font-gauge);
+  font-weight: 700;
+  font-size: 1.55rem;
+  color: var(--dial);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-dial--none .doc-dial__center strong {
+  color: var(--text-3);
+}
+
+.doc-dial__center span {
+  margin-top: 0.15rem;
+  font-family: var(--font-gauge);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.doc-dial--expired .doc-dial__center strong {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+.doc-dial__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.doc-dial__label svg {
+  color: var(--accent);
+}
+
+/* ---------- Carpetas ---------- */
+
+.doc-folders {
+  display: flex;
+  flex-direction: column;
+  gap: 1.55rem;
+  /* Sitio para la pestaña de la primera carpeta */
+  padding-top: 0.9rem;
+}
+
+.doc-folder {
+  --tone: #7dbbff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.05rem 1rem 1.1rem 1.15rem;
+  border-top-left-radius: 6px;
+  animation: folder-in 0.6s var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 80ms + 0.15s);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.doc-folder--inspection {
+  --tone: #c3a6ff;
+}
+
+.doc-folder--insurance {
+  --tone: #ff9a52;
+}
+
+.doc-folder--custom {
+  --tone: #5ed3c3;
+}
+
+/* Lomo del color de la carpeta */
+.doc-folder::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--tone), color-mix(in srgb, var(--tone) 30%, transparent));
+}
+
+/* Pestaña que asoma por arriba, como en un archivador */
+.doc-folder__tab {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem 0.22rem 0.7rem;
+  border-radius: 9px 12px 0 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tone) 85%, #fff), var(--tone));
+  color: #111418;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform-origin: bottom left;
+  animation: tab-up 0.55s var(--ease-spring) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 80ms + 0.4s);
+  transition: translate 0.25s var(--ease-spring);
+}
+
+@media (hover: hover) {
+  .doc-folder:hover {
+    border-color: color-mix(in srgb, var(--tone) 35%, transparent);
+  }
+
+  .doc-folder:hover .doc-folder__tab {
+    translate: 0 -3px;
+  }
+}
+
+.doc-folder__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.doc-folder__titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-folder__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.doc-folder__alt {
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.doc-folder__note {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: color-mix(in srgb, var(--tone) 70%, var(--text));
+}
+
+.doc-folder__tools {
+  display: flex;
+  flex: none;
+  margin: -0.35rem -0.4rem 0 0;
+}
+
+/* Las secciones propias, a rotulador sobre un trozo de cinta de carrocero */
+.doc-folder__title--tape {
+  text-transform: none;
+}
+
+.doc-folder__title--tape span,
+.doc-tape {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.2rem 0.85rem 0.15rem;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(120, 95, 40, 0.07) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, #efe2b8, #e2d29f);
+  color: #2b2418;
+  font-family: var(--font-marker);
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-right: 1px dashed rgba(90, 70, 30, 0.35);
+  border-left: 1px dashed rgba(90, 70, 30, 0.35);
+  border-radius: 2px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  transform: rotate(-1.5deg);
+  animation: tape-on 0.5s var(--ease-spring) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 80ms + 0.35s);
+}
+
+.doc-tape input {
+  width: min(16rem, 62vw);
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  caret-color: #c2410c;
+}
+
+.doc-tape input::placeholder {
+  color: rgba(43, 36, 24, 0.38);
+}
+
+.doc-tape:focus-within {
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.35),
+    0 0 0 2px var(--accent);
+}
+
+.doc-tape--big {
+  align-self: flex-start;
+  font-size: 1.35rem;
+  animation-delay: 0.05s;
+}
+
+.doc-rename {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+/* ---------- Sello de caducidad ---------- */
+
+.doc-stamp {
+  --stamp: var(--ok);
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  margin: 0.1rem 0.15rem 0 0;
+  padding: 0.28rem 0.55rem 0.22rem;
+  border: 2.5px solid var(--stamp);
+  border-radius: 7px;
+  outline: 1px solid color-mix(in srgb, var(--stamp) 70%, transparent);
+  outline-offset: 2px;
+  color: var(--stamp);
+  font-family: var(--font-ticket);
+  line-height: 1.15;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--stamp) 7%, transparent);
+  transform: rotate(-7deg);
+  animation: doc-stamp-in 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) 0.5s both;
+}
+
+.doc-stamp--soon {
+  --stamp: var(--warn);
+}
+
+.doc-stamp--expired {
+  --stamp: var(--danger);
+}
+
+.doc-stamp__word {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.doc-stamp__date {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Fecha de caducidad y aviso por email ---------- */
+
+.doc-expiry {
+  --status: var(--steel-400);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-m);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.doc-expiry--ok {
+  --status: var(--ok);
+}
+
+.doc-expiry--soon {
+  --status: var(--warn);
+}
+
+.doc-expiry--expired {
+  --status: var(--danger);
+}
+
+.doc-expiry__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.9rem;
+}
+
+.doc-expiry__date {
+  flex: 0 1 12rem;
+}
+
+.doc-expiry__date .field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.doc-expiry__date input {
+  font-family: var(--font-gauge);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+}
+
+.doc-expiry__countdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  margin: 0;
+  font-family: var(--font-gauge);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--status);
+}
+
+.doc-expiry__saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--text-3);
+  animation: fade-up 0.3s var(--ease-out) both;
+}
+
+.doc-expiry__saved--saved {
+  color: var(--ok);
+}
+
+.doc-expiry__late {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--danger);
+}
+
+.doc-reminder {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.doc-reminder__bell {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-3);
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+.doc-reminder--on .doc-reminder__bell {
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+}
+
+/* Suena al activarlo (key distinta en cada activación: la animación vuelve a empezar) */
+.doc-reminder--on .doc-reminder__bell svg {
+  transform-origin: 50% 15%;
+  animation: bell-ring 0.9s ease both;
+}
+
+.doc-reminder__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.doc-reminder__text strong {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.doc-switch {
+  position: relative;
+  flex: none;
+  width: 50px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  background: #0e1113;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.doc-switch[aria-checked='true'] {
+  border-color: var(--accent-lo);
+  background: linear-gradient(180deg, var(--accent-lo), var(--accent));
+}
+
+.doc-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.doc-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--metal-chrome);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transition: translate 0.35s var(--ease-spring);
+}
+
+.doc-switch[aria-checked='true'] .doc-switch__knob {
+  translate: 20px 0;
+}
+
+.doc-switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Hojas: fotos tipo polaroid y PDF ---------- */
+
+.doc-sheets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
+  gap: 1rem 0.8rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.doc-sheet {
+  --tilt: -1.8deg;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  animation: sheet-in 0.6s cubic-bezier(0.2, 1.25, 0.4, 1) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 70ms + 0.3s);
+}
+
+.doc-sheet:nth-child(3n + 2) {
+  --tilt: 1.4deg;
+}
+
+.doc-sheet:nth-child(3n) {
+  --tilt: -0.6deg;
+}
+
+.doc-sheet__paper {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+  transform: rotate(var(--tilt));
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.35s ease;
+}
+
+@media (hover: hover) {
+  .doc-sheet__paper:hover {
+    transform: rotate(0deg) translateY(-5px) scale(1.04);
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.55);
+  }
+}
+
+.doc-sheet__paper:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Polaroid: marco blanco y la foto "revelándose" al aparecer */
+.doc-sheet--photo .doc-sheet__paper {
+  padding: 5px 5px 14px;
+  background: #fbfaf6;
+}
+
+.doc-sheet--photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 1px;
+  object-fit: cover;
+  background: #2b3036;
+  animation: develop 1.6s ease-out 0.4s both;
+}
+
+/* PDF: hoja de papel con la esquina doblada */
+.doc-sheet--pdf .doc-sheet__paper {
+  align-content: start;
+  gap: 0.4rem;
+  padding: 1.1rem 0.7rem 0.6rem;
+  background: var(--paper);
+  clip-path: polygon(0 0, 76% 0, 100% 18%, 100% 100%, 0 100%);
+}
+
+.doc-sheet--pdf .doc-sheet__paper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24%;
+  height: 18%;
+  background: linear-gradient(225deg, transparent 50%, #d9cfb2 50%);
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.doc-sheet__pdf {
+  justify-self: start;
+  padding: 0.05rem 0.35rem;
+  border: 2px solid #c2410c;
+  border-radius: 3px;
+  color: #c2410c;
+  font-family: var(--font-ticket);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  transform: rotate(-4deg);
+}
+
+.doc-sheet__lines {
+  width: 100%;
+  height: 3.2rem;
+  background: repeating-linear-gradient(180deg, rgba(28, 39, 64, 0.28) 0 1.5px, transparent 1.5px 9px);
+  mask-image: linear-gradient(90deg, #000 70%, transparent);
+}
+
+.doc-sheet__name {
+  overflow: hidden;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+
+.doc-sheet__remove {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  background: #23272c;
+  color: var(--text-2);
+  box-shadow: var(--shadow-1);
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s var(--ease-spring),
+    color 0.15s ease;
+}
+
+/* Con ratón, la X solo aparece al pasar por encima; en móvil siempre está */
+@media (hover: hover) {
+  .doc-sheet__remove {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  .doc-sheet:hover .doc-sheet__remove,
+  .doc-sheet__remove:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .doc-sheet__remove:hover {
+    color: var(--danger);
+  }
+}
+
+.doc-sheet__confirm {
+  position: absolute;
+  inset: 0 0 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 4px;
+  background: rgba(12, 14, 16, 0.88);
+  font-weight: 600;
+  font-size: 0.88rem;
+  animation: fade-up 0.2s var(--ease-out) both;
+}
+
+/* Subiendo: aro de progreso */
+.doc-sheet--uploading {
+  align-items: center;
+}
+
+.doc-progress {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 1px dashed color-mix(in srgb, var(--tone) 50%, transparent);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.doc-progress span {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, #1b1f23 79%, transparent 80% 100%),
+    conic-gradient(var(--tone) calc(var(--p, 0) * 1turn), rgba(255, 255, 255, 0.08) 0);
+  font-family: var(--font-gauge);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--tone);
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+
+/* Añadir: hueco con borde discontinuo */
+.doc-add {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0.5rem;
+  border: 2px dashed color-mix(in srgb, var(--tone) 45%, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--tone) 5%, transparent);
+  color: color-mix(in srgb, var(--tone) 80%, var(--text));
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.25s var(--ease-spring);
+}
+
+.doc-add:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .doc-add:hover {
+    border-color: var(--tone);
+    background: color-mix(in srgb, var(--tone) 11%, transparent);
+    transform: translateY(-3px);
+  }
+
+  .doc-add:hover .doc-add__icon svg {
+    animation: hub-bounce 0.6s ease;
+  }
+}
+
+.doc-add:active {
+  transform: scale(0.97);
+}
+
+.doc-add__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+
+.doc-add__text {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.12rem;
+  line-height: 1.05;
+}
+
+/* Arrastrando un archivo encima de la carpeta */
+.doc-folder--drag {
+  border-color: var(--tone);
+  box-shadow:
+    var(--edge-light),
+    0 0 0 3px color-mix(in srgb, var(--tone) 30%, transparent),
+    var(--shadow-2);
+}
+
+.doc-folder__drop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--bg-0) 82%, transparent);
+  color: var(--tone);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: fade-up 0.2s var(--ease-out) both;
+}
+
+/* ---------- Nueva sección ---------- */
+
+.doc-new {
+  border-style: dashed;
+}
+
+.doc-new-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.1rem 1rem;
+  animation: folder-in 0.45s var(--ease-out) both;
+}
+
+.doc-new-form__label {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  color: var(--accent-hi);
+}
+
+.doc-new-form__ideas .chip {
+  animation: icon-pop 0.4s var(--ease-spring) both;
+}
+
+.doc-new-form__ideas .chip:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.doc-new-form__ideas .chip:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.doc-new-form__ideas .chip:nth-child(4) {
+  animation-delay: 0.15s;
+}
+.doc-new-form__ideas .chip:nth-child(5) {
+  animation-delay: 0.2s;
+}
+
+.doc-footnote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+  text-align: center;
+}
+
+/* ---------- Invitado ---------- */
+
+.doc-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.doc-preview__card {
+  --tone: #7dbbff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.95rem 0.5rem 0.8rem;
+  border-top: 3px solid var(--tone);
+  text-align: center;
+  animation: folder-in 0.55s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 0.15s);
+}
+
+.doc-preview__card.doc-folder--inspection {
+  --tone: #c3a6ff;
+}
+
+.doc-preview__card.doc-folder--insurance {
+  --tone: #ff9a52;
+}
+
+.doc-preview__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  color: var(--tone);
+  animation: float 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -1s);
+}
+
+.doc-preview__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.doc-preview__lock {
+  color: var(--text-3);
+}
+
+.doc-guest {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 1.25rem 1.1rem;
+}
+
+.doc-guest__lock {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+  animation: lock-shake 2.8s ease-in-out 1s infinite;
+}
+
+.doc-guest__title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.doc-guest__hand {
+  margin: -0.35rem 0 0;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--accent-hi);
+  transform: rotate(-1.5deg);
+}
+
+.doc-guest__perks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.doc-guest__perks li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.95rem;
+}
+
+.doc-guest__perks svg {
+  flex: none;
+  color: var(--accent);
+}
+
+/* ---------- Visor de fotos ---------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: calc(1rem + var(--safe-top)) 0.75rem calc(1rem + var(--safe-bottom));
+  background: rgba(6, 8, 10, 0.86);
+  backdrop-filter: blur(6px);
+  animation: fade-in-plain 0.25s ease both;
+}
+
+.lightbox__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(94vw, 900px);
+  margin: 0;
+  animation: zoom-in 0.4s var(--ease-spring) both;
+}
+
+.lightbox__figure img {
+  display: block;
+  max-width: 100%;
+  max-height: 76dvh;
+  margin: 0 auto;
+  border: 6px solid #fbfaf6;
+  border-radius: 4px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  object-fit: contain;
+}
+
+.lightbox__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lightbox__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.35rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Animaciones ---------- */
+
+@keyframes write-in {
+  to {
+    clip-path: inset(-10% -2% -10% 0);
+  }
+}
+
+@keyframes folder-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+}
+
+@keyframes tab-up {
+  from {
+    opacity: 0;
+    transform: translateY(70%) scaleY(0.4);
+  }
+}
+
+@keyframes tape-on {
+  from {
+    opacity: 0;
+    transform: rotate(-9deg) translate(-10px, -6px) scale(1.08);
+  }
+}
+
+@keyframes doc-stamp-in {
+  0% {
+    opacity: 0;
+    transform: rotate(-18deg) scale(2.3);
+  }
+  55% {
+    opacity: 1;
+    transform: rotate(-5deg) scale(0.9);
+  }
+  75% {
+    transform: rotate(-8deg) scale(1.04);
+  }
+  100% {
+    transform: rotate(-7deg) scale(1);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translate(-14px, 22px) rotate(-10deg);
+  }
+}
+
+/* Como una polaroid: empieza blanca y sin color */
+@keyframes develop {
+  from {
+    filter: brightness(2.4) saturate(0) contrast(0.6) blur(1.5px);
+  }
+  55% {
+    filter: brightness(1.25) saturate(0.6) contrast(0.9) blur(0);
+  }
+}
+
+@keyframes dial-fill {
+  from {
+    stroke-dashoffset: var(--dash);
+  }
+}
+
+@keyframes bell-ring {
+  10% {
+    transform: rotate(18deg);
+  }
+  25% {
+    transform: rotate(-16deg);
+  }
+  40% {
+    transform: rotate(11deg);
+  }
+  55% {
+    transform: rotate(-7deg);
+  }
+  70% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes pulse-soft {
+  50% {
+    transform: scale(0.94);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes fade-in-plain {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes lock-shake {
+  0%,
+  80%,
+  100% {
+    transform: rotate(0);
+  }
+  84% {
+    transform: rotate(-12deg);
+  }
+  88% {
+    transform: rotate(10deg);
+  }
+  92% {
+    transform: rotate(-6deg);
+  }
+  96% {
+    transform: rotate(3deg);
+  }
+}

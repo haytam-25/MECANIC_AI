@@ -214,3 +214,39 @@ export interface BasketItem {
   text: string
   createdAt: string
 }
+
+/**
+ * Secciones de la documentación de un coche: las tres fijas (permiso de circulación, ITV y seguro) y las que crea el
+ * usuario (CUSTOM, con su título).
+ */
+export type DocumentKind = 'CIRCULATION' | 'INSPECTION' | 'INSURANCE' | 'CUSTOM'
+
+/** Foto o PDF guardado (sin el contenido: se ve con documentFileUrl). */
+export interface DocumentFile {
+  id: string
+  name: string
+  /** image/jpeg, image/png, image/webp o application/pdf. */
+  contentType: string
+  size: number
+  createdAt: string
+}
+
+export interface DocumentSection {
+  id: string
+  vehicleId: string
+  kind: DocumentKind
+  /** Solo en las secciones propias. */
+  title: string | null
+  /** Fecha de caducidad (AAAA-MM-DD): solo ITV y seguro. */
+  expiresOn: string | null
+  /** Aviso por email cada semana durante los dos meses antes de que caduque. */
+  reminder: boolean
+  files: DocumentFile[]
+  createdAt: string
+}
+
+export interface DocumentSectionUpdate {
+  title: string | null
+  expiresOn: string | null
+  reminder: boolean
+}

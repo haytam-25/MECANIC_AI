@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -32,12 +35,20 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(new ApiError("VALIDATION", message));
 	}
 
-	@ExceptionHandler({ HttpMessageNotReadableException.class, MissingServletRequestParameterException.class })
+	@ExceptionHandler({ HttpMessageNotReadableException.class, MissingServletRequestParameterException.class,
+			MissingServletRequestPartException.class, MultipartException.class })
 	ResponseEntity<ApiError> handleBadRequest(Exception ex) {
 		return ResponseEntity.badRequest().body(new ApiError("BAD_REQUEST", "Petición mal formada"));
 	}
 
-	@ExceptionHandler({ MethodArgumentTypeMismatchException.class, NoResourceFoundException.class })
+	/** Archivo de la documentación por encima de spring.servlet.multipart.max-file-size. */
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	ResponseEntity<ApiError> handleTooLarge(MaxUploadSizeExceededException ex) {
+		return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+			.body(new ApiError("FILE_TOO_LARGE", "El archivo pesa demasiado (máximo 5 MB)."));
+	}
+
+		@ExceptionHandler({ MethodArgumentTypeMismatchException.class, NoResourceFoundException.class })
 	ResponseEntity<ApiError> handleNotFound(Exception ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError("NOT_FOUND", "No encontrado"));
 	}

@@ -88,3 +88,41 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   if (res.status === 204) return undefined as T
   return (await res.json()) as T
 }
+
+/**
+ * Sube un formulario con archivos (multipart) avisando del progreso (0 a 1), que fetch no sabe dar. Mismos errores que
+ * {@link api}.
+ */
+export function upload<T>(path: string, form: FormData, onProgress?: (fraction: number) => void): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', path)
+    for (const [name, value] of Object.entries(CSRF_HEADER)) xhr.setRequestHeader(name, value)
+    xhr.setRequestHeader('Accept', 'application/json')
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(event.loaded / event.total)
+    }
+    xhr.onload = () => {
+      let body: unknown = null
+      try {
+        body = xhr.responseText ? JSON.parse(xhr.responseText) : null
+      } catch {
+        // La respuesta no era JSON (p. ej. el 413 de nginx)
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(body as T)
+        return
+      }
+      const error = body as Partial<ApiErrorBody> | null
+      if (typeof error?.message === 'string') {
+        reject(new ApiError(xhr.status, error.code ?? 'ERROR', error.message, error.usage))
+      } else if (xhr.status === 413) {
+        reject(new ApiError(413, 'FILE_TOO_LARGE', 'El archivo pesa demasiado (máximo 5 MB).'))
+      } else {
+        reject(new ApiError(xhr.status, `HTTP_${xhr.status}`, 'Algo ha fallado. Inténtalo de nuevo.'))
+      }
+    }
+    xhr.onerror = () => reject(networkError())
+    xhr.send(form)
+  })
+}

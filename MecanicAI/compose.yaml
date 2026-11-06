@@ -37,6 +37,13 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:?Define GEMINI_API_KEY en .env}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      # Enlaces de los emails y correo saliente para los avisos de la ITV y el seguro (sin MAIL_HOST no se envían)
+      PUBLIC_URL: https://${DOMAIN}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-MecanicAI <avisos@${DOMAIN}>}
     depends_on:
       db:
         condition: service_healthy

@@ -6,6 +6,7 @@ import { ToastProvider } from './context/ToastProvider.tsx'
 import { BasketPage } from './pages/BasketPage.tsx'
 import { ChatRoute } from './pages/ChatRoute.tsx'
 import { ConversationsPage } from './pages/ConversationsPage.tsx'
+import { DocumentsPage } from './pages/DocumentsPage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
 import { NotFoundPage } from './pages/NotFoundPage.tsx'
 import { RepairFormPage } from './pages/RepairFormPage.tsx'
@@ -21,7 +22,7 @@ export default function App() {
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
-              {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico, su diario y su cesta */}
+              {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico, su diario, su cesta y su documentación */}
               <Route path="coche/:vehicleId">
                 <Route index element={<VehiclePage />} />
                 <Route path="consultas" element={<ConversationsPage />} />
@@ -32,6 +33,7 @@ export default function App() {
                 {/* …/reparaciones/nueva o …/reparaciones/<id> (para corregirla) */}
                 <Route path="reparaciones/:repairId" element={<RepairFormPage />} />
                 <Route path="cesta" element={<BasketPage />} />
+                <Route path="documentos" element={<DocumentsPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>

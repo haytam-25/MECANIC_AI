@@ -5,11 +5,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,6 +37,9 @@ import com.mecanicai.auth.SessionCookies;
 import com.mecanicai.auth.SessionService;
 import com.mecanicai.basket.BasketController;
 import com.mecanicai.basket.BasketService;
+import com.mecanicai.document.DocumentController;
+import com.mecanicai.document.DocumentService;
+import com.mecanicai.document.DocumentService.DocumentFile;
 import com.mecanicai.maintenance.HealthReportController;
 import com.mecanicai.maintenance.HealthReportService;
 import com.mecanicai.maintenance.HealthReportService.ReportResult;
@@ -49,7 +55,7 @@ import com.mecanicai.vehicle.VehicleService;
  */
 // Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
 @WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class,
-		RepairController.class, BasketController.class },
+		RepairController.class, BasketController.class, DocumentController.class },
 		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
 				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
@@ -82,6 +88,9 @@ class SecurityRulesTest {
 
 	@MockitoBean
 	BasketService basket;
+
+	@MockitoBean
+	DocumentService documents;
 
 	@MockitoBean
 	SessionService sessions;
@@ -239,6 +248,38 @@ class SecurityRulesTest {
 			.header(CsrfHeaderFilter.HEADER, "1")
 			.contentType("application/json")
 			.content("{\"ids\": []}")).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void documentsAreOnlyForAccounts() throws Exception {
+		UUID section = UUID.randomUUID();
+		MockMultipartFile pdf = new MockMultipartFile("file", "itv.pdf", "application/pdf", "%PDF-1.7".getBytes());
+		mvc.perform(get("/api/documents")).andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/documents/files/" + UUID.randomUUID())).andExpect(status().isUnauthorized());
+		mvc.perform(multipart("/api/documents/sections/" + section + "/files").file(pdf)
+			.header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
+
+		Cookie session = session(UUID.randomUUID());
+		given(documents.list(any())).willReturn(List.of());
+		mvc.perform(get("/api/documents").cookie(session)).andExpect(status().isOk());
+
+		// Subir es una petición que modifica datos: también exige la cabecera CSRF
+		mvc.perform(multipart("/api/documents/sections/" + section + "/files").file(pdf).cookie(session))
+			.andExpect(status().isForbidden());
+		given(documents.addFile(any(), any(), any()))
+			.willReturn(new DocumentFile(UUID.randomUUID(), "itv.pdf", "application/pdf", 8, Instant.now()));
+		mvc.perform(multipart("/api/documents/sections/" + section + "/files").file(pdf)
+			.cookie(session)
+			.header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isOk()).andExpect(jsonPath("$.name").value("itv.pdf"));
+	}
+
+	@Test
+	void aDocumentSectionNeedsAKnownKind() throws Exception {
+		mvc.perform(post("/api/documents/sections").cookie(session(UUID.randomUUID()))
+			.header(CsrfHeaderFilter.HEADER, "1")
+			.contentType("application/json")
+			.content("{\"vehicleId\": \"%s\", \"kind\": \"PASAPORTE\"}".formatted(UUID.randomUUID())))
+			.andExpect(status().isBadRequest());
 	}
 
 	private Cookie session(UUID userId) {

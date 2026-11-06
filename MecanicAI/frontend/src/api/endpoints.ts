@@ -1,5 +1,5 @@
 import { toAiSpec, vehicleKey } from '../lib/vehicle.ts'
-import { api } from './http.ts'
+import { api, upload } from './http.ts'
 import { postStream, type OnDelta } from './sse.ts'
 import type {
   BasketItem,
@@ -8,6 +8,10 @@ import type {
   ChatMessage,
   ConversationDetail,
   ConversationSummary,
+  DocumentFile,
+  DocumentKind,
+  DocumentSection,
+  DocumentSectionUpdate,
   EngineSuggestions,
   MaintenancePlan,
   Me,
@@ -133,3 +137,25 @@ export const streamGuest = (
   signal: AbortSignal,
 ): Promise<StreamDone> =>
   postStream('/api/guest/chat', { vehicle: toAiSpec(vehicle), history: toTurns(history), message }, onDelta, signal)
+
+// Documentación (solo con cuenta)
+export const fetchDocuments = () => api<DocumentSection[]>('/api/documents')
+/** Las secciones fijas se crean una vez por coche: si ya existe, el servidor devuelve la que hay. */
+export const createDocumentSection = (vehicleId: string, kind: DocumentKind, title?: string) =>
+  api<DocumentSection>('/api/documents/sections', { method: 'POST', body: { vehicleId, kind, title } })
+export const updateDocumentSection = (id: string, update: DocumentSectionUpdate) =>
+  api<DocumentSection>(`/api/documents/sections/${id}`, { method: 'PUT', body: update })
+export const deleteDocumentSection = (id: string) => api<void>(`/api/documents/sections/${id}`, { method: 'DELETE' })
+/** Dirección para ver el archivo (en una etiqueta img o en otra pestaña). */
+export const documentFileUrl = (id: string) => `/api/documents/files/${id}`
+export const deleteDocumentFile = (id: string) => api<void>(documentFileUrl(id), { method: 'DELETE' })
+export function uploadDocumentFile(
+  sectionId: string,
+  file: Blob,
+  name: string,
+  onProgress?: (fraction: number) => void,
+): Promise<DocumentFile> {
+  const form = new FormData()
+  form.append('file', file, name)
+  return upload<DocumentFile>(`/api/documents/sections/${sectionId}/files`, form, onProgress)
+}

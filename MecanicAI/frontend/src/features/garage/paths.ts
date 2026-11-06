@@ -1,4 +1,7 @@
-/** Rutas de cada coche del garaje: /coche/:id, sus consultas, su informe médico, su Historial de reparaciones y su cesta. */
+/**
+ * Rutas de cada coche del garaje: /coche/:id, sus consultas, su informe médico, su Historial de reparaciones, su cesta
+ * y su documentación.
+ */
 export const carPath = (vehicleId: string) => `/coche/${vehicleId}`
 export const chatsPath = (vehicleId: string) => `/coche/${vehicleId}/consultas`
 /** Consulta guardada, o 'nuevo' para empezar una. */
@@ -8,3 +11,4 @@ export const repairsPath = (vehicleId: string) => `/coche/${vehicleId}/reparacio
 /** Reparación del diario para corregirla, o 'nueva' para apuntar una. */
 export const repairPath = (vehicleId: string, repairId: string) => `/coche/${vehicleId}/reparaciones/${repairId}`
 export const basketPath = (vehicleId: string) => `/coche/${vehicleId}/cesta`
+export const documentsPath = (vehicleId: string) => `/coche/${vehicleId}/documentos`

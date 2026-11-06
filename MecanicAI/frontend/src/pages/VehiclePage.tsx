@@ -4,7 +4,9 @@ import { Icon, type IconName } from '../components/Icon.tsx'
 import { useSession } from '../context/session.ts'
 import { useBasket } from '../features/basket/useBasket.ts'
 import { CarPlate } from '../features/garage/CarPlate.tsx'
-import { basketPath, chatsPath, repairsPath, reportPath } from '../features/garage/paths.ts'
+import { countFiles, KIND_INFO, countdown, nextExpiry } from '../features/documents/documents.ts'
+import { useDocuments } from '../features/documents/useDocuments.ts'
+import { basketPath, chatsPath, documentsPath, repairsPath, reportPath } from '../features/garage/paths.ts'
 import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import { formatDate } from '../features/repairs/diary.ts'
 import { useRepairs } from '../features/repairs/useRepairs.ts'
@@ -14,7 +16,7 @@ import './pages.css'
 
 /**
  * Un coche del garaje: desde aquí se abre el chat con el mecánico (sus consultas), el informe médico, el diario de
- * reparaciones o la cesta de la compra.
+ * reparaciones, la cesta de la compra o la documentación.
  */
 export function VehiclePage() {
   const { me, conversations } = useSession()
@@ -22,6 +24,7 @@ export function VehiclePage() {
   const { reports } = useSavedReports()
   const { repairs } = useRepairs()
   const { items } = useBasket()
+  const { sections } = useDocuments()
 
   if (!me) return null
   if (!vehicle) return <Navigate to="/" replace />
@@ -30,6 +33,8 @@ export function VehiclePage() {
   const report = reports?.find((r) => r.vehicleId === vehicle.id)
   const carRepairs = repairs?.filter((r) => r.vehicleId === vehicle.id) ?? []
   const inBasket = items?.filter((i) => i.vehicleId === vehicle.id).length ?? 0
+  const docFiles = sections ? countFiles(sections, vehicle.id) : 0
+  const expiring = sections ? nextExpiry(sections, vehicle.id) : null
 
   return (
     <div className="page page--enter">
@@ -88,16 +93,35 @@ export function VehiclePage() {
               : `${inBasket === 1 ? '1 artículo' : `${inBasket} artículos`} por comprar`
           }
         />
+        <HubCard
+          to={documentsPath(vehicle.id)}
+          icon="folder"
+          tone="docs"
+          count={docFiles}
+          title="Documentación"
+          text={documentsSummary(docFiles, expiring)}
+        />
       </nav>
     </div>
   )
+}
+
+/** "2 documentos · la ITV caduca en 45 días", o qué se puede guardar si aún no hay nada. */
+function documentsSummary(files: number, expiring: ReturnType<typeof nextExpiry>): string {
+  const parts: string[] = []
+  if (files > 0) parts.push(files === 1 ? '1 documento' : `${files} documentos`)
+  if (expiring?.expiresOn && expiring.kind !== 'CUSTOM') {
+    const info = KIND_INFO[expiring.kind]
+    parts.push(`${info.title}: ${countdown(expiring.expiresOn, info.verb)}`)
+  }
+  return parts.length > 0 ? parts.join(' · ') : 'Permiso de circulación, ITV y seguro, siempre a mano'
 }
 
 interface HubCardProps {
   to: string
   icon: IconName
   /** Color de la sección: cada una tiene el suyo para encontrarla de un vistazo. */
-  tone: 'chat' | 'report' | 'repairs' | 'basket'
+  tone: 'chat' | 'report' | 'repairs' | 'basket' | 'docs'
   /** Cuántas cosas hay dentro (se muestra en el icono si hay alguna). */
   count?: number
   title: string
