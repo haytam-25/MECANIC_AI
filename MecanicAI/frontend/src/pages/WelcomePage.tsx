@@ -168,7 +168,7 @@ export function WelcomePage() {
           </p>
         </details>
         <details>
-          <summary>¿Sustituye a un taller?</summary>
+          <summary>¿MecanicAI sustituye a un taller?</summary>
           <p>
             No. Te da una orientación para entender qué le pasa a tu coche, saber si es urgente y llegar al taller sabiendo
             de qué hablar. Una avería solo se confirma revisando el coche en persona.
