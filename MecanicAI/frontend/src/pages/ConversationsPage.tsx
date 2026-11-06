@@ -13,14 +13,7 @@ import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import { relativeDay } from '../lib/format.ts'
 import './pages.css'
 
-/** Preguntas típicas: abren una consulta nueva con el texto ya escrito, para completarlo y enviarlo. */
-const SUGGESTIONS = [
-  { label: 'Ruido al frenar', draft: 'Me hace un ruido al frenar, ¿qué puede ser?' },
-  { label: 'Testigo encendido', draft: 'Se me ha encendido un testigo en el cuadro: ' },
-  { label: 'Cambio de aceite', draft: '¿Cada cuánto le toca el cambio de aceite y qué aceite lleva?' },
-  { label: 'Le cuesta arrancar', draft: 'Por las mañanas le cuesta arrancar, ¿qué reviso primero?' },
-  { label: 'Vibra el volante', draft: 'Noto vibraciones en el volante al ir rápido, ¿qué puede ser?' },
-]
+
 
 /** Chat con el mecánico de un coche: sus consultas anteriores y el botón para empezar una nueva. */
 export function ConversationsPage() {
@@ -65,20 +58,6 @@ export function ConversationsPage() {
         <Link to={chatPath(vehicle.id, 'nuevo')} className="btn btn--primary btn--block">
           <Icon name="plus" size={20} /> Nueva consulta
         </Link>
-        <div className="ask__ideas">
-          <span className="ask__label">
-            <Icon name="sparkle" size={14} /> Ideas rápidas
-          </span>
-          <ul className="ask__chips">
-            {SUGGESTIONS.map((idea) => (
-              <li key={idea.label}>
-                <Link to={chatPath(vehicle.id, 'nuevo')} state={{ draft: idea.draft }} className="chip chip--button">
-                  {idea.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
       <section className="recent">
