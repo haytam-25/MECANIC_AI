@@ -104,6 +104,8 @@
   background: none;
   color: var(--text-3);
   font-size: 0.8rem;
+  /* Aparece al terminar de escribirse la respuesta */
+  animation: fade-in 0.4s ease both;
 }
 
 /* Solo con ratón: en móvil el :hover se queda "pegado" tras tocar */
@@ -123,9 +125,9 @@
   animation: dots 1.2s steps(4, end) infinite;
 }
 
-/* Cursor parpadeante al final de la respuesta que está llegando */
-.msg--streaming .md > :last-child::after {
-  content: '';
+/* Cursor tras la última letra de la respuesta que se está escribiendo. Empieza visible: se vuelve a crear a menudo
+   (al pasar a otro párrafo) y así no desaparece mientras escribe; solo late cuando espera al siguiente trozo */
+.md .caret {
   display: inline-block;
   width: 0.5em;
   height: 1em;
@@ -133,7 +135,7 @@
   vertical-align: -0.12em;
   border-radius: 1px;
   background: var(--accent);
-  animation: blink 1s steps(2, start) infinite;
+  animation: caret 1.1s ease-in-out infinite;
 }
 
 .suggestions {
@@ -407,6 +409,18 @@
   from {
     opacity: 0;
     transform: translateY(6px);
+  }
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
   }
 }
 

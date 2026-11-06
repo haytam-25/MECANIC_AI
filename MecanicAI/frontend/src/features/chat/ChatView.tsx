@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { memo, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import type { ChatMessage, VehicleSpec } from '../../api/types.ts'
@@ -78,6 +78,9 @@ export function ChatView(props: ChatViewProps) {
 
   const busy = streamingText !== null
   const engine = engineLabel(vehicle)
+  // La respuesta en curso va al final de la lista con la clave que tendrá al terminar: así no se vuelve a montar
+  // (ni repite la animación de entrada) cuando acaba de escribirse
+  const thread: ChatMessage[] = busy ? [...messages, { role: 'assistant', content: streamingText }] : messages
 
   return (
     <div className="chat">
@@ -117,24 +120,17 @@ export function ChatView(props: ChatViewProps) {
             </div>
           </article>
 
-          {messages.map((message, index) => (
-            <MessageItem key={message.id ?? `m-${index}`} message={message} />
-          ))}
-
-          {streamingText !== null && (
-            <article className="msg msg--ai msg--streaming" aria-live="polite" aria-busy="true">
-              <Wheel size={30} className="msg__avatar" spinning={streamingText === ''} />
-              <div className="msg__body">
-                {streamingText === '' ? (
-                  <p className="typing">
-                    Revisando tu {vehicle.model}
-                    <span className="typing__dots" aria-hidden="true" />
-                  </p>
-                ) : (
-                  <MarkdownText text={streamingText} />
-                )}
-              </div>
-            </article>
+          {thread.map((message, index) =>
+            message.role === 'user' ? (
+              <UserMessage key={`user-${index}`} text={message.content} />
+            ) : (
+              <AiMessage
+                key={`ai-${index}`}
+                text={message.content}
+                streaming={index === messages.length}
+                model={vehicle.model}
+              />
+            ),
           )}
 
           {failure && (
@@ -166,24 +162,42 @@ export function ChatView(props: ChatViewProps) {
   )
 }
 
-function MessageItem({ message }: { message: ChatMessage }) {
-  if (message.role === 'user') {
-    return (
-      <div className="msg msg--user">
-        <div className="msg__bubble">{message.content}</div>
-      </div>
-    )
-  }
+// Memorizados: mientras se escribe una respuesta, los mensajes anteriores no se vuelven a procesar en cada frame
+const UserMessage = memo(function UserMessage({ text }: { text: string }) {
   return (
-    <article className="msg msg--ai">
-      <Wheel size={30} className="msg__avatar" />
+    <div className="msg msg--user">
+      <div className="msg__bubble">{text}</div>
+    </div>
+  )
+})
+
+interface AiMessageProps {
+  text: string
+  /** La respuesta se está escribiendo (con el texto vacío, la IA aún no ha empezado). */
+  streaming: boolean
+  /** Modelo del coche, para el aviso mientras la IA empieza a responder. */
+  model: string
+}
+
+const AiMessage = memo(function AiMessage({ text, streaming, model }: AiMessageProps) {
+  const waiting = streaming && text === ''
+  return (
+    <article className="msg msg--ai" aria-live={streaming ? 'polite' : undefined} aria-busy={streaming || undefined}>
+      <Wheel size={30} className="msg__avatar" spinning={waiting} />
       <div className="msg__body">
-        <MarkdownText text={message.content} />
-        <CopyButton text={message.content} />
+        {waiting ? (
+          <p className="typing">
+            Revisando tu {model}
+            <span className="typing__dots" aria-hidden="true" />
+          </p>
+        ) : (
+          <MarkdownText text={text} streaming={streaming} />
+        )}
+        {!streaming && <CopyButton text={text} />}
       </div>
     </article>
   )
-}
+})
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
