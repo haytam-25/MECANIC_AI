@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**The app is live in production at https://mecanicai.org with real users.** Read `MEMORIES.md` (production state, rules for not breaking production, decisions already taken, history), imported here:
+
+@MEMORIES.md
+
 ## Repository layout
 
 The git root holds a single app in `MecanicAI/`. All paths and commands below are relative to `MecanicAI/`.
