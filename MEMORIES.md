@@ -38,9 +38,12 @@ que no se deduce leyendo el código: el estado de producción, las decisiones to
    los documentos **nunca** se envían a la IA.
 5. **SEO**: la web está indexada. nginx solo devuelve la SPA para `/` y `/coche/*`; el resto da 404 a propósito. Una ruta
    nueva de primer nivel necesita su `location` en `frontend/nginx.conf` (ver CLAUDE.md, "Routing gotchas").
-6. **Git y secretos**: no hacer commit, push ni desplegar sin que el usuario lo pida. Los `.env` (raíz = servidor,
-   `backend/.env` = local) tienen claves reales y están en `.gitignore`: nunca subirlos ni copiar sus valores.
-7. **Cuota de IA**: Gemini se usa con la capa gratuita y la comparten invitados y cuentas. Cualquier cambio que
+6. **Commits: los hace siempre el usuario.** Al terminar unos cambios, el agente los deja sin confirmar en el árbol
+   de trabajo, sin `git add`, `git commit` ni `git push`, y termina con un resumen de lo cambiado y un mensaje de
+   commit propuesto en español. Tampoco despliega nada en el servidor.
+7. **Secretos**: los `.env` (raíz = servidor, `backend/.env` = local) tienen claves reales y están en `.gitignore`:
+   nunca subirlos ni copiar sus valores.
+8. **Cuota de IA**: Gemini se usa con la capa gratuita y la comparten invitados y cuentas. Cualquier cambio que
    multiplique las llamadas a la IA (reintentos, prompts más largos, llamadas nuevas) gasta la cuota de todos.
 
 ## Qué es MecanicAI
