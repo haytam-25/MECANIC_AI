@@ -2,6 +2,7 @@ package com.mecanicai.chat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,22 @@ class PromptBuilderTest {
 		assertThat(normalized.getLast()).isEqualTo(AiMessage.user("última pregunta"));
 		assertThat(normalized.stream().mapToInt(m -> m.text().length()).sum())
 			.isLessThanOrEqualTo(PromptBuilder.MAX_HISTORY_CHARS);
+	}
+
+	@Test
+	void manyMessagesOfTheSameRoleCannotSkipTheLimit() {
+		// El historial del invitado lo envía su navegador: 19 mensajes seguidos suyos se unirían en uno solo
+		List<AiMessage> history = new ArrayList<>();
+		for (int i = 0; i < 19; i++) {
+			history.add(AiMessage.user("x".repeat(20_000)));
+		}
+		history.add(AiMessage.user("¿Qué le pasa a mi coche?"));
+
+		List<AiMessage> normalized = PromptBuilder.normalize(history);
+
+		assertThat(normalized).hasSize(1);
+		assertThat(normalized.getFirst().text()).endsWith("¿Qué le pasa a mi coche?")
+			.hasSizeLessThanOrEqualTo(PromptBuilder.MAX_HISTORY_CHARS);
 	}
 
 }

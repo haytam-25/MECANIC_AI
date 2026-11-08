@@ -1,6 +1,6 @@
 package com.mecanicai.maintenance;
 
-import java.util.Locale;
+import com.mecanicai.common.Enums;
 
 /** Tipo de distribución del motor. */
 public enum Timing {
@@ -26,15 +26,7 @@ public enum Timing {
 	}
 
 	public static Timing parse(String raw) {
-		if (raw == null || raw.isBlank()) {
-			return DESCONOCIDA;
-		}
-		try {
-			return valueOf(raw.trim().toUpperCase(Locale.ROOT));
-		}
-		catch (IllegalArgumentException ex) {
-			return DESCONOCIDA;
-		}
+		return Enums.parse(Timing.class, raw).orElse(DESCONOCIDA);
 	}
 
 }

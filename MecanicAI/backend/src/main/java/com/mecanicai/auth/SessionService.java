@@ -33,13 +33,6 @@ public class SessionService {
 
 	/** Si la cuenta del token existe y su inicio de sesión no se ha cerrado. */
 	public boolean isActive(AuthUser user) {
-		if (user.sessionId() == null) {
-			// Token anterior a las sesiones revocables: vale hasta que /api/auth/me lo renueve (con sesión)
-			return jdbc.sql("SELECT EXISTS (SELECT 1 FROM app_user WHERE id = :user)")
-				.param("user", user.id())
-				.query(Boolean.class)
-				.single();
-		}
 		return jdbc.sql("""
 				SELECT EXISTS (SELECT 1 FROM app_user WHERE id = :user)
 					AND NOT EXISTS (SELECT 1 FROM revoked_session WHERE session_id = :session)""")
@@ -54,9 +47,6 @@ public class SessionService {
 	 * diarias mantienen el id). Se recuerda hasta que caduque el último token que pudo emitirse.
 	 */
 	public void revoke(AuthUser user) {
-		if (user.sessionId() == null) {
-			return;
-		}
 		jdbc.sql("""
 				INSERT INTO revoked_session (session_id, expires_at) VALUES (:session, :expiresAt)
 				ON CONFLICT DO NOTHING""")

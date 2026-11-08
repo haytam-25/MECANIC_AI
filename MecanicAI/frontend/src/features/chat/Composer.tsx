@@ -14,7 +14,7 @@ import { Icon } from '../../components/Icon.tsx'
 import { useToast } from '../../context/toast.ts'
 import { useSpeechRecognition } from '../../lib/useSpeechRecognition.ts'
 
-export const MAX_QUESTION = 4000
+const MAX_QUESTION = 4000
 
 interface ComposerProps {
   value: string

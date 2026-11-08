@@ -167,23 +167,37 @@ public class HealthReportService {
 		rateLimiter.check(network, props.limits().guestReportsPerMinute());
 		String vehicleSubject = vehicleId != null ? guestVehicleSubject(guestId, vehicleId) : null;
 		if (vehicleSubject != null && usage.peek(vehicleSubject, 1).remaining() == 0) {
-			return new ReportResult(null, usage.peek(guestSubject(guestId), guest.dailyReports()));
+			return alreadyCounted(guestId);
 		}
 		Reservation byIp = usage.consume(network, guest.dailyReportsPerIp(),
 				"Se ha alcanzado el límite de informes médicos de hoy desde tu conexión. Inicia sesión con Google para seguir.");
+		Reservation byGuest;
 		try {
-			Reservation byGuest = usage.consume(guestSubject(guestId), guest.dailyReports(),
+			byGuest = usage.consume(guestSubject(guestId), guest.dailyReports(),
 					"Ya has hecho tus %d informes médicos gratis de hoy como invitado. Inicia sesión con Google para seguir haciendo informes y tenerlos guardados."
 						.formatted(guest.dailyReports()));
-			if (vehicleSubject != null) {
-				usage.consume(vehicleSubject, 1, "Ese coche ya tiene informe hoy");
-			}
-			return new ReportResult(null, byGuest.usage());
 		}
 		catch (AppException ex) {
 			usage.refund(byIp);
 			throw ex;
 		}
+		if (vehicleSubject != null) {
+			try {
+				usage.consume(vehicleSubject, 1, "Ese coche ya tiene informe hoy");
+			}
+			catch (AppException alreadyCountedMeanwhile) {
+				// Otra petición del mismo coche lo ha contado a la vez: esta no cuenta
+				usage.refund(byGuest);
+				usage.refund(byIp);
+				return alreadyCounted(guestId);
+			}
+		}
+		return new ReportResult(null, byGuest.usage());
+	}
+
+	/** Ese coche del invitado ya tenía informe hoy: no cuenta otra vez. */
+	private ReportResult alreadyCounted(String guestId) {
+		return new ReportResult(null, usage.peek(guestSubject(guestId), props.guest().dailyReports()));
 	}
 
 	private static void validateItems(ReportInput input) {

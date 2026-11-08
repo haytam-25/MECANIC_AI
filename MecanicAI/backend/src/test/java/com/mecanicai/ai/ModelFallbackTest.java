@@ -18,11 +18,13 @@ class ModelFallbackTest {
 
 	private static final Duration COOLDOWN = Duration.ofMinutes(2);
 
+	private static final Duration MAX_TOTAL = Duration.ofMinutes(2);
+
 	private final List<String> tried = new ArrayList<>();
 
 	private Instant now = Instant.parse("2026-10-01T10:00:00Z");
 
-	private final ModelFallback fallback = new ModelFallback(NO_PAUSE, COOLDOWN, () -> now);
+	private final ModelFallback fallback = new ModelFallback(NO_PAUSE, COOLDOWN, MAX_TOTAL, () -> now);
 
 	@Test
 	void usesTheNextModelWhenOneIsSaturated() {
@@ -151,6 +153,17 @@ class ModelFallbackTest {
 		});
 		assertThat(result).isEqualTo("respuesta de a");
 		assertThat(tried).containsExactly("b", "a");
+	}
+
+	@Test
+	void noOtherModelIsTriedOnceTheTimeIsUp() {
+		assertThatThrownBy(() -> fallback.run(List.of("a", "b", "c"), model -> {
+			tried.add(model);
+			// Cada modelo tarda 70 s en fallar: el tercero ya empezaría pasados los 2 minutos
+			now = now.plusSeconds(70);
+			throw new AiException(Kind.UNAVAILABLE, "timeout de " + model);
+		})).hasMessage("timeout de b");
+		assertThat(tried).containsExactly("a", "b");
 	}
 
 }

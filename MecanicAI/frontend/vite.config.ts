@@ -51,8 +51,10 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         // El PDF del diario (jsPDF, ~430 kB) solo se descarga si se usa. html2canvas, DOMPurify y canvg (index.es)
         // son extras de jsPDF para convertir HTML y SVG que la app no usa
-        // Las guías y la imagen para redes sociales son para buscadores y enlaces compartidos: no hacen falta en la app
+        // Las guías y la imagen para redes sociales son para buscadores y enlaces compartidos: no hacen falta en la app.
+        // Tampoco las letras del alfabeto vietnamita de Barlow (si alguna vez hicieran falta, se descargan entonces)
         globIgnores: [
+          '**/*-vietnamese-*.woff2',
           '**/repairPdf-*.js',
           '**/html2canvas-*.js',
           '**/purify.es-*.js',

@@ -12,7 +12,7 @@ concreto.
 
 ## Funcionalidades
 
-- **Asistente del coche** en 4 pasos con buscador. Catálogo de ~57 marcas y ~900 modelos del mercado español con sus
+- **Asistente del coche** en 4 pasos con buscador. Catálogo de ~57 marcas y ~690 modelos del mercado español con sus
   años de venta. Las **motorizaciones las sugiere la IA** para ese modelo y año y se guardan en caché (cada combinación
   se consulta una sola vez). Si el coche no está, se puede escribir a mano o elegir "no sé el motor". Al final se
   puede indicar la **matrícula** (opcional): distingue el coche en el garaje y sale en el PDF del historial de
@@ -172,7 +172,8 @@ prueba automáticamente el siguiente. Se cambian con variables de entorno (ver `
   se te queda corto, activa la facturación del proyecto (los modelos Flash cuestan céntimos por conversación).
 - La disponibilidad de cada modelo cambia a lo largo del día (errores 503 "high demand" o 429 sin cuota). Cuando un
   modelo falla, la app lo deja **2 minutos al final de la lista** y responde con el siguiente, sin reintentos que hagan
-  esperar al usuario. Medido el 1 de octubre de 2026 con la misma pregunta: con el orden anterior (`gemini-3.6-flash`
+  esperar al usuario. Un modelo que Google ha retirado (error 404) también se salta, y el log pide quitarlo de la
+  variable. Pasados 2 minutos desde la pregunta no se prueba ningún modelo más. Medido el 1 de octubre de 2026 con la misma pregunta: con el orden anterior (`gemini-3.6-flash`
   primero, sin cuota, y `3.7`/`3.8` saturados) la respuesta empezaba a los 16 s; con `gemini-3.5-flash-lite` primero y
   razonamiento mínimo, en 1 s (4 s en total).
 - Uso de los datos: fuera de Europa, en la capa gratuita Google puede usar las consultas para mejorar sus productos.
@@ -291,6 +292,9 @@ flowchart LR
 cd backend && ./mvnw test          # catálogo, prompt, respuestas de la IA, cambio de modelo, seguridad
 cd frontend && npm run lint && npm run build
 ```
+
+Lo mismo se comprueba solo en GitHub en cada push a `main` y en cada pull request
+(`.github/workflows/ci.yml`). Es solo una comprobación: no despliega nada.
 
 ## Despliegue en internet, paso a paso
 
@@ -424,15 +428,39 @@ España) una copia comprimida de la base de datos en la carpeta `backups/` del s
 pg_dump falla, no se deja una copia a medias y el error sale en `docker compose logs backup`. Los scripts están en
 `backup/`.
 
-Las copias están en el mismo servidor: si se pierde el disco, se pierden con él. **Bájalas a tu ordenador de vez en
-cuando** (por ejemplo, una vez a la semana):
+Las copias llevan todos los datos personales (también los documentos), así que **solo las puede leer root** (permisos
+600): si en el servidor no entras como root, antepón `sudo` a los comandos que las leen (restaurar, copiarlas). Las
+hechas antes de este cambio se cierran igual con `sudo chmod 600 backups/*.sql.gz`.
+
+**Copia fuera del servidor**: las copias están en el mismo disco que la base de datos; si se pierde el servidor, se
+pierden con él. Guarda otra copia **cifrada** en otro sitio, por ejemplo con [rclone](https://rclone.org) en el
+almacenamiento de otro proveedor (Hetzner Storage Box, Backblaze B2…) con un remoto `crypt` encima, cuya contraseña
+guardes fuera del servidor:
 
 ```bash
-rsync -av root@IP-DEL-SERVIDOR:/opt/mecanicai/MecanicAI/backups/ ~/copias-mecanicai/
+sudo rclone config   # una vez: el remoto del proveedor y, encima, uno de tipo "crypt" (aquí, copias-cifradas)
+sudo crontab -e      # y añade esta línea (a las 04:30, después de la copia de las 04:00):
+30 4 * * * rclone copy /opt/mecanicai/MecanicAI/backups/ copias-cifradas:mecanicai --include 'mecanicai-*.sql.gz' && rclone delete --min-age 14d copias-cifradas:mecanicai
 ```
 
-Al restaurar una copia se sustituye todo lo que haya en la base de datos (`--clean`): para recuperar una cuenta
-concreta, restáurala primero en una base de datos de prueba.
+El `rclone delete` borra allí las de más de 14 días, que es lo que promete la política de privacidad. Ese proveedor
+pasa a ser un encargado del tratamiento: añádelo en la sección 5 de `frontend/public/privacidad.html`. Si prefieres
+bajarlas a tu ordenador, usa `rsync -av --delete root@IP-DEL-SERVIDOR:/opt/mecanicai/MecanicAI/backups/
+~/copias-mecanicai/` (con `--delete` tu copia también se queda en 14 días).
+
+**Prueba de restauración** (de vez en cuando, sin tocar la base de datos real): restaura la última copia en un
+PostgreSQL de usar y tirar y comprueba que están las cuentas.
+
+```bash
+docker run -d --name prueba-copia -e POSTGRES_USER=mecanicai -e POSTGRES_DB=mecanicai -e POSTGRES_PASSWORD=prueba docker.io/library/postgres:17-alpine
+sleep 10   # a que arranque
+sudo gunzip -c "$(ls -t backups/mecanicai-*.sql.gz | head -1)" | docker exec -i prueba-copia psql -q -v ON_ERROR_STOP=1 -U mecanicai mecanicai
+docker exec prueba-copia psql -U mecanicai -c "SELECT count(*) AS cuentas FROM app_user"
+docker rm -f prueba-copia
+```
+
+Al restaurar una copia de verdad se sustituye todo lo que haya en la base de datos (`--clean`): para recuperar una
+cuenta concreta, restáurala primero en una base de datos de prueba como la de arriba.
 `DB_PASSWORD` solo se aplica al crear la base de datos la primera vez: si la cambias después en `.env`, el backend
 no podrá conectar.
 

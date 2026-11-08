@@ -67,6 +67,9 @@ public class ChatStreamer implements DisposableBean {
 
 	public SseEmitter stream(AiChatRequest request, Listener listener) {
 		SseEmitter emitter = new SseEmitter(TIMEOUT.toMillis());
+		// Pasado el tiempo, la respuesta se cierra sin más (si no, Spring lo trata como un error del servidor). El hilo
+		// de la IA lo nota al enviar el siguiente trozo y lo gestiona como si el usuario la hubiera detenido
+		emitter.onTimeout(emitter::complete);
 		executor.execute(() -> run(emitter, request, listener));
 		return emitter;
 	}

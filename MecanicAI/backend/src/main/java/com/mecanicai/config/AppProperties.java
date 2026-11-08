@@ -43,7 +43,7 @@ public record AppProperties(
 
 	public record Auth(
 			String jwtSecret,
-			@DefaultValue("30") int sessionDays,
+			@DefaultValue("7") int sessionDays,
 			@DefaultValue("true") boolean cookieSecure,
 			@DefaultValue Google google) {
 	}

@@ -73,7 +73,7 @@ public class VehicleService {
 			.orElseThrow(() -> AppException.notFound("Vehículo no encontrado"));
 	}
 
-	/** Borra el vehículo y, en cascada, sus conversaciones. */
+	/** Borra el vehículo y, en cascada, sus consultas, su informe médico, sus reparaciones, su cesta y su documentación. */
 	@Transactional
 	public void delete(UUID userId, UUID vehicleId) {
 		vehicles.delete(require(userId, vehicleId));

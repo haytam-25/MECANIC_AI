@@ -27,9 +27,13 @@ public record VehicleSpec(
 		@Min(1) @Max(2000) Integer powerCv,
 		@Size(max = 12) String plate) {
 
-	/** Limpia espacios y convierte los textos vacíos en null. La matrícula queda como "1234BCD". */
+	/**
+	 * Limpia espacios y caracteres de control (saltos de línea, tabuladores…) y convierte los textos vacíos en null. La
+	 * marca, el modelo y el motor llegan a las instrucciones de la IA y al asunto de los emails: van en una sola línea.
+	 * La matrícula queda como "1234BCD".
+	 */
 	public VehicleSpec normalized() {
-		return new VehicleSpec(blankToNull(brandId), brand.trim(), blankToNull(modelId), model.trim(), year,
+		return new VehicleSpec(blankToNull(brandId), clean(brand), blankToNull(modelId), clean(model), year,
 				blankToNull(engine), fuel, powerCv, normalizePlate(plate));
 	}
 
@@ -80,8 +84,16 @@ public record VehicleSpec(
 		return engineLabel == null ? displayName() : displayName() + " · " + engineLabel;
 	}
 
+	private static String clean(String value) {
+		return value.replaceAll("\\p{Cntrl}+", " ").trim();
+	}
+
 	private static String blankToNull(String value) {
-		return value == null || value.isBlank() ? null : value.trim();
+		if (value == null) {
+			return null;
+		}
+		String clean = clean(value);
+		return clean.isEmpty() ? null : clean;
 	}
 
 	/** En mayúsculas y solo con letras y números: "1234 bcd" y "1234-BCD" son la misma matrícula. */

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 import { addBasketItem, fetchBasket, removeBoughtItems } from '../../api/endpoints.ts'
 import { ApiError } from '../../api/http.ts'
 import type { BasketItem } from '../../api/types.ts'
 import { useSession } from '../../context/session.ts'
 import { newGuestBasketItem } from '../../lib/guestGarage.ts'
+import { useAccountList } from '../../lib/useAccountList.ts'
 
 /** Como mucho, los caracteres de un artículo (los mismos que admite el servidor). */
 export const MAX_BASKET_TEXT = 120
@@ -31,22 +32,7 @@ export function useBasket() {
   const { me, guestBasket, addGuestBasketItem, removeGuestBasketItems } = useSession()
   const authenticated = Boolean(me?.authenticated)
   const max = me?.features.maxBasketItems ?? 0
-  const [account, setAccount] = useState<BasketItem[] | null>(null)
-
-  useEffect(() => {
-    if (!authenticated) return
-    let active = true
-    fetchBasket()
-      .then((list) => {
-        if (active) setAccount(list)
-      })
-      .catch(() => {
-        if (active) setAccount([])
-      })
-    return () => {
-      active = false
-    }
-  }, [authenticated])
+  const [account, setAccount] = useAccountList(authenticated, fetchBasket)
 
   const items = authenticated ? account : guestBasket
 
@@ -68,7 +54,7 @@ export function useBasket() {
       onSaved?.(saved)
       return saved
     },
-    [authenticated, guestBasket.length, max, addGuestBasketItem],
+    [authenticated, guestBasket.length, max, addGuestBasketItem, setAccount],
   )
 
   /** Saca de la cesta lo que ya se ha comprado. */
@@ -82,7 +68,7 @@ export function useBasket() {
       }
       removeGuestBasketItems(ids)
     },
-    [authenticated, removeGuestBasketItems],
+    [authenticated, removeGuestBasketItems, setAccount],
   )
 
   return { items, add, removeBought, max }

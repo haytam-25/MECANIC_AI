@@ -69,20 +69,25 @@ public class DocumentReminderService {
 	/** Manda los avisos que tocan hoy; devuelve cuántos se enviaron. */
 	int sendDue(LocalDate today) {
 		Window window = Window.on(today);
+		// La consulta solo preselecciona las que caducan pronto (con el índice de los avisos); cuáles tocan hoy lo
+		// decide Window.isDue
 		List<Reminder> due = jdbc.sql("""
-				SELECT s.id, s.kind, s.expires_on, s.vehicle_id, u.email, u.name, v.brand, v.model, v.plate
+				SELECT s.id, s.kind, s.expires_on, s.last_reminded_on, s.vehicle_id, u.email, u.name, v.brand, v.model,
+					v.plate
 				FROM document_section s
 				JOIN app_user u ON u.id = s.user_id
 				JOIN vehicle v ON v.id = s.vehicle_id
 				WHERE s.reminder AND s.kind IN ('INSPECTION', 'INSURANCE')
 				AND s.expires_on BETWEEN :from AND :until
-				AND (s.last_reminded_on IS NULL OR s.last_reminded_on <= :remindedBefore)
 				ORDER BY s.expires_on""")
 			.param("from", window.from())
 			.param("until", window.until())
-			.param("remindedBefore", window.remindedBefore())
 			.query(DocumentReminderService::map)
-			.list();
+			.list()
+			.stream()
+			.filter(candidate -> window.isDue(candidate.reminder().expiresOn(), candidate.lastReminded()))
+			.map(Candidate::reminder)
+			.toList();
 
 		int sent = 0;
 		for (Reminder reminder : due) {
@@ -105,11 +110,16 @@ public class DocumentReminderService {
 		return sent;
 	}
 
-	private static Reminder map(ResultSet rs, int row) throws SQLException {
-		return new Reminder(rs.getObject("id", UUID.class), DocumentKind.valueOf(rs.getString("kind")),
+	/** Sección con aviso que caduca pronto y el día de su último aviso (null si aún no se ha mandado ninguno). */
+	private record Candidate(Reminder reminder, LocalDate lastReminded) {
+	}
+
+	private static Candidate map(ResultSet rs, int row) throws SQLException {
+		Reminder reminder = new Reminder(rs.getObject("id", UUID.class), DocumentKind.valueOf(rs.getString("kind")),
 				rs.getObject("expires_on", LocalDate.class), rs.getObject("vehicle_id", UUID.class),
 				rs.getString("email"), rs.getString("name"), rs.getString("brand"), rs.getString("model"),
 				rs.getString("plate"));
+		return new Candidate(reminder, rs.getObject("last_reminded_on", LocalDate.class));
 	}
 
 }

@@ -27,7 +27,7 @@ class EngineParsingTest {
 				  {"name": "1.4 TSI ACT", "fuel": "phev", "powerCv": 99999}
 				]}""";
 
-		List<EngineOption> engines = EngineSuggestionService.parse(jsonMapper, json);
+		List<EngineOption> engines = parse(json);
 
 		assertThat(engines).containsExactly(new EngineOption("1.4 TSI", Fuel.GASOLINA, 125, null),
 				new EngineOption("1.6 TDI", Fuel.DIESEL, 115, null), new EngineOption("2.0 TDI", Fuel.DIESEL, 150, null),
@@ -43,15 +43,15 @@ class EngineParsingTest {
 				  {"name": "Eléctrico 58 kWh", "fuel": "ELECTRICO", "powerCv": 204}
 				]}""";
 
-		assertThat(EngineSuggestionService.parse(jsonMapper, json)).extracting(EngineOption::name)
+		assertThat(parse(json)).extracting(EngineOption::name)
 			.containsExactly("1.2 TSI", "1.0 TSI Ecomotive", "Eléctrico 58 kWh");
 	}
 
 	@Test
 	void acceptsAPlainArrayAndEmptyResults() {
-		assertThat(EngineSuggestionService.parse(jsonMapper, "[{\"name\":\"Eléctrico 58 kWh\",\"fuel\":\"ELECTRICO\",\"powerCv\":204}]"))
+		assertThat(parse("[{\"name\":\"Eléctrico 58 kWh\",\"fuel\":\"ELECTRICO\",\"powerCv\":204}]"))
 			.containsExactly(new EngineOption("Eléctrico 58 kWh", Fuel.ELECTRICO, 204, null));
-		assertThat(EngineSuggestionService.parse(jsonMapper, "{\"engines\": []}")).isEmpty();
+		assertThat(parse("{\"engines\": []}")).isEmpty();
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class EngineParsingTest {
 				  {"name": "118i", "fuel": "GASOLINA", "powerCv": 136, "code": "un código larguísimo que no es un código"}
 				]}""";
 
-		assertThat(EngineSuggestionService.parse(jsonMapper, json)).containsExactly(
+		assertThat(parse(json)).containsExactly(
 				new EngineOption("118i", Fuel.GASOLINA, 136, null), new EngineOption("2.0 TDI", Fuel.DIESEL, 140, "BKD"),
 				new EngineOption("320d", Fuel.DIESEL, 163, "N47"), new EngineOption("320d", Fuel.DIESEL, 163, "M47"),
 				new EngineOption("330d", Fuel.DIESEL, 231, "M57"), new EngineOption("eDrive40", Fuel.ELECTRICO, 340, null));
@@ -81,7 +81,7 @@ class EngineParsingTest {
 		}
 		json.append("]}");
 
-		assertThat(EngineSuggestionService.parse(jsonMapper, json.toString())).hasSize(20);
+		assertThat(parse(json.toString())).hasSize(20);
 		assertThat(EngineSuggestionService.parse(jsonMapper, json.toString(), 40)).hasSize(40);
 	}
 
@@ -93,6 +93,11 @@ class EngineParsingTest {
 		CatalogService.Brand bmw = catalog.brand("bmw").orElseThrow();
 		String prompt = EngineSuggestionService.detailedPrompt(bmw, bmw.modelsById().get("serie-3"), 2005);
 		assertThat(prompt).contains("BMW Serie 3 del año 2005", "330d", "M57", "\"code\"").doesNotContain("%");
+	}
+
+	/** Como en producción con las marcas normales (como mucho {@link EngineSuggestionService#MAX_ENGINES}). */
+	private List<EngineOption> parse(String json) {
+		return EngineSuggestionService.parse(jsonMapper, json, EngineSuggestionService.MAX_ENGINES);
 	}
 
 }

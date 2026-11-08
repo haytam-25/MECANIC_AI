@@ -4,7 +4,7 @@ Contexto del proyecto para agentes y personas que llegan nuevas. **Complementa**
 y patrones del código) y a `MecanicAI/README.md` (funciones, API, configuración y despliegue paso a paso): aquí va lo
 que no se deduce leyendo el código: el estado de producción, las decisiones tomadas y lo que ya ha pasado.
 
-Última actualización: 2026-11-07.
+Última actualización: 2026-11-08.
 
 ## ⚠️ El proyecto está EN PRODUCCIÓN
 
@@ -16,10 +16,12 @@ que no se deduce leyendo el código: el estado de producción, las decisiones to
 - En producción está **todo lo que hay en `main`**, incluida la Documentación (migración `V11`, commit del 2026-11-06).
 - Servidor Linux en la Unión Europea con `docker compose`: `db` (PostgreSQL 17), `backend`, `backup`,
   `frontend` (nginx) y `caddy` (HTTPS automático). El código está en `/opt/mecanicai/MecanicAI` del servidor.
-- Repositorio: GitHub `haytam-25/MECANIC_AI`, rama `main`. **No hay CI/CD**: el despliegue lo hace el usuario a mano en
-  el servidor con `git pull && docker compose up -d --build`. Un push a `main` no despliega nada por sí solo.
+- Repositorio: GitHub `haytam-25/MECANIC_AI`, rama `main`. **Hay CI pero no CD**: GitHub Actions
+  (`.github/workflows/ci.yml`) solo pasa los tests y el build en cada push. El despliegue lo hace el usuario a mano en el
+  servidor con `git pull && docker compose up -d --build`, y un push a `main` no despliega nada por sí solo.
 - Copias de seguridad: servicio `backup`, cada día a las 04:00 (hora de España); se guardan 14 días en `backups/` del
-  mismo servidor (la política de privacidad cuenta con esos 14 días).
+  mismo servidor (la política de privacidad cuenta con esos 14 días). Desde el 2026-11-08 solo las lee root (permisos
+  600). Aún no hay copia fuera del servidor.
 
 ### Reglas por estar en producción
 
@@ -54,7 +56,7 @@ Mercado principal: España (también términos de Argentina/Chile: cédula, VTV,
 
 | Función | Lo esencial | Límites |
 | --- | --- | --- |
-| Asistente del coche | Catálogo estático `catalog/vehicles.json` (~57 marcas, ~900 modelos). Motorizaciones sugeridas por la IA y cacheadas en BD. Matrícula opcional | 5 coches por cuenta |
+| Asistente del coche | Catálogo estático `catalog/vehicles.json` (~57 marcas, ~690 modelos). Motorizaciones sugeridas por la IA y cacheadas en BD. Matrícula opcional | 5 coches por cuenta |
 | Chat con el mecánico | Streaming SSE, Markdown, detener/reintentar, dictado por voz | Invitado 5/día (20 por IP, 300 entre todos los invitados); cuenta 20/día; 6/min |
 | Consultas guardadas | Por coche | 20 por cuenta (la 21ª borra la más antigua), 100 mensajes cada una |
 | Informe médico | Estado de mantenimiento por colores; plan de mantenimiento de la IA cacheado (`maintenance_cache`) | Invitado 3/día; cuenta 20/semana (solo cuenta el primero de cada coche) |
@@ -83,7 +85,8 @@ Mercado principal: España (también términos de Argentina/Chile: cédula, VTV,
   en el `.env` del servidor y en `backend/.env`. Sin `MAIL_HOST` el backend usa `LogMailer` (solo escribe en el log).
   La revisión es diaria a las 10:00 (Europe/Madrid).
 - **IA**: Gemini con la lista de modelos de cada plan (`app.plans.*.models`, empezando por Flash-Lite en el gratuito);
-  `ModelFallback` pasa al siguiente si uno da 503/429. En local, sin `GEMINI_API_KEY`, responde `MockAiClient`.
+  `ModelFallback` pasa al siguiente si uno da 503/429, un error de red o un 404 (modelo retirado), y deja de probar
+  pasados 2 minutos. En local, sin `GEMINI_API_KEY`, responde `MockAiClient`.
 
 ## Decisiones tomadas (no cambiarlas sin preguntar)
 
@@ -96,6 +99,10 @@ Mercado principal: España (también términos de Argentina/Chile: cédula, VTV,
 - Hay un cupo diario total para los invitados (`GUEST_DAILY_MESSAGES_TOTAL`, `GUEST_DAILY_LOOKUPS_TOTAL`) porque la
   cuota gratuita de Gemini es la misma para invitados y cuentas.
 - Todo en español: interfaz, mensajes de error de la API, comentarios, commits y documentación.
+- Los emails de aviso de la ITV y el seguro llevan la **matrícula**, que ayuda si hay dos coches iguales, y la política de
+  privacidad lo dice y nombra a Brevo como proveedor de correo (decidido el 2026-11-08).
+- `google-genai` se queda en 1.73.0 hasta probar la versión nueva en local con la API key: entre la 1.74 y la 1.79
+  cambia cómo se reanudan las respuestas en streaming, que es lo que usa el chat (2026-11-08).
 
 ## Historia (según `git log`)
 
@@ -114,9 +121,14 @@ Mercado principal: España (también términos de Argentina/Chile: cédula, VTV,
 | 2026-11-04 | Google puede leer `/api/auth/me` (indexación) |
 | 2026-11-06 | Respuesta del chat más fluida; sección **Documentación** |
 | 2026-11-07 | `CLAUDE.md` y este `MEMORIES.md` |
+| 2026-11-08 | Revisión de seguridad y limpieza: historial del invitado acotado, modelos retirados, caché al cerrar sesión, carga diferida de páginas, CI |
 
 ## Pendiente y hoja de ruta
 
+- Desplegar la revisión del 2026-11-08 y comprobar en producción el login con Google y el chat.
+- Copia de seguridad cifrada fuera del servidor y una prueba de restauración (README → Mantenimiento).
+- `npm audit` da 6 avisos (moderados y bajos) en la cadena de compilación de la PWA (`vite-plugin-pwa` →
+  `workbox-build`). No llegan al navegador y aún no tienen arreglo: revisarlo cuando salga un `workbox-build` nuevo.
 - Seguir comprobando en producción la Documentación (subidas, límites y avisos por email de Brevo).
 - Suscripción PRO con **Stripe** (hoy el plan PRO solo se activa a mano).
 - Otro proveedor de IA para PRO (p. ej. OpenAI): implementar `AiClient` y elegirlo según el plan.

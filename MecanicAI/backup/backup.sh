@@ -4,6 +4,8 @@
 # A mano: docker compose exec backup sh /opt/backup/backup.sh
 set -eu
 set -o pipefail
+# Llevan todos los datos personales (también los documentos): solo las puede leer root
+umask 077
 
 keep_days="${1:-14}"
 name="mecanicai-$(date +%Y-%m-%d_%H%M).sql.gz"

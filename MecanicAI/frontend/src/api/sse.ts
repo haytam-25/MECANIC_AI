@@ -9,7 +9,7 @@ interface SseEvent {
 }
 
 /** Interpreta un bloque "event: x / data: y" de Server-Sent Events. */
-export function parseSseEvent(raw: string): SseEvent | null {
+function parseSseEvent(raw: string): SseEvent | null {
   let name = 'message'
   const data: string[] = []
   for (const line of raw.split(/\r?\n/)) {

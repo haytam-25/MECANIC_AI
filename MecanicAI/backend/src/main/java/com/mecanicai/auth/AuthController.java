@@ -33,6 +33,14 @@ public class AuthController {
 	/** Si el token tiene más de un día se renueva: la sesión dura mientras el usuario siga entrando. */
 	private static final Duration RENEW_AFTER = Duration.ofDays(1);
 
+	/**
+	 * Al salir de la cuenta el navegador borra su caché: si no, en un ordenador compartido los documentos que se
+	 * abrieron se seguirían viendo desde el historial sin pasar por el servidor.
+	 */
+	private static final String CLEAR_SITE_DATA = "Clear-Site-Data";
+
+	private static final String CACHE = "\"cache\"";
+
 	private final UserService users;
 
 	private final JwtService jwtService;
@@ -90,12 +98,8 @@ public class AuthController {
 			Optional<User> user = users.find(principal.id());
 			if (user.isPresent()) {
 				User u = user.get();
-				// Se renueva dentro del mismo inicio de sesión (el que se revoca al cerrar sesión). Los tokens de antes de
-				// las sesiones revocables no tienen: reciben uno nuevo
-				if (principal.sessionId() == null) {
-					cookies.writeSession(response, jwtService.issue(u.getId()));
-				}
-				else if (principal.issuedAt() == null || principal.issuedAt().isBefore(Instant.now().minus(RENEW_AFTER))) {
+				// Se renueva dentro del mismo inicio de sesión (el que se revoca al cerrar sesión)
+				if (principal.issuedAt().isBefore(Instant.now().minus(RENEW_AFTER))) {
 					cookies.writeSession(response, jwtService.issue(u.getId(), principal.sessionId()));
 				}
 				PlanSettings plan = props.plans().of(u.getPlan());
@@ -119,7 +123,7 @@ public class AuthController {
 			sessions.revoke(principal);
 		}
 		cookies.clearSession(response);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.noContent().header(CLEAR_SITE_DATA, CACHE).build();
 	}
 
 	/** Borra la cuenta y todos sus datos (derecho de supresión, RGPD). */
@@ -128,7 +132,7 @@ public class AuthController {
 			HttpServletResponse response) {
 		users.delete(principal.id());
 		cookies.clearSession(response);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.noContent().header(CLEAR_SITE_DATA, CACHE).build();
 	}
 
 }

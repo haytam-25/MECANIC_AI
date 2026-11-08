@@ -3,16 +3,20 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { AppShell } from './components/AppShell.tsx'
 import { SessionProvider } from './context/SessionProvider.tsx'
 import { ToastProvider } from './context/ToastProvider.tsx'
-import { BasketPage } from './pages/BasketPage.tsx'
-import { ChatRoute } from './pages/ChatRoute.tsx'
-import { ConversationsPage } from './pages/ConversationsPage.tsx'
-import { DocumentsPage } from './pages/DocumentsPage.tsx'
+import { lazyPage } from './lib/lazyPage.ts'
 import { HomePage } from './pages/HomePage.tsx'
 import { NotFoundPage } from './pages/NotFoundPage.tsx'
-import { RepairFormPage } from './pages/RepairFormPage.tsx'
-import { RepairsPage } from './pages/RepairsPage.tsx'
-import { ReportPage } from './pages/ReportPage.tsx'
 import { VehiclePage } from './pages/VehiclePage.tsx'
+
+// Las secciones de cada coche se descargan al abrirlas: así la portada y el garaje cargan antes (el chat, por ejemplo,
+// trae el lector de Markdown)
+const ConversationsPage = lazyPage(() => import('./pages/ConversationsPage.tsx').then((m) => m.ConversationsPage))
+const ChatRoute = lazyPage(() => import('./pages/ChatRoute.tsx').then((m) => m.ChatRoute))
+const ReportPage = lazyPage(() => import('./pages/ReportPage.tsx').then((m) => m.ReportPage))
+const RepairsPage = lazyPage(() => import('./pages/RepairsPage.tsx').then((m) => m.RepairsPage))
+const RepairFormPage = lazyPage(() => import('./pages/RepairFormPage.tsx').then((m) => m.RepairFormPage))
+const BasketPage = lazyPage(() => import('./pages/BasketPage.tsx').then((m) => m.BasketPage))
+const DocumentsPage = lazyPage(() => import('./pages/DocumentsPage.tsx').then((m) => m.DocumentsPage))
 
 export default function App() {
   return (

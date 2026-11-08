@@ -1,8 +1,8 @@
 package com.mecanicai.maintenance;
 
-import java.util.Locale;
 import java.util.Optional;
 
+import com.mecanicai.common.Enums;
 import com.mecanicai.vehicle.Fuel;
 
 /**
@@ -121,15 +121,7 @@ public enum MaintenanceItem {
 	}
 
 	public static Optional<MaintenanceItem> parse(String raw) {
-		if (raw == null || raw.isBlank()) {
-			return Optional.empty();
-		}
-		try {
-			return Optional.of(valueOf(raw.trim().toUpperCase(Locale.ROOT)));
-		}
-		catch (IllegalArgumentException ex) {
-			return Optional.empty();
-		}
+		return Enums.parse(MaintenanceItem.class, raw);
 	}
 
 }

@@ -23,6 +23,9 @@ import com.mecanicai.ai.AiException.Kind;
  * <p>
  * El modelo que falla queda "en pausa" unos minutos: mientras tanto se prueba el último, para que cada pregunta no
  * tenga que chocar otra vez contra él antes de llegar a uno que responde.
+ * <p>
+ * Pasado {@link #MAX_TOTAL} no se empieza ningún intento más: con varios modelos que tardan en fallar, el usuario
+ * esperaría más de lo que aguantan nginx y la respuesta en streaming (5 minutos).
  */
 final class ModelFallback {
 
@@ -35,6 +38,9 @@ final class ModelFallback {
 
 	/** Tiempo que un modelo que acaba de fallar pasa al final de la lista. */
 	private static final Duration COOLDOWN = Duration.ofMinutes(2);
+
+	/** Desde el primer intento, cuándo se deja de probar modelos (el que ya está en marcha puede terminar). */
+	private static final Duration MAX_TOTAL = Duration.ofMinutes(2);
 
 	/** Un intento de respuesta en streaming con un modelo concreto. */
 	@FunctionalInterface
@@ -50,15 +56,18 @@ final class ModelFallback {
 
 	private final Duration cooldown;
 
+	private final Duration maxTotal;
+
 	private final InstantSource clock;
 
 	ModelFallback() {
-		this(PAUSE_BETWEEN_ROUNDS, COOLDOWN, InstantSource.system());
+		this(PAUSE_BETWEEN_ROUNDS, COOLDOWN, MAX_TOTAL, InstantSource.system());
 	}
 
-	ModelFallback(Duration pauseBetweenRounds, Duration cooldown, InstantSource clock) {
+	ModelFallback(Duration pauseBetweenRounds, Duration cooldown, Duration maxTotal, InstantSource clock) {
 		this.pauseBetweenRounds = pauseBetweenRounds;
 		this.cooldown = cooldown;
+		this.maxTotal = maxTotal;
 		this.clock = clock;
 	}
 
@@ -66,9 +75,15 @@ final class ModelFallback {
 		if (models == null || models.isEmpty()) {
 			throw new AiException(Kind.CONFIGURATION, "No hay ningún modelo de IA configurado");
 		}
+		Instant deadline = clock.instant().plus(maxTotal);
 		AiException last = null;
 		for (int round = 1; round <= ROUNDS; round++) {
 			for (String model : inTryOrder(models)) {
+				if (last != null && !clock.instant().isBefore(deadline)) {
+					log.warn("Se ha agotado el tiempo para responder ({} s): no se prueban más modelos",
+							maxTotal.toSeconds());
+					throw last;
+				}
 				try {
 					T result = call.apply(model);
 					pausedUntil.remove(model);
@@ -83,7 +98,7 @@ final class ModelFallback {
 					log.warn("Modelo {} no disponible ({}), se prueba el siguiente", model, ex.kind());
 				}
 			}
-			if (round < ROUNDS) {
+			if (round < ROUNDS && clock.instant().plus(pauseBetweenRounds).isBefore(deadline)) {
 				log.warn("Todos los modelos están saturados; nueva ronda en {} s", pauseBetweenRounds.toSeconds());
 				sleep(pauseBetweenRounds);
 			}

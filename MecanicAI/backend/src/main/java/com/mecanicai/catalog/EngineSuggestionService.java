@@ -45,7 +45,7 @@ public class EngineSuggestionService {
 
 	private static final Logger log = LoggerFactory.getLogger(EngineSuggestionService.class);
 
-	private static final int MAX_ENGINES = 20;
+	static final int MAX_ENGINES = 20;
 
 	/** Marcas muy conocidas por sus códigos de motor, en las que se pide la lista completa con códigos. */
 	static final Set<String> DETAILED_BRANDS = Set.of("bmw", "volkswagen", "audi");
@@ -244,11 +244,7 @@ public class EngineSuggestionService {
 				model.name(), year, naming, MAX_DETAILED_ENGINES);
 	}
 
-	/** Valida y limpia lo que devuelve la IA: descarta basura, quita duplicados y ordena. */
-	static List<EngineOption> parse(JsonMapper jsonMapper, String json) {
-		return parse(jsonMapper, json, MAX_ENGINES);
-	}
-
+	/** Valida y limpia lo que devuelve la IA: descarta basura, quita duplicados, ordena y se queda con {@code maxEngines}. */
 	static List<EngineOption> parse(JsonMapper jsonMapper, String json, int maxEngines) {
 		JsonNode root = jsonMapper.readTree(json);
 		JsonNode items = root.isArray() ? root : root.path("engines");

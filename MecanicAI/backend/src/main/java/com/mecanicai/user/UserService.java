@@ -62,7 +62,10 @@ public class UserService {
 		}
 	}
 
-	/** Borra la cuenta y, en cascada, sus vehículos, conversaciones y mensajes. */
+	/**
+	 * Borra la cuenta y, en cascada, todos sus datos: coches, consultas con sus mensajes, informes médicos,
+	 * reparaciones, cesta y documentación.
+	 */
 	@Transactional
 	public void delete(UUID id) {
 		users.deleteById(id);

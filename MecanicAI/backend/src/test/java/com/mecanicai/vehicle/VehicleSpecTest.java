@@ -27,6 +27,15 @@ class VehicleSpecTest {
 	}
 
 	@Test
+	void controlCharactersCannotSneakIntoThePromptOrTheEmails() {
+		VehicleSpec spec = new VehicleSpec(null, "Seat\r\nBcc: alguien@ejemplo.com", null, "León\u0000", 2016, "1.6\tTDI",
+				null, null, null).normalized();
+		assertThat(spec.brand()).isEqualTo("Seat Bcc: alguien@ejemplo.com");
+		assertThat(spec.model()).isEqualTo("León");
+		assertThat(spec.engine()).isEqualTo("1.6 TDI");
+	}
+
+	@Test
 	void thePlateIsStoredInUpperCaseWithoutSeparators() {
 		assertThat(ibiza(" 1234 bcd ").normalized().plate()).isEqualTo("1234BCD");
 		assertThat(ibiza("M-1234-ab").normalized().plate()).isEqualTo("M1234AB");

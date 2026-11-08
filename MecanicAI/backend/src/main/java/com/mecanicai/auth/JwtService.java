@@ -72,12 +72,16 @@ public class JwtService {
 		return encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
 	}
 
+	/** El usuario del token si es válido: firmado aquí, sin caducar y con su inicio de sesión ({@code sid}). */
 	public Optional<AuthUser> parse(String token) {
 		try {
 			Jwt jwt = decoder.decode(token);
 			String sessionId = jwt.getClaimAsString(SESSION_CLAIM);
-			return Optional.of(new AuthUser(UUID.fromString(jwt.getSubject()),
-					sessionId != null ? UUID.fromString(sessionId) : null, jwt.getIssuedAt()));
+			if (jwt.getSubject() == null || sessionId == null || jwt.getIssuedAt() == null) {
+				return Optional.empty();
+			}
+			return Optional.of(
+					new AuthUser(UUID.fromString(jwt.getSubject()), UUID.fromString(sessionId), jwt.getIssuedAt()));
 		}
 		catch (JwtException | IllegalArgumentException ex) {
 			return Optional.empty();

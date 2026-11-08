@@ -1,8 +1,8 @@
 package com.mecanicai.repair;
 
-import java.util.Locale;
 import java.util.Optional;
 
+import com.mecanicai.common.Enums;
 import com.mecanicai.maintenance.MaintenanceItem;
 
 /**
@@ -20,15 +20,7 @@ public enum RepairCategory {
 	}
 
 	static Optional<RepairCategory> parse(String raw) {
-		if (raw == null || raw.isBlank()) {
-			return Optional.empty();
-		}
-		try {
-			return Optional.of(valueOf(raw.trim().toUpperCase(Locale.ROOT)));
-		}
-		catch (IllegalArgumentException ex) {
-			return Optional.empty();
-		}
+		return Enums.parse(RepairCategory.class, raw);
 	}
 
 }

@@ -217,13 +217,17 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 		return new AiException(Kind.UNAVAILABLE, detail, ex);
 	}
 
-	private static AiException translate(ApiException ex, String model) {
+	/**
+	 * Traduce el error de Gemini. La API key mal puesta falla igual con todos los modelos (no se prueba otro); un 404
+	 * suele ser un modelo que Google ha retirado, así que se pasa al siguiente de la lista como si estuviera saturado.
+	 */
+	static AiException translate(ApiException ex, String model) {
 		String detail = "Gemini %d %s (modelo %s): %s".formatted(ex.code(), ex.status(), model, ex.message());
 		Kind kind;
 		if (ex.code() == 429 || ex.code() == 503) {
 			kind = Kind.RATE_LIMITED;
 		}
-		else if (ex.code() == 401 || ex.code() == 403 || ex.code() == 404
+		else if (ex.code() == 401 || ex.code() == 403
 				|| (ex.code() == 400 && String.valueOf(ex.message()).toLowerCase(Locale.ROOT).contains("api key"))) {
 			kind = Kind.CONFIGURATION;
 		}
@@ -232,6 +236,10 @@ public class GeminiAiClient implements AiClient, AutoCloseable {
 		}
 		if (kind == Kind.RATE_LIMITED) {
 			log.warn(detail);
+		}
+		else if (ex.code() == 404) {
+			log.error("{}. Si ese modelo ya no existe, quítalo de GEMINI_CHAT_MODELS, GEMINI_ENGINES_MODELS o "
+					+ "GEMINI_PRO_MODELS", detail);
 		}
 		else {
 			log.error(detail);

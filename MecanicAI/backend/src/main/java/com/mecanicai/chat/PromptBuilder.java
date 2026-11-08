@@ -68,15 +68,21 @@ public class PromptBuilder {
 	}
 
 	/**
-	 * Une mensajes seguidos del mismo rol, recorta los más antiguos si el historial es muy largo y garantiza que
+	 * Recorta los mensajes más antiguos si el historial es muy largo, une los seguidos del mismo rol y garantiza que
 	 * la conversación empiece por un mensaje del usuario (lo que exige la API).
+	 * <p>
+	 * Se recorta antes de unir: el historial del invitado lo envía su navegador y, si no, muchos mensajes seguidos del
+	 * mismo rol formarían uno solo enorme que ya no se podría recortar.
 	 */
 	static List<AiMessage> normalize(List<AiMessage> history) {
+		List<AiMessage> recent = new ArrayList<>(
+				history.stream().filter(m -> m.text() != null && !m.text().isBlank()).toList());
+		int total = recent.stream().mapToInt(m -> m.text().length()).sum();
+		while (recent.size() > 1 && total > MAX_HISTORY_CHARS) {
+			total -= recent.removeFirst().text().length();
+		}
 		List<AiMessage> merged = new ArrayList<>();
-		for (AiMessage message : history) {
-			if (message.text() == null || message.text().isBlank()) {
-				continue;
-			}
+		for (AiMessage message : recent) {
 			if (!merged.isEmpty() && merged.getLast().role() == message.role()) {
 				AiMessage previous = merged.removeLast();
 				merged.add(new AiMessage(message.role(), previous.text() + "\n\n" + message.text()));
@@ -84,10 +90,6 @@ public class PromptBuilder {
 			else {
 				merged.add(message);
 			}
-		}
-		int total = merged.stream().mapToInt(m -> m.text().length()).sum();
-		while (merged.size() > 1 && total > MAX_HISTORY_CHARS) {
-			total -= merged.removeFirst().text().length();
 		}
 		while (!merged.isEmpty() && merged.getFirst().role() != AiMessage.Role.USER) {
 			merged.removeFirst();

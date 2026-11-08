@@ -185,7 +185,7 @@ function EngineLoading({ carName, withCodes }: { carName: string; withCodes: boo
   )
 }
 
-export function FuelChip({ fuel }: { fuel: Fuel }) {
+function FuelChip({ fuel }: { fuel: Fuel }) {
   return <span className={`chip chip--fuel chip--${fuel.toLowerCase()}`}>{FUEL_LABELS[fuel]}</span>
 }
 

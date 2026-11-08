@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 import { createRepair, deleteRepair, fetchRepairs, updateRepair } from '../../api/endpoints.ts'
 import { ApiError } from '../../api/http.ts'
 import type { Repair, RepairInput } from '../../api/types.ts'
 import { useSession } from '../../context/session.ts'
 import { newGuestRepair } from '../../lib/guestGarage.ts'
+import { useAccountList } from '../../lib/useAccountList.ts'
 import { sortRepairs } from './diary.ts'
 
 /** Mismo error que da el servidor cuando el diario está lleno. */
@@ -24,22 +25,7 @@ export function useRepairs() {
   const { me, guestRepairs, saveGuestRepair, removeGuestRepair } = useSession()
   const authenticated = Boolean(me?.authenticated)
   const max = me?.features.maxRepairs ?? 0
-  const [account, setAccount] = useState<Repair[] | null>(null)
-
-  useEffect(() => {
-    if (!authenticated) return
-    let active = true
-    fetchRepairs()
-      .then((list) => {
-        if (active) setAccount(list)
-      })
-      .catch(() => {
-        if (active) setAccount([])
-      })
-    return () => {
-      active = false
-    }
-  }, [authenticated])
+  const [account, setAccount] = useAccountList(authenticated, fetchRepairs)
 
   const repairs = authenticated ? account : guestRepairs
 
@@ -57,7 +43,7 @@ export function useRepairs() {
       saveGuestRepair(saved)
       return saved
     },
-    [authenticated, guestRepairs, max, saveGuestRepair],
+    [authenticated, guestRepairs, max, saveGuestRepair, setAccount],
   )
 
   const remove = useCallback(
@@ -69,7 +55,7 @@ export function useRepairs() {
       }
       removeGuestRepair(id)
     },
-    [authenticated, removeGuestRepair],
+    [authenticated, removeGuestRepair, setAccount],
   )
 
   return { repairs, save, remove, max }

@@ -64,4 +64,16 @@ class GeminiAiClientTest {
 		assertThat(levels).containsExactly("minimal");
 	}
 
+	@Test
+	void aRetiredModelIsSkippedButABadApiKeyIsNot() {
+		AiException retired = GeminiAiClient.translate(new ApiException(404, "NOT_FOUND",
+				"models/gemini-3-flash-preview is not found for API version v1beta"), "gemini-3-flash-preview");
+		AiException badKey = GeminiAiClient.translate(new ApiException(403, "PERMISSION_DENIED",
+				"Method doesn't allow unregistered callers"), "gemini-3.5-flash-lite");
+
+		assertThat(retired.isTransient()).isTrue();
+		assertThat(badKey.kind()).isEqualTo(AiException.Kind.CONFIGURATION);
+		assertThat(badKey.isTransient()).isFalse();
+	}
+
 }

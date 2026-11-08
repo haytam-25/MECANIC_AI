@@ -18,7 +18,7 @@ export interface ItemResult {
   sinceNew: boolean
 }
 
-export const TIMING_ID = 'DISTRIBUCION'
+const TIMING_ID = 'DISTRIBUCION'
 
 /** A partir de esta parte del intervalo consumida se avisa de que toca pronto. */
 const SOON = 0.8
@@ -37,7 +37,7 @@ export function parseKm(text: string): number | null {
 }
 
 /** "1,5" años → 18 meses. null si está vacío o no es válido. */
-export function parseMonths(text: string, unit: TimeUnit): number | null {
+function parseMonths(text: string, unit: TimeUnit): number | null {
   const clean = text.trim().replace(',', '.')
   if (!/^\d{1,3}(\.\d{1,2})?$/.test(clean)) return null
   const months = Math.round(Number(clean) * (unit === 'años' ? 12 : 1))
@@ -45,7 +45,7 @@ export function parseMonths(text: string, unit: TimeUnit): number | null {
 }
 
 /** Edad aproximada del coche en meses, suponiendo que se matriculó a mitad de su año. */
-export function carAgeMonths(year: number, now: Date): number {
+function carAgeMonths(year: number, now: Date): number {
   return Math.max(0, (now.getFullYear() - year) * 12 + now.getMonth() - 6)
 }
 

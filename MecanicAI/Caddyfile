@@ -9,6 +9,8 @@
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
+		# Nada de cámara ni ubicación; el micrófono, solo esta web (dictado por voz en el chat)
+		Permissions-Policy "camera=(), geolocation=(), microphone=(self)"
 		# Solo se cargan scripts, estilos y datos del propio dominio; imágenes también de Google (fotos de perfil)
 		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 		-Server

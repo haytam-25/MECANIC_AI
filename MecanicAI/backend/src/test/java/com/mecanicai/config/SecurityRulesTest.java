@@ -151,7 +151,9 @@ class SecurityRulesTest {
 		UUID userId = UUID.randomUUID();
 		mvc.perform(post("/api/auth/logout").cookie(session(userId)).header(CsrfHeaderFilter.HEADER, "1"))
 			.andExpect(status().isNoContent())
-			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Max-Age=0")));
+			.andExpect(header().string("Set-Cookie", org.hamcrest.Matchers.containsString("Max-Age=0")))
+			// El navegador borra su caché (documentos abiertos) al salir de la cuenta
+			.andExpect(header().string("Clear-Site-Data", "\"cache\""));
 		then(sessions).should()
 			.revoke(org.mockito.ArgumentMatchers.argThat((AuthUser user) -> user.id().equals(userId)
 					&& user.sessionId() != null));

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
 
 import {
   createDocumentSection,
@@ -10,6 +10,7 @@ import {
 } from '../../api/endpoints.ts'
 import type { DocumentFile, DocumentSection, DocumentSectionUpdate } from '../../api/types.ts'
 import { useSession } from '../../context/session.ts'
+import { useAccountList } from '../../lib/useAccountList.ts'
 import type { FixedKind } from './documents.ts'
 
 const byCreation = (a: DocumentSection, b: DocumentSection) => a.createdAt.localeCompare(b.createdAt)
@@ -21,32 +22,17 @@ const byCreation = (a: DocumentSection, b: DocumentSection) => a.createdAt.local
 export function useDocuments() {
   const { me } = useSession()
   const authenticated = Boolean(me?.authenticated)
-  const [sections, setSections] = useState<DocumentSection[] | null>(null)
+  const [sections, setSections] = useAccountList(authenticated, fetchDocuments)
   /** Secciones fijas que se están creando (así dos acciones seguidas no la piden dos veces). */
   const creating = useRef(new Map<string, Promise<DocumentSection>>())
 
-  useEffect(() => {
-    if (!authenticated) return
-    let active = true
-    fetchDocuments()
-      .then((list) => {
-        if (active) setSections(list)
-      })
-      .catch(() => {
-        if (active) setSections([])
-      })
-    return () => {
-      active = false
-    }
-  }, [authenticated])
-
   const put = useCallback((section: DocumentSection) => {
     setSections((list) => [...(list ?? []).filter((s) => s.id !== section.id), section].sort(byCreation))
-  }, [])
+  }, [setSections])
 
   const patchFiles = useCallback((sectionId: string, change: (files: DocumentFile[]) => DocumentFile[]) => {
     setSections((list) => (list ?? []).map((s) => (s.id === sectionId ? { ...s, files: change(s.files) } : s)))
-  }, [])
+  }, [setSections])
 
   /** La sección fija de un coche, creándola en el servidor la primera vez que se usa. */
   const ensure = useCallback(
@@ -87,7 +73,7 @@ export function useDocuments() {
   const removeSection = useCallback(async (sectionId: string) => {
     await deleteDocumentSection(sectionId)
     setSections((list) => (list ?? []).filter((s) => s.id !== sectionId))
-  }, [])
+  }, [setSections])
 
   const upload = useCallback(
     async (sectionId: string, blob: Blob, name: string, onProgress?: (fraction: number) => void) => {

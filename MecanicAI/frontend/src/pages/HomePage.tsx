@@ -22,9 +22,7 @@ export function HomePage() {
       <header className="hero">
         <Wheel size={64} className="hero__wheel" />
         <div>
-          <h1 className="hero__title">
-            Selecciona tu coche 
-          </h1>
+          <h1 className="hero__title">Selecciona tu coche</h1>
           <p className="hero__text">Elige tu coche y cuéntame qué le pasa: averías, ruidos, testigos o mantenimiento.</p>
         </div>
       </header>

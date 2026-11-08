@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -48,7 +49,7 @@ public class GlobalExceptionHandler {
 			.body(new ApiError("FILE_TOO_LARGE", "El archivo pesa demasiado (máximo 5 MB)."));
 	}
 
-		@ExceptionHandler({ MethodArgumentTypeMismatchException.class, NoResourceFoundException.class })
+	@ExceptionHandler({ MethodArgumentTypeMismatchException.class, NoResourceFoundException.class })
 	ResponseEntity<ApiError> handleNotFound(Exception ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError("NOT_FOUND", "No encontrado"));
 	}
@@ -66,6 +67,11 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<ApiError> handleUnexpected(Exception ex) {
+		// El resto de errores de Spring por una petición incorrecta (p. ej. un Content-Type que no se admite) traen su
+		// estado: no son fallos del servidor y no se registran como tales
+		if (ex instanceof ErrorResponse error && error.getStatusCode().is4xxClientError()) {
+			return ResponseEntity.status(error.getStatusCode()).body(new ApiError("BAD_REQUEST", "Petición no válida"));
+		}
 		log.error("Error inesperado", ex);
 		return ResponseEntity.internalServerError().body(new ApiError("INTERNAL", "Error interno, inténtalo de nuevo"));
 	}

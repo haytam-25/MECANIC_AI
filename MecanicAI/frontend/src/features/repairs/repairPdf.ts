@@ -18,7 +18,7 @@ const LINE = 170
 const SHADE = 238
 
 /** Construye el PDF. `repairs`: las de este coche, de la más reciente a la más antigua. */
-export function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: MaintenancePlan | null, now: Date): jsPDF {
+function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: MaintenancePlan | null, now: Date): jsPDF {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   const width = doc.internal.pageSize.getWidth()
   const right = width - MARGIN
@@ -164,7 +164,7 @@ export function buildRepairPdf(vehicle: VehicleSpec, repairs: Repair[], plan: Ma
 }
 
 /** "historial-reparaciones-seat-leon-2015.pdf", o "…-seat-leon-2015-1234bcd.pdf" si el coche tiene matrícula. */
-export function pdfFileName(vehicle: VehicleSpec): string {
+function pdfFileName(vehicle: VehicleSpec): string {
   const slug = normalizeText(`${vehicle.brand} ${vehicle.model} ${vehicle.year} ${vehicle.plate ?? ''}`)
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')

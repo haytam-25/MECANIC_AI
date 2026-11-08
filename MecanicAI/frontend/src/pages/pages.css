@@ -23,10 +23,6 @@
   color: transparent;
 }
 
-.hero__title .accent {
-  -webkit-text-fill-color: var(--accent);
-}
-
 .hero__text {
   margin-top: 0.35rem;
   font-size: 0.98rem;
@@ -443,82 +439,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-}
-
-.ask__ideas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.ask__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0 0.15rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-3);
-}
-
-.ask__label svg {
-  color: var(--accent);
-}
-
-/* En el móvil las ideas se deslizan en una fila; en pantallas anchas caben todas */
-.ask__chips {
-  display: flex;
-  gap: 0.45rem;
-  margin: 0 -1rem;
-  padding: 0.1rem 1rem 0.3rem;
-  overflow-x: auto;
-  list-style: none;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 1rem;
-  scrollbar-width: none;
-  mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
-}
-
-.ask__chips::-webkit-scrollbar {
-  display: none;
-}
-
-.ask__chips li {
-  flex: none;
-  scroll-snap-align: start;
-}
-
-.ask__chips .chip {
-  text-decoration: none;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    transform 0.2s var(--ease-out);
-}
-
-.ask__chips .chip:active {
-  transform: scale(0.95);
-}
-
-@media (hover: hover) {
-  .ask__chips .chip:hover {
-    background: var(--accent-soft);
-    color: var(--accent-hi);
-    transform: translateY(-1px);
-  }
-}
-
-@media (min-width: 600px) {
-  .ask__chips {
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-    mask-image: none;
-  }
 }
 
 .recent {
