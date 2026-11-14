@@ -1,11 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Páginas públicas. Al añadir una guía nueva (public/guias/*.html), añádela aquí y en guias.html -->
+<!-- Generado por scripts/generate-seo.mjs (npm run generate-seo): no lo edites a mano. Las guías de public/guias/ entran solas -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://mecanicai.org/</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://mecanicai.org/guias</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://mecanicai.org/guias/testigos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://mecanicai.org/guias/ruidos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/guias</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/coche-no-arranca</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/humo-del-escape</loc><lastmod>2026-11-14</lastmod></url>
   <url><loc>https://mecanicai.org/guias/mantenimiento-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/pasar-la-itv</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/ruidos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/guias/testigos-del-coche</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://mecanicai.org/coches</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/seat-ibiza</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/seat-leon</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/volkswagen-golf</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/volkswagen-polo</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/renault-clio</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/renault-megane</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/peugeot-208</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/peugeot-308</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/citroen-c3</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/citroen-c4</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/opel-corsa</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/opel-astra</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/ford-focus</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/ford-fiesta</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/dacia-sandero</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/dacia-duster</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/toyota-corolla</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/toyota-yaris</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/nissan-qashqai</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/hyundai-tucson</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/bmw-serie-3</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/coches/audi-a3</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0011</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0016</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0087</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0101</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0102</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0113</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0128</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0135</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0171</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0172</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0299</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0300</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0301</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0302</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0303</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0304</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0335</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0340</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0380</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0401</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0402</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0403</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0420</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0442</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0455</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0500</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0562</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p0700</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p2002</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p2015</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p20ee</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p242f</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/p2463</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://mecanicai.org/codigos/u0100</loc><lastmod>2026-11-14</lastmod></url>
   <url><loc>https://mecanicai.org/privacidad</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://mecanicai.org/terminos</loc><lastmod>2026-10-08</lastmod></url>
   <url><loc>https://mecanicai.org/cookies</loc><lastmod>2026-10-09</lastmod></url>

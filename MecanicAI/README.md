@@ -71,8 +71,18 @@ concreto.
 - **SEO**: `robots.txt`, `sitemap.xml`, etiquetas Open Graph (vista previa al compartir, con `og-image.png`) y datos
   estructurados (schema.org) en `index.html`. La portada explica la app bajo el inicio de sesión para que Google tenga
   texto que leer, y hay **guías de mecánica** en HTML estático (`/guias`, en `frontend/public/guias*`) pensadas para
-  atraer búsquedas. Para añadir una guía, copia una existente y enlázala en `guias.html` y en `sitemap.xml`. Las rutas
-  que no existen devuelven 404 (nginx) para que Google no las indexe.
+  atraer búsquedas. Para añadir una guía, copia una existente, enlázala en `guias.html` y ejecuta
+  `npm run generate-seo` (la añade al sitemap). Las rutas que no existen devuelven 404 (nginx) para que Google no las
+  indexe.
+- **Averías por modelo y códigos de avería** (`/coches`, `/coches/seat-ibiza`, `/codigos`, `/codigos/p0420`): páginas
+  estáticas para búsquedas como «averías Seat Ibiza», «Golf correa o cadena» o «código P0420». El contenido está en
+  `frontend/seo/coches.json` y `frontend/seo/codigos.json`, y `npm run generate-seo` (en `frontend/`) escribe con él
+  los HTML de `frontend/public/coches*` y `frontend/public/codigos*` y el `sitemap.xml`. Esos HTML se suben al
+  repositorio: el build de Docker no los genera. Para añadir un modelo o un código, añade su entrada al JSON y vuelve
+  a ejecutar el script (comprueba la marca y el modelo contra el catálogo del backend).
+- **Enlaces con el coche o la pregunta ya puestos**: `/?marca=seat&modelo=ibiza` abre el asistente con la marca y el
+  modelo elegidos, y `/?q=…` lleva esa pregunta al chat al terminar de elegir el coche (escrita, sin enviar). Quien
+  llega por uno de estos enlaces entra directamente como invitado. Los usan las páginas estáticas.
 
 ## Tecnologías
 

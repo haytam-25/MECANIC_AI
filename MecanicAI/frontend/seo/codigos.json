@@ -1,0 +1,250 @@
+[
+  {
+    "code": "P0011", "name": "Árbol de levas de admisión demasiado avanzado (banco 1)",
+    "what": "La centralita pide una posición del árbol de levas y el variador de la distribución no llega a ella. Casi siempre tiene que ver con el aceite, que es lo que mueve ese variador.",
+    "symptoms": ["Ralentí inestable o el motor se cala", "Pérdida de fuerza y más consumo", "Ruido al arrancar en frío"],
+    "causes": ["Aceite viejo, bajo de nivel o de una viscosidad incorrecta", "Electroválvula del variador (VVT) sucia o averiada", "Variador del árbol de levas agarrotado", "Cadena de distribución estirada"],
+    "fix": "Lo primero es comprobar el nivel y cambiar el aceite y el filtro si están pasados. Si vuelve, se revisa o se cambia la electroválvula del variador, y por último la distribución.",
+    "level": "cuidado", "drive": "Puedes llegar al taller con suavidad, pero no lo dejes: si la causa es la cadena, el motor corre peligro."
+  },
+  {
+    "code": "P0016", "name": "Cigüeñal y árbol de levas no están sincronizados (banco 1, sensor A)",
+    "what": "Los sensores del cigüeñal y del árbol de levas no coinciden como deberían: la distribución está desfasada o uno de los sensores miente.",
+    "symptoms": ["Arranque difícil", "Traqueteo metálico al arrancar", "Pérdida de potencia y testigo de avería"],
+    "causes": ["Cadena de distribución estirada o tensor gastado", "Correa de distribución saltada un diente", "Variador del árbol de levas averiado", "Sensor de cigüeñal o de árbol de levas defectuoso"],
+    "fix": "Hay que comprobar el calado de la distribución. Si la cadena o la correa están desfasadas, se cambia el kit completo; si el calado es correcto, se revisan los sensores y el variador.",
+    "level": "parar", "drive": "Mejor no circular: si la cadena o la correa saltan, las válvulas chocan con los pistones y el motor se rompe."
+  },
+  {
+    "code": "P0087", "name": "Presión de combustible demasiado baja en la rampa",
+    "what": "La centralita mide menos presión de combustible de la que ha pedido. Es típico de los diésel common rail y de los gasolina de inyección directa.",
+    "symptoms": ["Pérdida de potencia al acelerar o en cuestas", "El motor entra en modo de emergencia", "Tirones o el motor se para"],
+    "causes": ["Filtro de combustible atascado", "Bomba de baja presión (la del depósito) débil", "Bomba de alta presión desgastada", "Regulador de presión o sensor de la rampa", "Inyectores con retorno excesivo"],
+    "fix": "Se empieza por lo barato: filtro de combustible y presión de la bomba de baja. Después se miden el retorno de los inyectores y la bomba de alta.",
+    "level": "cuidado", "drive": "Puedes ir despacio al taller, pero el coche puede quedarse sin fuerza de golpe: evita adelantamientos y autovías."
+  },
+  {
+    "code": "P0101", "name": "Caudalímetro (MAF): señal fuera de rango",
+    "what": "El caudalímetro mide el aire que entra al motor. Este código indica que su lectura no cuadra con lo que la centralita espera según las revoluciones y la carga.",
+    "symptoms": ["Falta de potencia", "Humo negro en los diésel", "Tirones y consumo alto"],
+    "causes": ["Caudalímetro sucio o averiado", "Filtro de aire muy sucio", "Toma de aire entre el caudalímetro y el motor (manguito rajado o suelto)", "Válvula EGR atascada abierta"],
+    "fix": "Revisa el filtro de aire y los manguitos de admisión. El caudalímetro se puede limpiar con un spray específico; si no mejora, se cambia.",
+    "level": "seguir", "drive": "Se puede circular, aunque el coche andará peor y gastará más."
+  },
+  {
+    "code": "P0102", "name": "Caudalímetro (MAF): señal baja",
+    "what": "La señal eléctrica del caudalímetro es más baja de lo posible: o el sensor no mide, o hay un problema en su cableado.",
+    "symptoms": ["Motor sin fuerza", "Ralentí inestable", "Arranque difícil"],
+    "causes": ["Conector del caudalímetro suelto o con corrosión", "Caudalímetro averiado", "Cable cortado o en cortocircuito", "Entrada de aire sin medir después del sensor"],
+    "fix": "Comprueba el conector y el cableado antes de cambiar el sensor. Si están bien, se sustituye el caudalímetro.",
+    "level": "seguir", "drive": "Se puede circular con cuidado hasta el taller."
+  },
+  {
+    "code": "P0113", "name": "Sensor de temperatura del aire de admisión: señal alta",
+    "what": "El sensor que mide la temperatura del aire que entra al motor da una lectura imposible (como si hiciera muchísimo frío). Normalmente es un circuito abierto.",
+    "symptoms": ["A veces ninguno", "Arranque en frío algo peor", "Consumo ligeramente más alto"],
+    "causes": ["Conector suelto (a menudo tras cambiar el filtro de aire)", "Sensor averiado (en muchos coches va dentro del caudalímetro)", "Cable roto"],
+    "fix": "Revisa que el conector del caudalímetro o del sensor esté bien puesto. Si lo está, se cambia el sensor.",
+    "level": "seguir", "drive": "Sí, no es urgente."
+  },
+  {
+    "code": "P0128", "name": "Temperatura del refrigerante por debajo de la del termostato",
+    "what": "El motor tarda demasiado en calentarse o no llega a su temperatura normal.",
+    "symptoms": ["La aguja de temperatura se queda baja", "La calefacción calienta poco", "Más consumo de combustible"],
+    "causes": ["Termostato que se queda abierto (lo más habitual)", "Nivel de refrigerante bajo", "Sensor de temperatura defectuoso"],
+    "fix": "Comprueba el nivel de refrigerante. Si es correcto, casi siempre se soluciona cambiando el termostato.",
+    "level": "seguir", "drive": "Sí, pero arréglalo: un motor que trabaja frío gasta más y se desgasta antes."
+  },
+  {
+    "code": "P0135", "name": "Sonda lambda: circuito del calentador (banco 1, sensor 1)",
+    "what": "La sonda lambda anterior al catalizador lleva una resistencia que la calienta para que funcione pronto. Ese calentador no funciona.",
+    "symptoms": ["Consumo algo más alto", "Ralentí irregular en frío", "A veces solo el testigo"],
+    "causes": ["Sonda lambda con el calentador quemado", "Fusible del calentador fundido", "Cableado o conector dañado"],
+    "fix": "Se revisa el fusible y el cableado. Si están bien, se cambia la sonda lambda.",
+    "level": "seguir", "drive": "Sí. Conviene arreglarlo para no gastar de más ni dañar el catalizador a la larga."
+  },
+  {
+    "code": "P0171", "name": "Mezcla demasiado pobre (banco 1)",
+    "what": "Al motor le entra demasiado aire o muy poca gasolina, y la centralita ya no puede corregirlo.",
+    "symptoms": ["Ralentí inestable", "Tirones al acelerar", "Falta de fuerza", "Arranque en frío difícil"],
+    "causes": ["Toma de aire: manguito de admisión o de vacío rajado", "Caudalímetro sucio", "Presión de gasolina baja (bomba o filtro)", "Inyectores sucios", "Válvula de ventilación del cárter (PCV) rota"],
+    "fix": "Lo más frecuente es una toma de aire: se buscan manguitos agrietados y juntas del colector. Después se limpia el caudalímetro y se mide la presión de gasolina.",
+    "level": "cuidado", "drive": "Puedes ir al taller, pero circular mucho tiempo con mezcla pobre calienta el motor y daña el catalizador."
+  },
+  {
+    "code": "P0172", "name": "Mezcla demasiado rica (banco 1)",
+    "what": "Al motor le entra demasiada gasolina o muy poco aire.",
+    "symptoms": ["Olor a gasolina", "Humo negro y consumo alto", "Bujías ennegrecidas", "Ralentí irregular"],
+    "causes": ["Filtro de aire muy sucio", "Caudalímetro que mide mal", "Inyector que gotea", "Regulador de presión de gasolina averiado", "Sonda lambda o sensor de temperatura defectuosos"],
+    "fix": "Se revisa el filtro de aire y el caudalímetro, y después los inyectores y la presión de gasolina.",
+    "level": "cuidado", "drive": "Puedes llegar al taller, pero no lo dejes: la gasolina sobrante estropea el catalizador y diluye el aceite."
+  },
+  {
+    "code": "P0299", "name": "Turbo: presión de soplado insuficiente",
+    "what": "El turbo no llega a la presión que pide la centralita.",
+    "symptoms": ["Pérdida clara de potencia", "Modo de emergencia", "Silbido o soplido al acelerar", "Humo negro en los diésel"],
+    "causes": ["Manguito del turbo o del intercooler rajado o suelto", "Geometría variable agarrotada por carbonilla", "Válvula de descarga (wastegate) o su actuador", "Electroválvula de control del turbo", "Turbo desgastado"],
+    "fix": "Se empieza revisando manguitos e intercooler, que es lo más barato y frecuente. Luego el actuador y la geometría, y por último el propio turbo.",
+    "level": "cuidado", "drive": "Puedes ir despacio al taller. Si oyes un silbido muy fuerte o sale humo azul, para: el turbo puede estar rompiéndose."
+  },
+  {
+    "code": "P0300", "name": "Fallos de encendido aleatorios en varios cilindros",
+    "what": "El motor falla en más de un cilindro, sin un patrón fijo. Si fuera un solo cilindro, el código sería P0301, P0302, P0303 o P0304.",
+    "symptoms": ["El motor tiembla, sobre todo al ralentí", "Tirones al acelerar", "Testigo de avería parpadeando", "Olor a gasolina"],
+    "causes": ["Bujías gastadas", "Bobinas o cables de encendido", "Toma de aire en la admisión", "Presión de gasolina baja o inyectores sucios", "Compresión baja o distribución desfasada"],
+    "fix": "Se empieza por las bujías y las bobinas. Si están bien, se busca una toma de aire y se mide la presión de gasolina y la compresión.",
+    "level": "parar", "drive": "Si el testigo parpadea, no sigas: la gasolina sin quemar llega al catalizador y lo destruye en pocos kilómetros."
+  },
+  {
+    "code": "P030{n}", "cylinders": [1, 2, 3, 4], "name": "Fallo de encendido en el cilindro {n}",
+    "what": "El cilindro {n} no está quemando bien la mezcla. Al afectar a un solo cilindro, la avería suele estar en una pieza de ese cilindro concreto.",
+    "symptoms": ["El motor tiembla al ralentí", "Tirones y falta de fuerza", "Testigo de avería fijo o parpadeando"],
+    "causes": ["Bobina del cilindro {n} averiada", "Bujía del cilindro {n} gastada o sucia", "Inyector del cilindro {n} atascado", "Toma de aire cerca de ese cilindro", "Compresión baja en el cilindro {n}"],
+    "fix": "La prueba clásica es cambiar de sitio la bobina del cilindro {n} con la de otro cilindro: si el fallo se va con ella, es la bobina. Se hace lo mismo con la bujía.",
+    "level": "parar", "drive": "Con el testigo parpadeando, no circules: se daña el catalizador. Si el testigo está fijo, ve despacio al taller."
+  },
+  {
+    "code": "P0335", "name": "Sensor de posición del cigüeñal: fallo en el circuito",
+    "what": "La centralita no recibe bien la señal del sensor que le dice cómo gira el motor. Sin esa señal no puede dar chispa ni inyectar.",
+    "symptoms": ["El coche no arranca", "Se para de repente, a veces solo en caliente", "El cuentarrevoluciones no se mueve al dar al arranque"],
+    "causes": ["Sensor del cigüeñal averiado", "Conector o cable dañado", "Suciedad metálica en el sensor", "Corona del volante dañada"],
+    "fix": "Se revisa el conector y se cambia el sensor, que suele ser barato y accesible.",
+    "level": "parar", "drive": "Mejor no: el motor puede pararse en marcha y quedarte sin dirección asistida ni ayuda en el freno."
+  },
+  {
+    "code": "P0340", "name": "Sensor de posición del árbol de levas: fallo en el circuito",
+    "what": "La centralita no recibe la señal del sensor del árbol de levas, que usa para saber qué cilindro toca.",
+    "symptoms": ["Arranque largo", "Tirones o pérdida de potencia", "En algunos coches no arranca"],
+    "causes": ["Sensor del árbol de levas averiado", "Conector o cableado dañado", "Distribución desfasada"],
+    "fix": "Se comprueba el cableado y se cambia el sensor. Si el código vuelve, hay que revisar el calado de la distribución.",
+    "level": "cuidado", "drive": "Normalmente se puede llegar al taller, pero puede dejarte tirado."
+  },
+  {
+    "code": "P0380", "name": "Calentadores: fallo en el circuito",
+    "what": "Los calentadores (bujías de precalentamiento) de los diésel calientan la cámara para arrancar en frío. Hay un fallo en su circuito.",
+    "symptoms": ["Arranque difícil en frío", "Humo blanco y ralentí irregular al arrancar", "Testigo de calentadores parpadeando"],
+    "causes": ["Uno o varios calentadores quemados", "Relé o centralita de calentadores", "Fusible o cableado"],
+    "fix": "Se mide cada calentador y se cambian los que fallen (mejor todos si son viejos). Si están bien, se revisa el relé.",
+    "level": "seguir", "drive": "Sí. En invierno costará arrancar, y en los diésel modernos los calentadores también ayudan a regenerar el filtro de partículas."
+  },
+  {
+    "code": "P0401", "name": "EGR: caudal insuficiente",
+    "what": "La válvula EGR devuelve parte de los gases de escape a la admisión. La centralita detecta que pasan menos gases de los que debería.",
+    "symptoms": ["Testigo de avería", "Tirones a medio gas", "Pérdida de potencia en algunos coches"],
+    "causes": ["Válvula EGR atascada por carbonilla", "Conductos de la EGR o colector de admisión obstruidos", "Electroválvula o tubo de vacío de la EGR", "Sensor de presión o caudalímetro defectuoso"],
+    "fix": "En muchos casos basta con desmontar y limpiar la EGR y sus conductos. Si la válvula no se mueve, se cambia.",
+    "level": "seguir", "drive": "Sí, pero no pasarás la ITV con el testigo encendido."
+  },
+  {
+    "code": "P0402", "name": "EGR: caudal excesivo",
+    "what": "Pasan más gases de escape a la admisión de los que pide la centralita, normalmente porque la válvula se queda abierta.",
+    "symptoms": ["Ralentí inestable o el motor se cala", "Humo negro y falta de fuerza", "Tirones al acelerar desde abajo"],
+    "causes": ["Válvula EGR atascada abierta por carbonilla", "Electroválvula de control averiada", "Sensor de posición de la EGR defectuoso"],
+    "fix": "Se limpia o se cambia la válvula EGR y se comprueba su control.",
+    "level": "cuidado", "drive": "Puedes ir al taller, pero el coche puede calarse al parar."
+  },
+  {
+    "code": "P0403", "name": "EGR: fallo en el circuito eléctrico",
+    "what": "El fallo es eléctrico: la centralita no puede accionar la válvula EGR o no recibe su respuesta.",
+    "symptoms": ["Testigo de avería", "A veces pérdida de potencia o modo de emergencia"],
+    "causes": ["Válvula EGR con el motor eléctrico averiado", "Conector o cableado dañado", "Fusible"],
+    "fix": "Se revisa el conector y la alimentación. Si están bien, se cambia la válvula EGR.",
+    "level": "seguir", "drive": "Sí, hasta el taller."
+  },
+  {
+    "code": "P0420", "name": "Catalizador: eficiencia por debajo del umbral (banco 1)",
+    "what": "La sonda lambda posterior al catalizador detecta que este ya no limpia los gases como debería.",
+    "symptoms": ["Normalmente solo el testigo de avería", "A veces olor a huevo podrido", "Pérdida de fuerza si el catalizador está obstruido"],
+    "causes": ["Catalizador agotado o dañado (a menudo por fallos de encendido anteriores)", "Sonda lambda posterior defectuosa", "Fuga en el escape antes de la sonda", "Motor que quema aceite o va con mezcla rica"],
+    "fix": "Antes de cambiar el catalizador, que es caro, hay que descartar una fuga de escape y una sonda defectuosa, y arreglar la causa que lo haya dañado. Los limpiadores de catalizador rara vez lo solucionan.",
+    "level": "seguir", "drive": "Sí, pero el coche no pasará la prueba de gases de la ITV."
+  },
+  {
+    "code": "P0442", "name": "Sistema de vapores de gasolina (EVAP): fuga pequeña",
+    "what": "El sistema que recoge los vapores del depósito de gasolina tiene una pequeña fuga.",
+    "symptoms": ["Solo el testigo de avería", "A veces olor a gasolina"],
+    "causes": ["Tapón del depósito mal cerrado o con la junta gastada", "Manguito del sistema de vapores agrietado", "Válvula de purga del cánister", "Cánister de carbón dañado"],
+    "fix": "Aprieta bien el tapón del depósito o cámbialo (es barato). Si el código vuelve, el taller busca la fuga con una máquina de humo.",
+    "level": "seguir", "drive": "Sí, no afecta a la conducción."
+  },
+  {
+    "code": "P0455", "name": "Sistema de vapores de gasolina (EVAP): fuga grande",
+    "what": "El sistema de vapores del depósito no mantiene nada de presión: hay una fuga grande.",
+    "symptoms": ["Testigo de avería", "Olor a gasolina"],
+    "causes": ["Tapón del depósito quitado, mal puesto o roto", "Manguito de vapores suelto", "Válvula de purga o de ventilación atascada abierta"],
+    "fix": "Casi siempre es el tapón del depósito: colócalo bien y el testigo se apaga tras unos días. Si no, se revisan los manguitos y las válvulas.",
+    "level": "seguir", "drive": "Sí."
+  },
+  {
+    "code": "P0500", "name": "Sensor de velocidad del vehículo: fallo",
+    "what": "La centralita no recibe una señal fiable de la velocidad del coche.",
+    "symptoms": ["El velocímetro no marca o salta", "Cambio automático brusco", "Testigos de ABS o de control de tracción"],
+    "causes": ["Sensor de velocidad o sensor ABS de una rueda", "Cableado o conector dañado", "Corona del sensor sucia o rota", "Cuadro de instrumentos"],
+    "fix": "Se lee qué sensor falla y se revisa su cable y su corona antes de cambiarlo.",
+    "level": "cuidado", "drive": "Con cuidado: puedes quedarte sin velocímetro y sin ABS."
+  },
+  {
+    "code": "P0562", "name": "Tensión del sistema baja",
+    "what": "La centralita ve menos voltaje del normal en la instalación eléctrica.",
+    "symptoms": ["Testigo de la batería", "Arranque lento", "Luces flojas y fallos eléctricos raros"],
+    "causes": ["Batería agotada", "Alternador que no carga", "Correa del alternador floja o rota", "Bornes o masas con corrosión"],
+    "fix": "Se mide la batería y la carga del alternador (unos 14 V con el motor en marcha) y se limpian los bornes.",
+    "level": "cuidado", "drive": "Si el alternador no carga, el coche se parará cuando se agote la batería: ve directo al taller."
+  },
+  {
+    "code": "P0700", "name": "Avería en el control del cambio automático",
+    "what": "Es un código de aviso: la centralita del cambio ha detectado un fallo y pide encender el testigo. El fallo concreto está guardado en la centralita del cambio.",
+    "symptoms": ["Cambios bruscos", "El cambio se queda en una marcha (modo de emergencia)", "Testigo del cambio o de avería"],
+    "causes": ["Nivel de aceite del cambio bajo o aceite degradado", "Electroválvulas del cambio", "Sensores de velocidad del cambio", "Mecatrónica o centralita del cambio"],
+    "fix": "Hay que leer la centralita del cambio con una máquina que acceda a ella para ver el código real, y revisar el nivel y el estado del aceite.",
+    "level": "cuidado", "drive": "Puedes ir despacio al taller si el coche cambia; no fuerces el cambio."
+  },
+  {
+    "code": "P2002", "name": "Filtro de partículas: eficiencia por debajo del umbral (banco 1)",
+    "what": "El filtro de partículas (FAP o DPF) está demasiado lleno de hollín o la centralita cree que no filtra bien.",
+    "symptoms": ["Testigo del filtro de partículas", "Pérdida de potencia o modo de emergencia", "Ventilador funcionando tras parar el motor"],
+    "causes": ["Filtro saturado por trayectos cortos que impiden la regeneración", "Sensor de presión diferencial o sus tubos", "EGR o inyectores que generan demasiado hollín", "Filtro agotado por cenizas (muchos kilómetros)"],
+    "fix": "Si no hay otros fallos, puede bastar con un trayecto de 20–30 minutos por autovía a régimen sostenido. Si no, el taller fuerza una regeneración, revisa el sensor de presión o limpia el filtro.",
+    "level": "cuidado", "drive": "Sí, y de hecho un trayecto por autovía puede ayudar. Si el coche entra en modo de emergencia, llévalo al taller."
+  },
+  {
+    "code": "P2015", "name": "Sensor de posición de las mariposas del colector de admisión",
+    "what": "El colector de admisión tiene unas mariposas que se mueven con un motor. El sensor de posición indica un valor que no corresponde.",
+    "symptoms": ["Testigo de avería", "Algo menos de empuje a bajas vueltas", "A veces ninguno más"],
+    "causes": ["Mecanismo de las mariposas con holgura (muy típico en los 2.0 TDI y TFSI del grupo Volkswagen)", "Motor o sensor del colector averiado", "Carbonilla en el colector"],
+    "fix": "Según el coche, se puede poner un soporte de reparación en el mecanismo o hay que cambiar el colector de admisión.",
+    "level": "seguir", "drive": "Sí."
+  },
+  {
+    "code": "P20EE", "name": "Catalizador SCR (AdBlue): eficiencia por debajo del umbral",
+    "what": "El sistema AdBlue no está reduciendo los óxidos de nitrógeno lo suficiente.",
+    "symptoms": ["Aviso del sistema anticontaminación", "Cuenta atrás de kilómetros hasta que el coche no arranque"],
+    "causes": ["AdBlue de mala calidad, viejo o diluido", "Inyector de AdBlue cristalizado", "Bomba o depósito de AdBlue", "Sensores de NOx defectuosos", "Catalizador SCR agotado"],
+    "fix": "Se comprueba la calidad del AdBlue, se limpia el inyector y se revisan los sensores de NOx y la bomba.",
+    "level": "cuidado", "drive": "Sí, pero haz caso a la cuenta atrás: cuando llega a cero, el coche no vuelve a arrancar."
+  },
+  {
+    "code": "P242F", "name": "Filtro de partículas obstruido por acumulación de cenizas",
+    "what": "El filtro de partículas tiene tanta ceniza que ya no se limpia regenerando. La ceniza no se quema: se acumula con los kilómetros.",
+    "symptoms": ["Regeneraciones cada vez más frecuentes", "Pérdida de potencia", "Testigo del filtro de partículas"],
+    "causes": ["Filtro al final de su vida útil", "Aceite inadecuado (con muchas cenizas)", "Motor que consume aceite", "Sensor de presión diferencial defectuoso"],
+    "fix": "Se comprueba el sensor de presión. Si el filtro está realmente lleno de ceniza, hay que limpiarlo desmontado en una empresa especializada o cambiarlo.",
+    "level": "cuidado", "drive": "Puedes ir al taller. No sigas mucho tiempo: el exceso de contrapresión daña el turbo."
+  },
+  {
+    "code": "P2463", "name": "Filtro de partículas: acumulación excesiva de hollín",
+    "what": "El filtro de partículas tiene demasiado hollín porque las regeneraciones no se están completando.",
+    "symptoms": ["Testigo del filtro de partículas", "Modo de emergencia", "Subida del nivel de aceite (gasóleo en el aceite)"],
+    "causes": ["Uso solo en ciudad o trayectos cortos", "Regeneraciones interrumpidas", "Sensor de presión diferencial o de temperatura", "Inyectores, EGR o turbo que generan hollín"],
+    "fix": "Con poco hollín puede regenerar en autovía; con mucho, el taller hace una regeneración forzada o una limpieza. Revisa el nivel de aceite: si ha subido, hay que cambiarlo.",
+    "level": "cuidado", "drive": "Sí, pero si el testigo parpadea o hay modo de emergencia, llévalo al taller sin intentar regenerarlo tú."
+  },
+  {
+    "code": "U0100", "name": "Sin comunicación con la centralita del motor",
+    "what": "Las demás centralitas del coche no reciben mensajes de la centralita del motor por la red de datos (CAN).",
+    "symptoms": ["El coche no arranca o se para", "Muchos testigos encendidos a la vez", "La máquina de diagnosis no conecta con el motor"],
+    "causes": ["Batería baja o bornes flojos", "Fusible o relé de la centralita del motor", "Cableado o conector de la red CAN dañado (humedad, roedores)", "Centralita del motor averiada"],
+    "fix": "Se empieza por la batería, los fusibles y las masas. Después se comprueba la red CAN y la alimentación de la centralita.",
+    "level": "parar", "drive": "No es fiable circular: el motor puede pararse en cualquier momento."
+  }
+]

@@ -1,4 +1,4 @@
-import { useOutletContext } from 'react-router'
+import { useOutletContext, useSearchParams } from 'react-router'
 
 import { Icon } from '../components/Icon.tsx'
 import { Wheel } from '../components/Wheel.tsx'
@@ -9,11 +9,21 @@ import { VehicleWizard } from '../features/wizard/VehicleWizard.tsx'
 import '../features/garage/garage.css'
 import './pages.css'
 
-/** Inicio: el asistente para elegir el coche. Los coches ya guardados están en el garaje (menú lateral). */
+/** Como mucho, lo que se acepta de la pregunta que llega en el enlace (/?q=…). */
+const MAX_LINK_QUESTION = 500
+
+/**
+ * Inicio: el asistente para elegir el coche. Los coches ya guardados están en el garaje (menú lateral).
+ *
+ * Las páginas estáticas (averías por modelo, códigos de avería) enlazan aquí con el coche o la pregunta ya puestos:
+ * /?marca=seat&modelo=ibiza abre el asistente en el año, y /?q=… lleva la pregunta al chat al terminar de elegir el coche.
+ */
 export function HomePage() {
   const { me, vehicles } = useSession()
   const { openGarage } = useOutletContext<ShellContext>()
-  const complete = useVehicleSetup()
+  const [params] = useSearchParams()
+  const question = params.get('q')?.trim().slice(0, MAX_LINK_QUESTION) || undefined
+  const complete = useVehicleSetup(question)
 
   if (!me) return null
 
@@ -38,7 +48,8 @@ export function HomePage() {
           </span>
         </button>
       )}
-      <VehicleWizard onComplete={complete} />
+      {question && <p className="muted small center">Elige tu coche y te llevo al chat con tu pregunta ya escrita.</p>}
+      <VehicleWizard onComplete={complete} presetBrandId={params.get('marca')} presetModelId={params.get('modelo')} />
       {!me.authenticated && (
         <p className="muted small center">
           Gratis: {me.features.guestDailyMessages} consultas al día sin cuenta. Con Google, {me.features.freeDailyMessages}{' '}

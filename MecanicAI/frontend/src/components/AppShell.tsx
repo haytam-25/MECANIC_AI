@@ -20,7 +20,7 @@ export interface ShellContext {
 }
 
 export function AppShell() {
-  const { me, offline, refreshMe, completeLogin, guestMode } = useSession()
+  const { me, offline, refreshMe, completeLogin, guestMode, enterGuestMode } = useSession()
   const location = useLocation()
   const [drawerPath, setDrawerPath] = useState<string | null>(null)
   const drawerOpen = drawerPath === location.pathname
@@ -66,8 +66,16 @@ export function AppShell() {
       .catch(() => toast('No se pudo guardar tu garaje de invitado en la cuenta.', 'error'))
   }, [searchParams, setSearchParams, me, completeLogin, navigate, toast])
 
+  // Quien llega desde una página de averías o de códigos (/?marca=…&modelo=… o /?q=…) ya ha pulsado "Preguntar":
+  // entra como invitado directamente, sin pasar por la portada
+  const undecided = Boolean(me && !me.authenticated && !guestMode)
+  const deepLink = location.pathname === '/' && (searchParams.has('marca') || searchParams.has('q'))
+  useEffect(() => {
+    if (undecided && deepLink) enterGuestMode()
+  }, [undecided, deepLink, enterGuestMode])
+
   // Portada: sin sesión y sin haber elegido el modo invitado
-  if (me && !me.authenticated && !guestMode) return <WelcomePage />
+  if (undecided && !deepLink) return <WelcomePage />
 
   return (
     <div className="shell">

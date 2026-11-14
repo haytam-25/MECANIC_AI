@@ -200,6 +200,15 @@ export function WelcomePage() {
           <li>
             <a href="/guias/mantenimiento-del-coche">Mantenimiento del coche por kilómetros</a>
           </li>
+          <li>
+            <a href="/coches">Averías comunes por modelo: correa o cadena y fallos típicos de cada motor</a>
+          </li>
+          <li>
+            <a href="/codigos">Códigos de avería OBD2: qué significa cada uno</a>
+          </li>
+          <li>
+            <a href="/guias">Todas las guías</a>
+          </li>
         </ul>
       </section>
 

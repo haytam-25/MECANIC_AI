@@ -316,3 +316,19 @@ footer a[aria-current='page'] {
 .dot--blue {
   background: #5aa6ff;
 }
+
+/* ---------- Averías por modelo y códigos de avería ---------- */
+
+/* Motor o años a los que afecta una avería */
+.tag {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-3);
+  font-size: 0.82rem;
+}
+
+h3 + p:has(> .tag:only-child) {
+  margin-top: 0.1rem;
+}

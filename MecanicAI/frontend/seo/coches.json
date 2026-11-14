@@ -1,0 +1,454 @@
+[
+  {
+    "brandId": "seat", "brand": "SEAT", "modelId": "ibiza", "model": "Ibiza",
+    "intro": "El SEAT Ibiza es uno de los coches más vendidos de España y comparte motores y cambios con el Volkswagen Polo. Es un coche duro, pero cada generación y cada motor tienen sus puntos débiles conocidos.",
+    "faults": [
+      { "t": "Cadena de distribución estirada", "e": "1.2 TSI (2010–2015) y 1.2 de 3 cilindros", "d": "Traqueteo metálico unos segundos al arrancar en frío. Si se deja, la cadena puede saltar un diente y dañar el motor. Se cambia el kit completo (cadena, tensor y guías)." },
+      { "t": "Tirones y fallos del cambio DSG de 7 marchas", "e": "DSG7 de embrague seco (DQ200)", "d": "Tirones al salir en primera y segunda, vibraciones o el testigo del cambio parpadeando. Suele ser el desgaste del doble embrague o la unidad mecatrónica." },
+      { "t": "Bobinas de encendido", "e": "Gasolina 1.2, 1.4 y 1.8 T", "d": "El motor tiembla, pierde fuerza y parpadea el testigo de avería del motor. Una bobina fallida es una reparación sencilla y barata; conviene cambiar también las bujías si están viejas." },
+      { "t": "Caudalímetro, EGR y turbo en los TDI", "e": "1.9 TDI y 1.4 TDI", "d": "Pérdida de potencia, humo negro o modo de emergencia. El caudalímetro y la válvula EGR sucia son lo más habitual; en coches con muchos kilómetros, la geometría variable del turbo se agarrota por la carbonilla." },
+      { "t": "Elevalunas y cierres de las puertas", "e": "Ibiza de 2002 a 2008", "d": "El cristal se cae dentro de la puerta o el cierre centralizado no reconoce una puerta. Son las grapas del elevalunas y el microinterruptor de la cerradura." }
+    ],
+    "belt": [
+      "Correa: 1.9 TDI, 1.4 TDI, 1.6 TDI, 1.4 16v y los 1.0 MPI y 1.0 TSI (desde 2015).",
+      "Cadena: 1.2 de 3 cilindros (6v y 12v) y 1.2 TSI hasta 2015.",
+      "El 1.2 TSI cambió a correa en 2015: si tu coche es de ese año, pregunta por tu motor concreto."
+    ],
+    "care": [
+      "En el DSG7 de embrague seco evita mantener el coche parado en cuesta con el acelerador: quema los embragues.",
+      "En los TDI, cambia la correa de distribución con la bomba de agua en el plazo que marca el fabricante para tu motor.",
+      "Aceite con la homologación VW correcta (504.00/507.00 en los modelos con filtro de partículas)."
+    ]
+  },
+  {
+    "brandId": "seat", "brand": "SEAT", "modelId": "leon", "model": "León",
+    "intro": "El SEAT León comparte plataforma y mecánica con el Volkswagen Golf y el Audi A3. Sus averías típicas dependen mucho del motor: no tiene nada que ver un 1.9 TDI de 2003 con un 1.4 TSI de 2010.",
+    "faults": [
+      { "t": "Culata e inyectores del 2.0 TDI de bomba-inyector", "e": "2.0 TDI de 2005 a 2008", "d": "Pérdida de refrigerante sin fuga visible (culata fisurada en algunas series del motor de 140 CV) y fallos de los inyectores, sobre todo en el de 170 CV." },
+      { "t": "Cadena de distribución y consumo de aceite", "e": "1.4 TSI, 1.8 TSI y 2.0 TSI de 2008 a 2012", "d": "Traqueteo al arrancar en frío por el tensor de la cadena. Los 1.8 y 2.0 TSI de esos años pueden gastar bastante aceite por los segmentos: vigila el nivel a menudo." },
+      { "t": "Bomba de agua y termostato con fugas", "e": "León de 2013 en adelante (1.8/2.0 TSI y 2.0 TDI)", "d": "Baja el nivel de refrigerante o aparece el aviso de temperatura. El módulo de la bomba de agua y el termostato es de plástico y acaba perdiendo." },
+      { "t": "Válvula EGR y su refrigerador", "e": "1.6 TDI y 2.0 TDI common rail", "d": "Testigo de avería del motor, pérdida de potencia y a veces consumo de refrigerante. Es más frecuente en coches que hacen sobre todo ciudad." },
+      { "t": "Cambio DSG de 7 marchas", "e": "DSG7 de embrague seco (DQ200)", "d": "Tirones en marchas cortas o avería de la mecatrónica. El DSG de 6 marchas en baño de aceite es más robusto, pero necesita su cambio de aceite." }
+    ],
+    "belt": [
+      "Correa: 1.9 TDI, 2.0 TDI, 1.6 TDI, 1.6 de 8 válvulas y 1.8 T de 20 válvulas.",
+      "Cadena: 1.2 TSI y 1.4 TSI hasta 2012, y todos los 1.8 TSI y 2.0 TSI.",
+      "Correa: 1.0, 1.2, 1.4 y 1.5 TSI del León de 2013 en adelante."
+    ],
+    "care": [
+      "Cambia el aceite del DSG de 6 marchas cada 60.000 km.",
+      "En los TSI con cadena, no alargues los cambios de aceite: el tensor depende de la presión y la limpieza del aceite.",
+      "En los TDI con filtro de partículas, haz de vez en cuando un trayecto largo por carretera para que regenere."
+    ]
+  },
+  {
+    "brandId": "volkswagen", "brand": "Volkswagen", "modelId": "golf", "model": "Golf",
+    "intro": "El Volkswagen Golf lleva décadas siendo la referencia de los compactos. Es un coche fiable si se mantiene bien, pero algunos motores y cambios de ciertas generaciones tienen fallos muy conocidos.",
+    "faults": [
+      { "t": "Cadena de distribución y pistones del 1.4 TSI", "e": "Golf V y VI, 1.4 TSI (sobre todo el de 160 CV con compresor y turbo)", "d": "Ruido de cadena en frío y, en el de doble sobrealimentación, consumo de aceite y fallos de encendido por daños en los pistones." },
+      { "t": "Culata e inyectores del 2.0 TDI de bomba-inyector", "e": "Golf V, 2.0 TDI de 2004 a 2008", "d": "Pérdida de refrigerante por culata fisurada en algunas series, e inyectores que fallan y provocan tirones o que el motor se pare." },
+      { "t": "Mecatrónica y embragues del DSG7", "e": "DSG7 de embrague seco (DQ200)", "d": "Tirones al maniobrar, pérdida de marchas pares o impares y testigo del cambio. Muy común en 1.2 TSI, 1.4 TSI y 1.6 TDI." },
+      { "t": "Bomba de agua y termostato", "e": "Golf VII (2.0 TDI y 1.8/2.0 TSI)", "d": "Fugas de refrigerante por el módulo de plástico de la bomba y el termostato. En el 2.0 TDI, la bomba puede dejar de mover el líquido y el motor se calienta." },
+      { "t": "Caudalímetro y elevalunas", "e": "Golf IV 1.9 TDI", "d": "Pérdida de potencia por el caudalímetro y cristales que se caen dentro de la puerta por las grapas del elevalunas: dos clásicos del Golf IV." }
+    ],
+    "belt": [
+      "Correa: todos los TDI (1.9, 2.0 y 1.6), el 1.6 de 8 válvulas y el 1.8 T.",
+      "Cadena: 1.2 TSI y 1.4 TSI hasta 2012, 1.8 TSI, 2.0 TSI (desde 2008) y los VR6.",
+      "Correa: 1.0, 1.2, 1.4 y 1.5 TSI del Golf VII y del Golf VIII."
+    ],
+    "care": [
+      "Usa aceite con la homologación VW que pide tu motor: en estos motores no vale cualquiera.",
+      "En los TDI, cambia la bomba de agua junto con la correa de distribución.",
+      "Si el DSG da tirones, revísalo pronto: una adaptación o un cambio de aceite a tiempo evita averías mayores."
+    ]
+  },
+  {
+    "brandId": "volkswagen", "brand": "Volkswagen", "modelId": "polo", "model": "Polo",
+    "intro": "El Volkswagen Polo es el hermano del SEAT Ibiza: mismos motores y mismos cambios. Los pequeños gasolina de 3 cilindros y los primeros TSI son los que más visitas al taller generan.",
+    "faults": [
+      { "t": "Cadena de distribución", "e": "1.2 de 3 cilindros y 1.2 TSI hasta 2014", "d": "Traqueteo al arrancar en frío. Si la cadena se estira demasiado, el motor pierde el calado y puede sufrir daños graves." },
+      { "t": "Bobinas y bujías", "e": "1.2 y 1.4 gasolina", "d": "Tirones, ralentí inestable y testigo de avería del motor parpadeando. Circular mucho tiempo así daña el catalizador." },
+      { "t": "Consumo de aceite", "e": "Polo GTI 1.4 TSI de 180 CV (2010–2014)", "d": "Este motor con compresor y turbo puede gastar mucho aceite. Hay que mirar el nivel con frecuencia." },
+      { "t": "Cambio DSG de 7 marchas", "e": "DSG7 de embrague seco (DQ200)", "d": "Tirones en primera y segunda y fallos de la mecatrónica, igual que en el resto del grupo Volkswagen." },
+      { "t": "EGR, caudalímetro y turbo", "e": "1.4 TDI y 1.9 TDI", "d": "Pérdida de potencia y humo negro. En ciudad, la EGR y la admisión se llenan de carbonilla." }
+    ],
+    "belt": [
+      "Cadena: 1.2 de 3 cilindros (6v y 12v) y 1.2 TSI hasta 2014.",
+      "Correa: 1.4 de 16 válvulas, todos los TDI y los 1.0 MPI y 1.0 TSI.",
+      "El 1.2 TSI posterior a 2014 lleva correa."
+    ],
+    "care": [
+      "En los gasolina pequeños, cambia las bujías en su plazo: alargan la vida de las bobinas.",
+      "No alargues los cambios de aceite en los motores con cadena.",
+      "En los TDI de ciudad, un trayecto por autovía de vez en cuando ayuda a limpiar la EGR y el filtro de partículas."
+    ]
+  },
+  {
+    "brandId": "renault", "brand": "Renault", "modelId": "clio", "model": "Clio",
+    "intro": "El Renault Clio es un utilitario sencillo y barato de mantener. Sus fallos más repetidos son eléctricos (bobinas, sensores) y, en algunos motores concretos, de inyección o de consumo de aceite.",
+    "faults": [
+      { "t": "Bobinas de encendido", "e": "Gasolina 1.2, 1.4 y 1.6 de 16 válvulas", "d": "El motor tiembla y pierde fuerza, sobre todo con humedad. Es la avería más típica del Clio II y III y es barata de arreglar." },
+      { "t": "Inyectores y bomba de alta presión", "e": "1.5 dCi de 2001 a 2008", "d": "Arranque difícil, tirones o el motor se para. En los primeros 1.5 dCi, la bomba puede soltar virutas metálicas que dañan los inyectores. También conviene vigilar los casquillos de biela con muchos kilómetros." },
+      { "t": "Consumo excesivo de aceite", "e": "1.2 TCe (2012–2016)", "d": "El motor gasta aceite entre revisiones y puede acabar dañando la cadena y las válvulas. Renault hizo campañas para este motor: mira el nivel a menudo." },
+      { "t": "Polea desfasadora del árbol de levas", "e": "1.6 de 16 válvulas", "d": "Ruido de «diésel» al arrancar en frío. Se cambia junto con la correa de distribución." },
+      { "t": "Sensor de punto muerto superior", "e": "Clio II y III", "d": "El coche no arranca en caliente o se para de repente y vuelve a arrancar al rato. El sensor (o su conector) es barato." }
+    ],
+    "belt": [
+      "Correa: 1.2 de 8 y 16 válvulas, 1.4 y 1.6 de 16 válvulas y todos los 1.5 dCi.",
+      "Cadena: 0.9 TCe, 1.2 TCe, 1.0 SCe, 1.0 TCe, 1.3 TCe y el híbrido E-Tech."
+    ],
+    "care": [
+      "En el 1.5 dCi, cambia el filtro de gasóleo en su plazo y no apures el depósito.",
+      "En el 1.6 16v, cambia la polea desfasadora cuando toque la correa.",
+      "Revisa el nivel de aceite cada mes en los 1.2 TCe."
+    ]
+  },
+  {
+    "brandId": "renault", "brand": "Renault", "modelId": "megane", "model": "Mégane",
+    "intro": "El Renault Mégane ha cambiado mucho entre generaciones. El Mégane II es conocido por sus fallos eléctricos; los posteriores son más fiables, con algún motor concreto que conviene vigilar.",
+    "faults": [
+      { "t": "Tarjeta y lector de tarjeta", "e": "Mégane II (2002–2008)", "d": "«Tarjeta no detectada» y el coche no arranca. Puede ser la tarjeta (soldaduras o pila), el lector o el bloqueo de la columna de dirección." },
+      { "t": "Elevalunas eléctricos", "e": "Mégane II", "d": "El cristal baja torcido o se queda sin fuerza. Suele ser el mecanismo del elevalunas, no el motor." },
+      { "t": "Turbo y EGR", "e": "1.9 dCi", "d": "Silbido fuerte, humo azul o pérdida de potencia. El turbo de este motor sufre con cambios de aceite alargados." },
+      { "t": "Inyectores y casquillos de biela", "e": "1.5 dCi hasta 2008", "d": "Tirones, arranque difícil o golpeteo metálico del motor. A partir de 2009 el 1.5 dCi mejoró mucho." },
+      { "t": "Consumo de aceite", "e": "1.2 TCe (2012–2016)", "d": "Gasta aceite entre cambios y puede dañar la distribución. Hay que revisar el nivel con frecuencia." }
+    ],
+    "belt": [
+      "Correa: 1.4, 1.6 y 2.0 de 16 válvulas, 1.5 dCi y 1.9 dCi.",
+      "Cadena: 2.0 dCi, 1.6 dCi, 1.2 TCe, 1.3 TCe y 1.4 TCe."
+    ],
+    "care": [
+      "No alargues los cambios de aceite en los dCi: el turbo es lo primero que lo sufre.",
+      "En el 1.6 16v, cambia la polea desfasadora con la correa de distribución.",
+      "Si la tarjeta falla a ratos, prueba primero con la segunda tarjeta antes de cambiar el lector."
+    ]
+  },
+  {
+    "brandId": "peugeot", "brand": "Peugeot", "modelId": "208", "model": "208",
+    "intro": "El Peugeot 208 es un superventas, y casi todas las consultas sobre sus averías giran en torno a dos cosas: la correa de distribución del 1.2 PureTech y el sistema AdBlue de los BlueHDi.",
+    "faults": [
+      { "t": "Correa de distribución bañada en aceite", "e": "1.2 PureTech (y 1.0/1.2 VTi)", "d": "La correa se deshace dentro del aceite y sus restos atascan la bomba de aceite y la bomba de vacío: aviso de presión de aceite, freno duro o consumo de aceite. Hay que revisarla y cambiarla antes de lo que decía el plan original." },
+      { "t": "Avería del sistema AdBlue", "e": "1.6 BlueHDi y 1.5 BlueHDi", "d": "Mensaje «Fallo anticontaminación: arranque imposible en X km». Lo más habitual es el depósito de AdBlue con su bomba integrada, o el inyector de urea cristalizado." },
+      { "t": "Cadena de los árboles de levas", "e": "1.5 BlueHDi (desde 2018)", "d": "Una cadena pequeña que une los dos árboles de levas puede estirarse o romperse. Avisa con ruido metálico en la parte alta del motor." },
+      { "t": "Juntas de inyectores y turbo", "e": "1.4 HDi y 1.6 HDi", "d": "Olor a gases y un «chof-chof» en el motor por las juntas de los inyectores; si se deja, la carbonilla acaba afectando al engrase del turbo." },
+      { "t": "Pantalla táctil y cambio pilotado", "e": "208 de 2012 a 2019", "d": "Pantalla que se cuelga o se reinicia, y tirones en los cambios pilotados ETG." }
+    ],
+    "belt": [
+      "Correa bañada en aceite: 1.0 y 1.2 VTi y 1.2 PureTech (las versiones más recientes ya llevan cadena).",
+      "Cadena: 1.4 VTi y 1.6 VTi/THP.",
+      "Correa: todos los diésel HDi y BlueHDi."
+    ],
+    "care": [
+      "En el 1.2 PureTech usa solo el aceite homologado por el fabricante y no alargues los cambios: es lo que protege la correa.",
+      "Rellena el AdBlue antes de que se agote y sin llenar a rebosar.",
+      "Pide que revisen el estado de la correa en cada mantenimiento."
+    ]
+  },
+  {
+    "brandId": "peugeot", "brand": "Peugeot", "modelId": "308", "model": "308",
+    "intro": "El Peugeot 308 comparte motores con el resto de Peugeot y Citroën. Los gasolina 1.6 THP de la primera generación y los 1.2 PureTech posteriores concentran la mayoría de las averías conocidas.",
+    "faults": [
+      { "t": "Cadena, carbonilla y bomba de alta", "e": "1.6 THP y 1.6 VTi (2007–2013)", "d": "Ruido de cadena en frío, tirones y pérdida de potencia por carbonilla en las válvulas de admisión, y fallos de la bomba de alta presión. También puede consumir aceite." },
+      { "t": "Turbo por falta de engrase", "e": "1.6 HDi de 110 CV (2007–2010)", "d": "El turbo se rompe porque la carbonilla tapa su tubo de engrase. Al cambiarlo hay que limpiar el circuito y cambiar el tubo y el filtro, o el turbo nuevo dura poco." },
+      { "t": "Correa de distribución bañada en aceite", "e": "1.2 PureTech", "d": "La correa se degrada y atasca la bomba de aceite. Aviso de presión de aceite o freno duro: para y revísalo." },
+      { "t": "Sistema AdBlue", "e": "BlueHDi", "d": "Aviso de fallo anticontaminación con cuenta atrás de kilómetros. Normalmente es el depósito con la bomba de AdBlue." },
+      { "t": "Cadena de los árboles de levas", "e": "1.5 BlueHDi", "d": "Ruido metálico en la parte alta del motor. Si se rompe, la avería es grave." }
+    ],
+    "belt": [
+      "Cadena: 1.4 VTi, 1.6 VTi y 1.6 THP.",
+      "Correa bañada en aceite: 1.2 PureTech.",
+      "Correa: 1.6 HDi, 2.0 HDi y BlueHDi."
+    ],
+    "care": [
+      "En el 1.6 THP, cambia el aceite cada 10.000–15.000 km como mucho.",
+      "En los 1.6 HDi, usa aceite de baja ceniza y cambia el filtro en cada servicio.",
+      "En el 1.2 PureTech, revisa el estado de la correa en cada mantenimiento."
+    ]
+  },
+  {
+    "brandId": "citroen", "brand": "Citroën", "modelId": "c3", "model": "C3",
+    "intro": "El Citroën C3 es un utilitario cómodo y económico. Sus averías más consultadas son las de los motores que comparte con Peugeot y, en los últimos años, la campaña de los airbags.",
+    "faults": [
+      { "t": "Campaña de los airbags Takata", "e": "C3 de 2009 a 2019", "d": "Citroën ha llamado a revisión a estos coches por los airbags, en muchos casos pidiendo no conducir hasta cambiarlos. Comprueba tu número de bastidor en la web de Citroën: el cambio es gratuito." },
+      { "t": "Correa de distribución bañada en aceite", "e": "1.2 PureTech (y 1.0/1.2 VTi)", "d": "La correa se degrada y sus restos atascan la bomba de aceite. Aviso de presión de aceite, freno duro o consumo de aceite." },
+      { "t": "Juntas de inyectores y turbo", "e": "1.4 HDi y 1.6 HDi", "d": "Olor a gases de escape y restos negros alrededor de los inyectores. En el 1.6 HDi, la carbonilla puede dejar al turbo sin engrase." },
+      { "t": "Sistema AdBlue", "e": "BlueHDi", "d": "Aviso de fallo anticontaminación con cuenta atrás. Suele ser el depósito con la bomba de AdBlue." },
+      { "t": "Cambio SensoDrive y dirección eléctrica", "e": "C3 de 2002 a 2009", "d": "El cambio pilotado se queda en punto muerto o da tirones (actuador del embrague), y la dirección asistida eléctrica puede endurecerse." }
+    ],
+    "belt": [
+      "Correa: 1.1 y 1.4 de 8 válvulas, 1.4 16v y todos los HDi y BlueHDi.",
+      "Cadena: 1.4 VTi y 1.6 VTi (2009–2016).",
+      "Correa bañada en aceite: 1.0 y 1.2 VTi y 1.2 PureTech."
+    ],
+    "care": [
+      "Si tu C3 es de 2009 a 2019, comprueba ya si le afecta la campaña de los airbags.",
+      "En el PureTech, aceite homologado y cambios sin alargar.",
+      "En los HDi, revisa de vez en cuando que no haya restos negros junto a los inyectores."
+    ]
+  },
+  {
+    "brandId": "citroen", "brand": "Citroën", "modelId": "c4", "model": "C4",
+    "intro": "El Citroën C4 lleva los mismos motores que el Peugeot 308. El diésel 1.6 HDi es el más vendido y también el que más consultas genera.",
+    "faults": [
+      { "t": "Turbo e inyectores", "e": "1.6 HDi de 110 CV", "d": "Rotura del turbo por carbonilla en el circuito de engrase y fugas por las juntas de los inyectores. Es la avería más conocida del C4." },
+      { "t": "Filtro de partículas y aditivo", "e": "HDi con filtro de partículas (C4 de 2004 a 2010)", "d": "Estos motores usan un aditivo (cerina) en un depósito aparte que hay que rellenar. Si se agota, salta el aviso de anticontaminación y el filtro se atasca." },
+      { "t": "Cadena y carbonilla", "e": "1.6 VTi y 1.6 THP", "d": "Ruido de cadena al arrancar en frío, tirones y consumo de aceite." },
+      { "t": "Cambio pilotado", "e": "CMP6 / ETG6", "d": "Tirones, marchas que no entran o el cambio se queda en punto muerto. Suele ser el actuador del embrague o el propio embrague." },
+      { "t": "Correa bañada en aceite y AdBlue", "e": "1.2 PureTech y BlueHDi", "d": "Los mismos fallos que en el resto de la gama: correa que se degrada en el PureTech y depósito de AdBlue en los BlueHDi." }
+    ],
+    "belt": [
+      "Correa: 1.4 y 1.6 de 16 válvulas (hasta 2008), 2.0 16v y todos los HDi y BlueHDi.",
+      "Cadena: 1.4 VTi, 1.6 VTi y 1.6 THP.",
+      "Correa bañada en aceite: 1.2 PureTech."
+    ],
+    "care": [
+      "En el 1.6 HDi, cambia aceite y filtro sin alargar los plazos y usa aceite de baja ceniza.",
+      "Pregunta cuándo toca rellenar el aditivo del filtro de partículas en tu versión.",
+      "En el cambio pilotado, no mantengas el coche en cuesta con el acelerador."
+    ]
+  },
+  {
+    "brandId": "opel", "brand": "Opel", "modelId": "corsa", "model": "Corsa",
+    "intro": "El Opel Corsa es de los coches más comunes del parque español. Los motores pequeños llevan casi todos cadena de distribución, que es precisamente su punto delicado. Desde 2019 es un coche del grupo Peugeot-Citroën.",
+    "faults": [
+      { "t": "Cadena de distribución", "e": "1.0, 1.2 y 1.4 gasolina y 1.3 CDTI", "d": "Traqueteo al arrancar o ruido de cadena constante. Aparece antes en coches con cambios de aceite alargados o con poco nivel." },
+      { "t": "Módulo de bobinas", "e": "1.0, 1.2 y 1.4 gasolina", "d": "El motor falla en un cilindro y parpadea el testigo de avería. Se cambia el módulo de encendido, a ser posible con las bujías." },
+      { "t": "Dirección asistida eléctrica", "e": "Corsa C y D", "d": "La dirección se endurece de golpe o se enciende su testigo. El fallo suele estar en la columna de dirección eléctrica." },
+      { "t": "Cambio Easytronic", "e": "Corsa C y D con cambio pilotado", "d": "Aparece una «F» en el cuadro y el cambio no engrana. Es el actuador del embrague o el embrague gastado." },
+      { "t": "Correa bañada en aceite", "e": "Corsa desde 2019 con 1.2 gasolina", "d": "El motor es el 1.2 PureTech de Peugeot, con su correa que se degrada dentro del aceite." }
+    ],
+    "belt": [
+      "Cadena: 1.0, 1.2 y 1.4 gasolina (Corsa C, D y E) y 1.3 CDTI.",
+      "Correa: 1.7 CDTI y los 1.2 y 1.4 de 8 válvulas del Corsa B.",
+      "Corsa desde 2019: 1.2 gasolina con correa bañada en aceite y 1.5 diésel con correa."
+    ],
+    "care": [
+      "Revisa el nivel de aceite cada mes: estos motores con cadena no perdonan ir bajos de aceite.",
+      "En el 1.3 CDTI, cambia el aceite cada 15.000 km como mucho.",
+      "En ciudad, el filtro de partículas del 1.3 CDTI necesita trayectos largos de vez en cuando."
+    ]
+  },
+  {
+    "brandId": "opel", "brand": "Opel", "modelId": "astra", "model": "Astra",
+    "intro": "El Opel Astra es un compacto robusto. Los diésel 1.7 y 1.9 CDTI y la caja de cambios de 6 marchas M32 son los protagonistas de sus averías más conocidas.",
+    "faults": [
+      { "t": "Rodamientos de la caja de cambios M32", "e": "Caja manual de 6 marchas (1.9 CDTI, 1.7 CDTI, 1.6 Turbo y 1.4 Turbo)", "d": "Zumbido en 5.ª y 6.ª y la palanca se mueve al acelerar y soltar. Si se coge a tiempo se cambian los rodamientos; si no, se rompe la caja." },
+      { "t": "Mariposas de admisión, EGR y alternador", "e": "1.9 CDTI", "d": "Pérdida de potencia y testigo de avería por las mariposas del colector de admisión y la EGR. El alternador también falla con frecuencia en este motor." },
+      { "t": "Módulo de la columna de dirección (CIM)", "e": "Astra H (2004–2010)", "d": "Fallan a ratos el claxon, los mandos del volante o los intermitentes, y puede encenderse el testigo del airbag." },
+      { "t": "Bomba de agua y válvula de ventilación del cárter", "e": "1.4 Turbo (Astra J y K)", "d": "Fugas de refrigerante por la bomba de agua, y silbido o ralentí inestable por la membrana de la tapa de balancines." },
+      { "t": "Cadena de distribución", "e": "1.6 CDTI y 1.4 gasolina", "d": "Ruido de cadena en algunas unidades. Conviene no alargar los cambios de aceite." }
+    ],
+    "belt": [
+      "Correa: 1.6 y 1.8 de 16 válvulas, 1.7 CDTI, 1.9 CDTI y 2.0 CDTI.",
+      "Cadena: 1.4 de 16 válvulas, 1.4 Turbo, 1.0 Turbo, 1.3 CDTI y 1.6 CDTI.",
+      "Astra desde 2022: 1.2 gasolina con correa bañada en aceite."
+    ],
+    "care": [
+      "Cambia el aceite de la caja M32: muchos talleres lo recomiendan aunque Opel no lo incluya en el plan.",
+      "En los 1.6 y 1.8 gasolina, cambia la correa con el termostato revisado: es otro punto débil.",
+      "En los CDTI, limpia la EGR si el coche hace sobre todo ciudad."
+    ]
+  },
+  {
+    "brandId": "ford", "brand": "Ford", "modelId": "focus", "model": "Focus",
+    "intro": "El Ford Focus destaca por su comportamiento y, en general, por su fiabilidad. Sus puntos débiles están en algunos diésel TDCi, el cambio automático Powershift y los primeros 1.0 EcoBoost.",
+    "faults": [
+      { "t": "Turbo e inyectores", "e": "1.6 TDCi", "d": "Es el mismo motor que el 1.6 HDi de Peugeot: el turbo puede romperse por carbonilla en el engrase y las juntas de los inyectores pierden." },
+      { "t": "Sobrecalentamiento y correa bañada en aceite", "e": "1.0 EcoBoost", "d": "En los de 2012–2013, un manguito del refrigerante podía romperse y el motor se calentaba (hubo campaña). Además, la correa de distribución va en aceite y su cambio es caro: no uses un aceite distinto del homologado." },
+      { "t": "Cambio Powershift", "e": "Automático de doble embrague seco (2011–2018, gasolina)", "d": "Vibraciones y tirones al arrancar por los embragues. El Powershift de los diésel va en baño de aceite y da menos problemas, pero necesita su cambio de aceite." },
+      { "t": "Cuadro de instrumentos", "e": "Focus de 2004 a 2008", "d": "Las agujas caen a cero, se encienden testigos al azar o el coche no arranca. Son soldaduras del cuadro, que se puede reparar sin cambiarlo." },
+      { "t": "Bomba de inyección, inyectores y volante bimasa", "e": "1.8 TDCi", "d": "Arranque difícil, tirones y vibraciones al ralentí o al arrancar." }
+    ],
+    "belt": [
+      "Correa: 1.4 y 1.6 gasolina, 1.5 EcoBoost y todos los TDCi.",
+      "Cadena: 1.8 y 2.0 gasolina atmosféricos.",
+      "1.0 EcoBoost: correa bañada en aceite hasta 2018 aproximadamente; los posteriores llevan cadena."
+    ],
+    "care": [
+      "En el 1.0 EcoBoost, usa solo el aceite con la especificación Ford que pide el manual.",
+      "En los 1.6 TDCi, cambia el aceite sin alargar plazos.",
+      "Vigila el nivel de refrigerante en los EcoBoost: si baja, revísalo antes de seguir."
+    ]
+  },
+  {
+    "brandId": "ford", "brand": "Ford", "modelId": "fiesta", "model": "Fiesta",
+    "intro": "El Ford Fiesta es un utilitario ágil y barato de mantener. Comparte con el Focus los motores pequeños y, con ellos, sus fallos conocidos.",
+    "faults": [
+      { "t": "Correa bañada en aceite y refrigeración", "e": "1.0 EcoBoost", "d": "La correa de distribución va dentro del aceite y se degrada con aceites incorrectos o cambios alargados. Vigila también el nivel de refrigerante: este motor no tolera calentarse." },
+      { "t": "Juntas de inyectores y turbo", "e": "1.4 TDCi y 1.6 TDCi", "d": "Olor a gases, restos negros en los inyectores y, en el 1.6, riesgo para el turbo por falta de engrase." },
+      { "t": "Cambio Powershift", "e": "Automático de doble embrague seco (2012–2017)", "d": "Vibraciones al salir y tirones en marchas cortas por los embragues." },
+      { "t": "Bobina y caja del termostato", "e": "1.25 y 1.4 gasolina", "d": "Tirones por el módulo de bobinas, y pérdidas de refrigerante por la caja de plástico del termostato." },
+      { "t": "Cambio pilotado Durashift", "e": "Fiesta de 2002 a 2008", "d": "El cambio se queda sin engranar o da tirones por el actuador del embrague." }
+    ],
+    "belt": [
+      "Correa: 1.25, 1.4 y 1.6 gasolina y todos los TDCi.",
+      "Cadena: 1.3 gasolina de 8 válvulas.",
+      "Correa bañada en aceite: 1.0 EcoBoost y 1.1 de 3 cilindros."
+    ],
+    "care": [
+      "En el EcoBoost, aceite con la especificación Ford exacta y cambios en plazo.",
+      "Cambia la correa de distribución por tiempo aunque no llegues a los kilómetros.",
+      "Si notas vibraciones en el Powershift, revísalo antes de que se dañen los embragues."
+    ]
+  },
+  {
+    "brandId": "dacia", "brand": "Dacia", "modelId": "sandero", "model": "Sandero",
+    "intro": "El Dacia Sandero usa mecánica Renault ya probada, por eso es sencillo y barato de reparar. Sus fallos más comunes son menores, salvo en algún motor concreto.",
+    "faults": [
+      { "t": "Bobinas y bujías", "e": "1.2 de 16 válvulas y 0.9 TCe", "d": "Tirones y testigo de avería del motor parpadeando. Es la avería más habitual y es barata." },
+      { "t": "EGR e inyectores", "e": "1.5 dCi", "d": "Pérdida de potencia y humo en coches de ciudad por la EGR sucia. Los inyectores sufren con gasóleo sucio y filtros sin cambiar." },
+      { "t": "Reglaje de válvulas con GLP", "e": "1.2 de 16 válvulas con GLP", "d": "Este motor necesita revisar el juego de válvulas periódicamente cuando funciona con gas. Si no se hace, pierde compresión." },
+      { "t": "Óxido", "e": "Sandero de 2008 a 2012", "d": "Algunas unidades de la primera generación muestran corrosión en bajos, pasos de rueda y bordes de las puertas." },
+      { "t": "Ruidos de suspensión", "e": "Todas las generaciones", "d": "Golpeteo en baches por las bieletas de la barra estabilizadora y los silentblocks, piezas baratas." }
+    ],
+    "belt": [
+      "Correa: 1.2 de 16 válvulas, 1.4 y 1.6 de 8 válvulas y 1.5 dCi.",
+      "Cadena: 0.9 TCe, 1.0 SCe y 1.0 TCe (también el de GLP)."
+    ],
+    "care": [
+      "En el 1.5 dCi, cambia el filtro de gasóleo en cada plazo.",
+      "Con GLP, respeta las revisiones del sistema de gas y el reglaje de válvulas si tu motor lo pide.",
+      "En la primera generación, revisa los bajos y trata el óxido en cuanto aparezca."
+    ]
+  },
+  {
+    "brandId": "dacia", "brand": "Dacia", "modelId": "duster", "model": "Duster",
+    "intro": "El Dacia Duster es un SUV sencillo con mecánica Renault. El diésel 1.5 dCi es el más vendido; el gasolina 1.2 TCe es el que más cuidado necesita.",
+    "faults": [
+      { "t": "Consumo de aceite", "e": "1.2 TCe (2013–2017)", "d": "El motor gasta aceite entre cambios y puede dañar la cadena y las válvulas. Mira el nivel a menudo." },
+      { "t": "EGR, filtro de partículas e inyectores", "e": "1.5 dCi", "d": "Pérdida de potencia y testigo de avería en coches que hacen ciudad o trayectos cortos." },
+      { "t": "Sistema AdBlue", "e": "1.5 Blue dCi (desde 2018)", "d": "Avisos del sistema anticontaminación por el inyector o la bomba de AdBlue." },
+      { "t": "Óxido", "e": "Duster de 2010 a 2013", "d": "Corrosión en algunas unidades en puertas, portón y bajos." },
+      { "t": "Ruidos de suspensión y transmisión 4x4", "e": "Todas las generaciones", "d": "Golpeteo por bieletas y silentblocks; en los 4x4, vibraciones por el árbol de transmisión o sus soportes." }
+    ],
+    "belt": [
+      "Correa: 1.6 de 16 válvulas (hasta 2015) y todos los 1.5 dCi.",
+      "Cadena: 1.2 TCe, 1.3 TCe, 1.0 TCe y 1.6 SCe."
+    ],
+    "care": [
+      "En el 1.2 TCe, revisa el aceite cada mes.",
+      "En los 4x4, cambia el aceite del diferencial trasero y de la caja de transferencia según el plan.",
+      "En el diésel, haz trayectos largos de vez en cuando para que el filtro de partículas regenere."
+    ]
+  },
+  {
+    "brandId": "toyota", "brand": "Toyota", "modelId": "corolla", "model": "Corolla",
+    "intro": "El Toyota Corolla tiene fama de irrompible y, en general, la merece. Aun así, hay algunos fallos conocidos en los modelos anteriores a 2007 y cuidados propios de los híbridos actuales.",
+    "faults": [
+      { "t": "Consumo de aceite", "e": "1.4 y 1.6 VVT-i de 2002 a 2005", "d": "Algunos motores gastan aceite por los segmentos. No da avisos: hay que mirar la varilla con frecuencia." },
+      { "t": "Inyectores y EGR", "e": "2.0 D-4D y 1.4 D-4D", "d": "Humo, tirones y arranque difícil con muchos kilómetros." },
+      { "t": "Batería de 12 V descargada", "e": "Híbridos (desde 2019)", "d": "Si el coche pasa días parado o solo hace trayectos muy cortos, la batería pequeña de 12 V se descarga y el coche no «arranca», aunque la batería híbrida esté bien." },
+      { "t": "Discos de freno oxidados", "e": "Híbridos", "d": "Como frenan sobre todo con el motor eléctrico, los discos se usan poco y se oxidan o se rayan, sobre todo los traseros." },
+      { "t": "Robo del catalizador", "e": "Híbridos", "d": "No es una avería, pero los catalizadores de los híbridos Toyota son objetivo de los ladrones. Si de repente el coche suena muy fuerte, puede ser eso." }
+    ],
+    "belt": [
+      "Cadena: todos los gasolina VVT-i, el 1.4 D-4D y los híbridos.",
+      "Correa: 2.0 D-4D y los motores anteriores al año 2000."
+    ],
+    "care": [
+      "En los híbridos, limpia el filtro de ventilación de la batería híbrida (bajo el asiento trasero) en las revisiones.",
+      "Si usas poco el coche, muévelo al menos media hora a la semana para cuidar la batería de 12 V.",
+      "Haz alguna frenada firme de vez en cuando para mantener limpios los discos."
+    ]
+  },
+  {
+    "brandId": "toyota", "brand": "Toyota", "modelId": "yaris", "model": "Yaris",
+    "intro": "El Toyota Yaris es de los utilitarios más fiables que hay. Todas sus versiones llevan cadena de distribución y sus averías conocidas son pocas y bastante concretas.",
+    "faults": [
+      { "t": "Cambio pilotado MMT", "e": "Yaris de 2003 a 2011 con cambio MultiMode", "d": "Tirones, marchas que no entran o el cambio se queda en punto muerto. Suele ser el actuador del embrague o el embrague gastado." },
+      { "t": "Embrague y bomba de agua", "e": "1.0 VVT-i de 3 cilindros", "d": "Embrague que patina antes de lo normal en algunas unidades, y pequeñas fugas de refrigerante por la bomba de agua." },
+      { "t": "Inyectores y EGR", "e": "1.4 D-4D", "d": "Humo, tirones y pérdida de potencia con muchos kilómetros o mucho uso en ciudad." },
+      { "t": "Batería de 12 V descargada", "e": "Híbridos", "d": "Con poco uso, la batería pequeña se descarga y el coche no se pone en marcha." },
+      { "t": "Discos traseros oxidados", "e": "Híbridos", "d": "La frenada regenerativa hace que los frenos se usen poco y se oxiden." }
+    ],
+    "belt": [
+      "Cadena: todas las versiones (1.0, 1.3, 1.33 y 1.5 gasolina, 1.4 D-4D e híbridos)."
+    ],
+    "care": [
+      "Aunque lleve cadena, cambia el aceite en su plazo: es lo que la hace durar.",
+      "En los híbridos, revisa el filtro de ventilación de la batería híbrida.",
+      "Si usas poco el coche, dale un trayecto de media hora cada semana."
+    ]
+  },
+  {
+    "brandId": "nissan", "brand": "Nissan", "modelId": "qashqai", "model": "Qashqai",
+    "intro": "El Nissan Qashqai popularizó los SUV compactos. Usa varios motores Renault, así que comparte con ellos algunos fallos conocidos.",
+    "faults": [
+      { "t": "Consumo de aceite y cadena", "e": "1.2 DIG-T (2014–2018)", "d": "El motor gasta aceite y la cadena de distribución puede estirarse. Mira el nivel a menudo y revisa cualquier ruido al arrancar." },
+      { "t": "Amortiguadores traseros y ruidos de suspensión", "e": "Qashqai de 2007 a 2013", "d": "Golpeteo detrás en baches por los amortiguadores traseros, y crujidos delante por las copelas." },
+      { "t": "Cambio automático CVT", "e": "Xtronic", "d": "Zumbido, tirones o sensación de que el coche no empuja. El aceite del CVT hay que cambiarlo aunque el plan no insista en ello." },
+      { "t": "Filtro de partículas y EGR", "e": "1.5 dCi, 1.6 dCi y 2.0 dCi", "d": "Testigo de avería y pérdida de potencia en uso urbano." },
+      { "t": "Inyectores y turbo", "e": "1.5 dCi de 2007 a 2010", "d": "Tirones y pérdida de potencia en los primeros 1.5 dCi." }
+    ],
+    "belt": [
+      "Correa: 1.5 dCi.",
+      "Cadena: 1.6 y 2.0 gasolina, 1.2 DIG-T, 1.3 DIG-T, 1.6 dCi, 2.0 dCi y e-Power."
+    ],
+    "care": [
+      "Cambia el aceite del CVT cada 60.000 km aproximadamente.",
+      "En el 1.2 DIG-T, revisa el aceite cada mes.",
+      "En los diésel, evita usarlo solo para trayectos cortos."
+    ]
+  },
+  {
+    "brandId": "hyundai", "brand": "Hyundai", "modelId": "tucson", "model": "Tucson",
+    "intro": "El Hyundai Tucson es un SUV fiable y con garantía larga. Sus fallos conocidos se concentran en el embrague, el cambio automático de doble embrague y el sistema anticontaminación de los diésel.",
+    "faults": [
+      { "t": "Cambio automático de doble embrague", "e": "7DCT (desde 2015)", "d": "Tirones al salir y aviso de sobrecalentamiento del cambio en atascos o maniobras largas. Es de embrague seco: sufre cuando se le hace «patinar»." },
+      { "t": "Embrague y volante bimasa", "e": "1.7 CRDi y 2.0 CRDi manuales", "d": "Vibraciones al ralentí, ruido al arrancar y parar el motor o embrague que patina." },
+      { "t": "Filtro de partículas y EGR", "e": "CRDi", "d": "Testigo de avería y pérdida de potencia en coches de ciudad." },
+      { "t": "Inyectores y turbo", "e": "2.0 CRDi de 2004 a 2010", "d": "Humo, tirones y falta de fuerza con muchos kilómetros." },
+      { "t": "Carbonilla en la admisión", "e": "1.6 GDi", "d": "Con los años, ralentí inestable y pérdida de respuesta por la carbonilla en las válvulas, típico de la inyección directa." }
+    ],
+    "belt": [
+      "Correa: 2.0 CRDi y 2.0 gasolina de 2004 a 2010, y 1.6 CRDi desde 2018.",
+      "Cadena: 1.7 CRDi, 2.0 CRDi desde 2015, 1.6 GDi y 1.6 T-GDi."
+    ],
+    "care": [
+      "Con el 7DCT, en atascos y cuestas usa el freno y no el acelerador para aguantar el coche.",
+      "Haz las revisiones en plazo y guarda las facturas: la garantía de Hyundai lo exige.",
+      "En los diésel, trayectos largos de vez en cuando para el filtro de partículas."
+    ]
+  },
+  {
+    "brandId": "bmw", "brand": "BMW", "modelId": "serie-3", "model": "Serie 3",
+    "intro": "El BMW Serie 3 es una berlina de propulsión con motores muy buenos, pero exigente con el mantenimiento. Cada generación (E46, E90, F30, G20) tiene sus averías típicas.",
+    "faults": [
+      { "t": "Cadena de distribución", "e": "318d y 320d con motor N47 (2007–2011 sobre todo)", "d": "La cadena va en la parte trasera del motor y puede estirarse o romperse. Avisa con un roce o silbido metálico al ralentí. Es la avería más conocida del Serie 3." },
+      { "t": "Mariposas de admisión, turbo y caudalímetro", "e": "320d E46 de 150 CV", "d": "Las mariposas del colector pueden soltarse y entrar al motor (muchos las eliminan), y el turbo y el caudalímetro fallan con los kilómetros." },
+      { "t": "Refrigerador de la EGR", "e": "Diésel de 2010 a 2017", "d": "Fuga interna de refrigerante en el refrigerador de la EGR. BMW hizo una llamada a revisión por riesgo de incendio: comprueba si tu coche la tiene hecha." },
+      { "t": "Fugas de aceite", "e": "Gasolina de 4 y 6 cilindros", "d": "Junta de la tapa de balancines y junta del soporte del filtro de aceite. Olor a aceite quemado y manchas en el motor." },
+      { "t": "Sistema de refrigeración", "e": "E46 y E90", "d": "Depósito de expansión que se raja, bomba de agua y termostato. En estos motores, un calentón sale muy caro." }
+    ],
+    "belt": [
+      "Cadena: prácticamente todos los Serie 3 desde el E46 (1998) en adelante, diésel y gasolina.",
+      "Correa: solo algunos motores antiguos (E30 y primeros E36 de 4 cilindros, y los 6 cilindros del E30)."
+    ],
+    "care": [
+      "Cambia el aceite cada 15.000 km como mucho, aunque el ordenador del coche permita más.",
+      "Cambia el aceite del cambio automático hacia los 100.000 km.",
+      "Vigila el nivel de refrigerante: si baja, búscale la causa antes de seguir."
+    ]
+  },
+  {
+    "brandId": "audi", "brand": "Audi", "modelId": "a3", "model": "A3",
+    "intro": "El Audi A3 comparte plataforma y motores con el Volkswagen Golf y el SEAT León, y con ellos sus averías típicas, que cambian mucho según el motor y el año.",
+    "faults": [
+      { "t": "Consumo de aceite y tensor de la cadena", "e": "1.8 TFSI y 2.0 TFSI de 2007 a 2012", "d": "Pueden gastar un litro de aceite cada pocos miles de kilómetros por los segmentos, y el tensor de la cadena puede fallar al arrancar en frío." },
+      { "t": "Culata e inyectores del 2.0 TDI de bomba-inyector", "e": "2.0 TDI de 2003 a 2008", "d": "Pérdida de refrigerante por culata fisurada en algunas series del 140 CV, e inyectores que fallan en el 170 CV." },
+      { "t": "Cambio S tronic", "e": "S tronic de 7 marchas de embrague seco", "d": "Tirones al maniobrar y fallos de la mecatrónica. El de 6 marchas en baño de aceite es más robusto si se le cambia el aceite." },
+      { "t": "Cadena de distribución", "e": "1.2 TFSI y 1.4 TFSI hasta 2012", "d": "Traqueteo al arrancar en frío por la cadena estirada." },
+      { "t": "Bomba de agua y termostato", "e": "A3 de 2012 en adelante", "d": "Fugas de refrigerante por el módulo de plástico de la bomba de agua y el termostato." }
+    ],
+    "belt": [
+      "Correa: todos los TDI, el 1.6 de 8 válvulas, el 1.8 T y el 2.0 TFSI de 2004 a 2008.",
+      "Cadena: 1.2 y 1.4 TFSI hasta 2012, 1.8 TFSI, 2.0 TFSI desde 2008 y 3.2 V6.",
+      "Correa: 1.0, 1.2, 1.4 y 1.5 TFSI del A3 de 2012 en adelante."
+    ],
+    "care": [
+      "Mira el nivel de aceite cada 1.000 km en los 1.8 y 2.0 TFSI de 2007 a 2012.",
+      "Cambia el aceite del S tronic de 6 marchas cada 60.000 km.",
+      "Usa siempre aceite con la homologación VW que pide tu motor."
+    ]
+  }
+]

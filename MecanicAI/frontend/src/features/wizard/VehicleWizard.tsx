@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 
+import { fetchBrands, fetchModels } from '../../api/endpoints.ts'
 import type { VehicleSpec } from '../../api/types.ts'
 import { Icon } from '../../components/Icon.tsx'
 import { engineLabel } from '../../lib/vehicle.ts'
 import { BrandStep } from './BrandStep.tsx'
 import { EngineStep, type EngineChoice } from './EngineStep.tsx'
 import { ModelStep } from './ModelStep.tsx'
+import { Loading } from './parts.tsx'
 import { PlateStep } from './PlateStep.tsx'
 import { ALL_YEARS, type PickedBrand, type PickedModel } from './selection.ts'
 import { YearStep } from './YearStep.tsx'
@@ -19,10 +21,16 @@ const PLATE_STEP = STEPS.length
 interface VehicleWizardProps {
   /** Se llama con el coche completo; puede ser asíncrono (guardarlo en el garaje y abrirlo). */
   onComplete(vehicle: VehicleSpec): Promise<void> | void
+  /**
+   * Marca (y modelo) del catálogo ya elegidos al abrir: así llegan los enlaces de las páginas de averías por modelo
+   * (/?marca=seat&modelo=ibiza). Si no existen en el catálogo, el asistente empieza desde el principio.
+   */
+  presetBrandId?: string | null
+  presetModelId?: string | null
 }
 
 /** Asistente de 4 pasos para elegir el coche: marca → modelo → año → motorización y, al final, la matrícula (opcional). */
-export function VehicleWizard({ onComplete }: VehicleWizardProps) {
+export function VehicleWizard({ onComplete, presetBrandId = null, presetModelId = null }: VehicleWizardProps) {
   const [step, setStep] = useState(0)
   const [brand, setBrand] = useState<PickedBrand | null>(null)
   const [model, setModel] = useState<PickedModel | null>(null)
@@ -31,6 +39,28 @@ export function VehicleWizard({ onComplete }: VehicleWizardProps) {
   const [saving, setSaving] = useState(false)
   const topRef = useRef<HTMLDivElement>(null)
   const firstRender = useRef(true)
+  const [presetPending, setPresetPending] = useState(presetBrandId !== null)
+
+  useEffect(() => {
+    if (!presetBrandId) return
+    let active = true
+    const load = async () => {
+      const found = (await fetchBrands()).find((b) => b.id === presetBrandId)
+      if (!found) return
+      const foundModel = presetModelId ? (await fetchModels(found.id)).find((m) => m.id === presetModelId) : undefined
+      if (!active) return
+      setBrand({ id: found.id, name: found.name, abbr: found.abbr })
+      if (foundModel) setModel({ id: foundModel.id, name: foundModel.name, years: foundModel.years })
+      setStep(foundModel ? 2 : 1)
+    }
+    // Si el catálogo no carga, el paso de la marca ya muestra su propio aviso con "Reintentar"
+    load()
+      .catch(() => undefined)
+      .finally(() => active && setPresetPending(false))
+    return () => {
+      active = false
+    }
+  }, [presetBrandId, presetModelId])
 
   // Al cambiar de paso, vuelve al principio del asistente (en móvil la lista puede ser larga)
   useEffect(() => {
@@ -84,7 +114,8 @@ export function VehicleWizard({ onComplete }: VehicleWizardProps) {
         })}
       </ol>
 
-      {step === 0 && (
+      {presetPending && <Loading text="Buscando tu coche…" />}
+      {!presetPending && step === 0 && (
         <BrandStep
           onPick={(b) => {
             setBrand(b)
