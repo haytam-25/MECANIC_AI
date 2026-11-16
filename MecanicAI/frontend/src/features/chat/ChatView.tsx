@@ -28,6 +28,8 @@ interface ChatViewProps {
   /** Banner sobre los mensajes (p. ej. modo demo). */
   banner?: ReactNode
   footer: ReactNode
+  /** Botones de la barra del coche, antes de "Consultas" (p. ej. compartir). */
+  actions?: ReactNode
   inputDisabled?: boolean
   /** Texto con el que empieza la caja de mensaje (p. ej. la pregunta que prepara el informe médico). */
   initialDraft?: string
@@ -46,7 +48,7 @@ const SUGGESTIONS = [
 ]
 
 export function ChatView(props: ChatViewProps) {
-  const { vehicle, backTo, messages, streamingText, failure, notice, banner, footer, inputDisabled, initialDraft, onSend, onStop } =
+  const { vehicle, backTo, messages, streamingText, failure, notice, banner, footer, actions, inputDisabled, initialDraft, onSend, onStop } =
     props
   const [draft, setDraft] = useState(initialDraft ?? '')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -90,6 +92,7 @@ export function ChatView(props: ChatViewProps) {
           <strong>{displayName(vehicle)}</strong>
           <span>{engine ?? 'Motorización sin especificar'}</span>
         </div>
+        {actions}
         <Link to={backTo} className="btn btn--ghost btn--xs" aria-label="Volver a las consultas de este coche">
           <Icon name="back" size={16} /> Consultas
         </Link>
@@ -163,7 +166,7 @@ export function ChatView(props: ChatViewProps) {
 }
 
 // Memorizados: mientras se escribe una respuesta, los mensajes anteriores no se vuelven a procesar en cada frame
-const UserMessage = memo(function UserMessage({ text }: { text: string }) {
+export const UserMessage = memo(function UserMessage({ text }: { text: string }) {
   return (
     <div className="msg msg--user">
       <div className="msg__bubble">{text}</div>
@@ -179,7 +182,7 @@ interface AiMessageProps {
   model: string
 }
 
-const AiMessage = memo(function AiMessage({ text, streaming, model }: AiMessageProps) {
+export const AiMessage = memo(function AiMessage({ text, streaming, model }: AiMessageProps) {
   const waiting = streaming && text === ''
   return (
     <article className="msg msg--ai" aria-live={streaming ? 'polite' : undefined} aria-busy={streaming || undefined}>

@@ -18,6 +18,8 @@ import type {
   Repair,
   RepairInput,
   ReportInput,
+  ShareLink,
+  SharedConversation,
   ReportResult,
   SavedReport,
   StreamDone,
@@ -123,6 +125,10 @@ export const importConversation = (vehicle: VehicleSpec, messages: ChatMessage[]
     method: 'POST',
     body: { vehicle, messages: toTurns(messages) },
   })
+// Compartir una consulta con un enlace público (para enviarlo por WhatsApp)
+export const shareConversation = (id: string) => api<ShareLink>(`/api/conversations/${id}/share`, { method: 'POST' })
+export const unshareConversation = (id: string) => api<void>(`/api/conversations/${id}/share`, { method: 'DELETE' })
+export const fetchShared = (token: string) => api<SharedConversation>(`/api/shared/${encodeURIComponent(token)}`)
 
 // Chat en streaming
 export const streamMessage = (conversationId: string, content: string, onDelta: OnDelta, signal: AbortSignal) =>

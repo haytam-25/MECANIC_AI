@@ -6,9 +6,11 @@ import type { ChatMessage } from '../api/types.ts'
 import { useSession } from '../context/session.ts'
 import { DemoBanner, GuestLimitCard, UsageLine } from '../features/chat/ChatNotices.tsx'
 import { ChatView, type ChatFailure } from '../features/chat/ChatView.tsx'
+import { ShareButton } from '../features/chat/ShareButton.tsx'
 import { chatPath, chatsPath } from '../features/garage/paths.ts'
 import { useGarageVehicle } from '../features/garage/useGarageVehicle.ts'
 import { draftFromState } from '../lib/chatDraft.ts'
+import { canShare } from '../lib/shareText.ts'
 import { newGuestConversation, withQuestion, type GuestConversation } from '../lib/guestGarage.ts'
 import { useStreamingReply } from '../lib/useStreamingReply.ts'
 
@@ -112,6 +114,9 @@ export function GuestChatPage() {
       inputDisabled={blocked}
       initialDraft={draftFromState(location.state)}
       footer={<UsageLine usage={me.usage} guest />}
+      actions={
+        chat && canShare(chat.messages, reply.busy) ? <ShareButton vehicle={vehicle} messages={chat.messages} /> : undefined
+      }
       onSend={(text) => ask(chat?.messages ?? [], text)}
       onStop={reply.stop}
     />

@@ -11,6 +11,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
 	List<Message> findByConversationIdOrderByIdAsc(UUID conversationId);
 
+	/** Los mensajes hasta {@code lastId} incluido (lo que enseña una consulta compartida). */
+	List<Message> findByConversationIdAndIdLessThanEqualOrderByIdAsc(UUID conversationId, Long lastId);
+
 	List<Message> findByConversationIdOrderByIdDesc(UUID conversationId, Limit limit);
 
 	Optional<Message> findFirstByConversationIdOrderByIdDesc(UUID conversationId);

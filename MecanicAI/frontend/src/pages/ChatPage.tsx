@@ -9,8 +9,10 @@ import { useSession } from '../context/session.ts'
 import { useToast } from '../context/toast.ts'
 import { DemoBanner, UsageLine, UserLimitCard } from '../features/chat/ChatNotices.tsx'
 import { ChatView } from '../features/chat/ChatView.tsx'
+import { ShareButton } from '../features/chat/ShareButton.tsx'
 import { chatPath, chatsPath } from '../features/garage/paths.ts'
 import { draftFromState } from '../lib/chatDraft.ts'
+import { canShare } from '../lib/shareText.ts'
 import { useStreamingReply, type ReplyResult } from '../lib/useStreamingReply.ts'
 
 interface LoadedChat {
@@ -174,6 +176,11 @@ export function ChatPage() {
       inputDisabled={blocked}
       initialDraft={draftFromState(location.state)}
       footer={<UsageLine usage={me.usage} guest={false} />}
+      actions={
+        canShare(chat.messages, reply.busy) && chat.id ? (
+          <ShareButton vehicle={chat.vehicle} messages={chat.messages} conversationId={chat.id} />
+        ) : undefined
+      }
       onSend={send}
       onStop={reply.stop}
     />

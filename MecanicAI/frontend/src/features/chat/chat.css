@@ -438,3 +438,85 @@
     content: '...';
   }
 }
+
+/* ---------- Compartir por WhatsApp ---------- */
+
+/* En pantallas estrechas el botón de la barra del coche se queda solo con el icono */
+@media (max-width: 420px) {
+  .share-btn__label {
+    display: none;
+  }
+}
+
+.share-dialog {
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-m);
+  background: var(--metal-plate);
+  box-shadow: var(--edge-light), var(--shadow-2);
+  color: var(--text);
+}
+
+.share-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.share-dialog__box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.share-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.share-dialog__head h2 {
+  font-size: 1.1rem;
+}
+
+.share-dialog__url {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xs);
+  background: var(--bg-1);
+  color: var(--text-2);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.share-dialog .link-btn {
+  align-self: center;
+}
+
+/* ---------- Consulta compartida (página pública /compartido/<código>) ---------- */
+
+.shared {
+  flex: 1;
+  width: 100%;
+}
+
+/* El coche, alineado con los mensajes (en el chat la barra ocupa todo el ancho porque lleva botones) */
+.shared__bar {
+  padding-inline: max(0.9rem, calc((100% - var(--content-w)) / 2 + 0.9rem));
+}
+
+.shared__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  padding: 1.1rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-m);
+  background: var(--metal-plate);
+  box-shadow: var(--edge-light), var(--shadow-1);
+  text-align: center;
+}

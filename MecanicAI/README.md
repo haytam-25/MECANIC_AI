@@ -54,6 +54,11 @@ concreto.
   invitados. Historial de consultas por coche (se guardan las 20 más recientes: al empezar la 21ª se borra la más
   antigua; cada una admite hasta 100 mensajes, `app.limits.max-messages-per-conversation`), borrar consultas/coches y
   **eliminar la cuenta** (RGPD).
+- **Compartir una consulta por WhatsApp** (botón «Compartir» del chat). Con cuenta se crea un enlace público de solo
+  lectura, `/compartido/<código>`, que enseña la consulta hasta el último mensaje de ese momento (sin nombre ni
+  matrícula), caduca a los 30 días y se puede dejar de compartir; al volver a compartir, el mismo enlace se pone al
+  día. Como invitado, la consulta se envía como texto en el propio mensaje de WhatsApp (no se sube nada). La página
+  compartida no se indexa (`noindex`) y lleva un botón que abre el asistente con ese mismo coche.
 - **Límites**: invitado 5 mensajes/día y 3 informes médicos/día; cuenta gratuita 20 mensajes/día y 20
   informes/semana (configurable). Plan **PRO** preparado para el futuro (más mensajes y otro modelo de IA).
   Contra abusos: 6 mensajes y 10 consultas de motores o mantenimiento por minuto, y un cupo diario entre todos los
@@ -290,6 +295,8 @@ flowchart LR
 | GET/POST/DELETE | `/api/conversations` | Historial de consultas |
 | POST | `/api/conversations/{id}/messages` · `/retry` | Pregunta / reintento (respuesta en streaming SSE) |
 | POST | `/api/conversations/import` | Guarda en la cuenta la consulta hecha como invitado |
+| POST/DELETE | `/api/conversations/{id}/share` | Crea o renueva el enlace público de la consulta · deja de compartirla |
+| GET | `/api/shared/{token}` | Consulta compartida (pública, sin sesión): coche y mensajes, sin matrícula |
 | POST | `/api/guest/chat` | Chat de invitado (streaming SSE) |
 | GET | `/api/documents` | Documentación de todos los coches (secciones y archivos, sin su contenido) |
 | POST · PUT · DELETE | `/api/documents/sections` · `/sections/{id}` | Crear, cambiar (nombre, caducidad y aviso) o borrar una sección |

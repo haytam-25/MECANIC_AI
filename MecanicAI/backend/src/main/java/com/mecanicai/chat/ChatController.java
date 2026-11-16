@@ -23,6 +23,7 @@ import com.mecanicai.chat.ChatDtos.ConversationSummary;
 import com.mecanicai.chat.ChatDtos.CreateConversationRequest;
 import com.mecanicai.chat.ChatDtos.ImportRequest;
 import com.mecanicai.chat.ChatDtos.SendMessageRequest;
+import com.mecanicai.chat.ChatDtos.ShareLink;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -32,9 +33,12 @@ public class ChatController {
 
 	private final ChatTurnService turns;
 
-	public ChatController(ChatService chats, ChatTurnService turns) {
+	private final ShareService shares;
+
+	public ChatController(ChatService chats, ChatTurnService turns, ShareService shares) {
 		this.chats = chats;
 		this.turns = turns;
+		this.shares = shares;
 	}
 
 	@GetMapping
@@ -78,6 +82,18 @@ public class ChatController {
 			HttpServletResponse response) {
 		response.setHeader("X-Accel-Buffering", "no");
 		return turns.retry(user.id(), id);
+	}
+
+	/** Crea (o pone al día) el enlace público de la consulta, para enviarlo por WhatsApp. */
+	@PostMapping("/{id}/share")
+	public ShareLink share(@AuthenticationPrincipal AuthUser user, @PathVariable UUID id) {
+		return shares.share(user.id(), id);
+	}
+
+	@DeleteMapping("/{id}/share")
+	public ResponseEntity<Void> unshare(@AuthenticationPrincipal AuthUser user, @PathVariable UUID id) {
+		shares.unshare(user.id(), id);
+		return ResponseEntity.noContent().build();
 	}
 
 }

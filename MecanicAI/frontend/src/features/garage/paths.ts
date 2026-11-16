@@ -6,6 +6,8 @@ export const carPath = (vehicleId: string) => `/coche/${vehicleId}`
 export const chatsPath = (vehicleId: string) => `/coche/${vehicleId}/consultas`
 /** Consulta guardada, o 'nuevo' para empezar una. */
 export const chatPath = (vehicleId: string, conversationId: string) => `/coche/${vehicleId}/consultas/${conversationId}`
+/** Página pública de una consulta compartida (fuera del garaje: la abre quien recibe el enlace). */
+export const sharedPath = (token: string) => `/compartido/${token}`
 export const reportPath = (vehicleId: string) => `/coche/${vehicleId}/informe`
 export const repairsPath = (vehicleId: string) => `/coche/${vehicleId}/reparaciones`
 /** Reparación del diario para corregirla, o 'nueva' para apuntar una. */

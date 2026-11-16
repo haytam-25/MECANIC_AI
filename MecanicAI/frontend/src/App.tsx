@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
 import { AppShell } from './components/AppShell.tsx'
@@ -16,6 +17,7 @@ const ReportPage = lazyPage(() => import('./pages/ReportPage.tsx').then((m) => m
 const RepairsPage = lazyPage(() => import('./pages/RepairsPage.tsx').then((m) => m.RepairsPage))
 const RepairFormPage = lazyPage(() => import('./pages/RepairFormPage.tsx').then((m) => m.RepairFormPage))
 const BasketPage = lazyPage(() => import('./pages/BasketPage.tsx').then((m) => m.BasketPage))
+const SharedChatPage = lazyPage(() => import('./pages/SharedChatPage.tsx').then((m) => m.SharedChatPage))
 const DocumentsPage = lazyPage(() => import('./pages/DocumentsPage.tsx').then((m) => m.DocumentsPage))
 
 export default function App() {
@@ -24,6 +26,15 @@ export default function App() {
       <ToastProvider>
         <SessionProvider>
           <Routes>
+            {/* Consulta compartida por WhatsApp: pública y fuera del marco de la app (sin garaje ni portada) */}
+            <Route
+              path="compartido/:token"
+              element={
+                <Suspense fallback={null}>
+                  <SharedChatPage />
+                </Suspense>
+              }
+            />
             <Route element={<AppShell />}>
               <Route index element={<HomePage />} />
               {/* Cada coche del garaje: su página, sus consultas con el mecánico, su informe médico, su diario, su cesta y su documentación */}

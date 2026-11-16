@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mecanicai.usage.Usage;
+import com.mecanicai.vehicle.Fuel;
 import com.mecanicai.vehicle.VehicleDto;
 import com.mecanicai.vehicle.VehicleSpec;
 
@@ -76,6 +77,31 @@ public final class ChatDtos {
 	}
 
 	public record StreamError(String code, String message) {
+	}
+
+	/** Enlace público de una consulta compartida: la web lo abre en /compartido/{token}. */
+	public record ShareLink(String token, Instant expiresAt) {
+	}
+
+	/** Consulta compartida tal como la ve cualquiera con el enlace: sin ids, sin dueño y sin matrícula. */
+	public record SharedView(String title, SharedVehicle vehicle, List<SharedMessage> messages, Instant expiresAt) {
+	}
+
+	/** El coche de una consulta compartida. La matrícula no sale nunca de la cuenta. */
+	public record SharedVehicle(String brandId, String brand, String modelId, String model, int year, String engine,
+			Fuel fuel, Integer powerCv) {
+
+		static SharedVehicle from(VehicleSpec spec) {
+			return new SharedVehicle(spec.brandId(), spec.brand(), spec.modelId(), spec.model(), spec.year(),
+					spec.engine(), spec.fuel(), spec.powerCv());
+		}
+	}
+
+	public record SharedMessage(String role, String content) {
+
+		static SharedMessage from(Message message) {
+			return new SharedMessage(message.getRole().name().toLowerCase(), message.getContent());
+		}
 	}
 
 }

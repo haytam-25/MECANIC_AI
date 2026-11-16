@@ -114,6 +114,20 @@ export interface ConversationDetail {
   messages: ChatMessage[]
 }
 
+/** Enlace público de una consulta compartida (/compartido/<token>). */
+export interface ShareLink {
+  token: string
+  expiresAt: string
+}
+
+/** Consulta compartida tal como la ve quien abre el enlace: sin dueño ni matrícula. */
+export interface SharedConversation {
+  title: string
+  vehicle: Omit<VehicleSpec, 'plate'>
+  messages: ChatMessage[]
+  expiresAt: string
+}
+
 export interface ApiErrorBody {
   code: string
   message: string

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,6 +38,9 @@ import com.mecanicai.auth.SessionCookies;
 import com.mecanicai.auth.SessionService;
 import com.mecanicai.basket.BasketController;
 import com.mecanicai.basket.BasketService;
+import com.mecanicai.chat.ChatDtos.SharedView;
+import com.mecanicai.chat.ShareService;
+import com.mecanicai.chat.SharedController;
 import com.mecanicai.document.DocumentController;
 import com.mecanicai.document.DocumentService;
 import com.mecanicai.document.DocumentService.DocumentFile;
@@ -55,7 +59,7 @@ import com.mecanicai.vehicle.VehicleService;
  */
 // Google vacío a propósito: el test no debe depender de las claves que haya en backend/.env
 @WebMvcTest(controllers = { AuthController.class, VehicleController.class, HealthReportController.class,
-		RepairController.class, BasketController.class, DocumentController.class },
+		RepairController.class, BasketController.class, DocumentController.class, SharedController.class },
 		properties = { "app.auth.jwt-secret=test-secret-0123456789-0123456789-abcdef", "app.auth.cookie-secure=false",
 				"app.auth.google.client-id=", "app.auth.google.client-secret=" })
 @EnableConfigurationProperties(AppProperties.class)
@@ -91,6 +95,9 @@ class SecurityRulesTest {
 
 	@MockitoBean
 	DocumentService documents;
+
+	@MockitoBean
+	ShareService shares;
 
 	@MockitoBean
 	SessionService sessions;
@@ -282,6 +289,19 @@ class SecurityRulesTest {
 			.contentType("application/json")
 			.content("{\"vehicleId\": \"%s\", \"kind\": \"PASAPORTE\"}".formatted(UUID.randomUUID())))
 			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void aSharedConversationIsReadWithoutASessionButSharingNeedsOne() throws Exception {
+		given(shares.view("abc")).willReturn(new SharedView("Ruido al frenar", null, List.of(), Instant.now()));
+		mvc.perform(get("/api/shared/abc"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.title").value("Ruido al frenar"))
+			.andExpect(header().string("Cache-Control", "no-store"));
+
+		String share = "/api/conversations/" + UUID.randomUUID() + "/share";
+		mvc.perform(post(share).header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
+		mvc.perform(delete(share).header(CsrfHeaderFilter.HEADER, "1")).andExpect(status().isUnauthorized());
 	}
 
 	private Cookie session(UUID userId) {
